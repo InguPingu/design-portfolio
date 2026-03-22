@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kron – Ingeborg Sili Østgaard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:    #2B2828;
+    --mid:    #696767;
+    --faint:  #BCBAB8;
+    --line:   #E5E4E2;
+    --bg:     #f0f0f0;
+    --white:  #ffffff;
+    --accent: #7B5EA7;
+    --accent-light: #F0EBF8;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  /* ── NAV ── */
+  .project-nav {
+    position: fixed;
+    top: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(26,23,20,0.09);
+    border-radius: 100px;
+    padding: 5px;
+    transition: box-shadow 0.4s ease;
+    white-space: nowrap;
+  }
+  .project-nav.scrolled {
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  }
+
+  .nav-back {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ink);
+    padding: 6px 14px 6px 10px;
+    border-radius: 100px;
+    transition: background 0.15s;
+  }
+  .nav-back:hover { background: rgba(43,40,40,0.06); }
+  .nav-back svg { flex-shrink: 0; }
+  .nav-divider {
+    width: 1px;
+    height: 16px;
+    background: var(--line);
+    margin: 0 4px;
+  }
+  .nav-title {
+    font-size: 13px;
+    color: var(--mid);
+    padding: 6px 12px;
+  }
+
+  /* progress track lives inside the pill */
+  .nav-progress-wrap {
+    padding: 6px 14px 6px 4px;
+    display: flex;
+    align-items: center;
+  }
+  .nav-progress-track {
+    width: 64px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--line);
+    overflow: hidden;
+  }
+  .nav-progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 2px;
+    background: var(--ink);
+    transition: width 0.1s linear;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    background-image: url('Kron/KronCaseHeader.png');
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+  }
+  .cover-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.6) 100%);
+  }
+  .cover-logo {
+    position: absolute;
+    bottom: 28px;
+    left: 32px;
+    width: 80px;
+    height: 80px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.28);
+    overflow: hidden;
+    z-index: 2;
+  }
+  .cover-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cover-label {
+    position: absolute;
+    bottom: 52px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: #fff;
+    width: 100%;
+    padding: 0 32px;
+    will-change: transform, opacity;
+  }
+  .cover-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 10px;
+  }
+  .cover-title {
+    font-size: clamp(2.4rem, 6vw, 4.5rem);
+    font-weight: 400;
+    line-height: 1.05;
+  }
+  .cover-scroll {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255,255,255,0.45);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .cover-scroll-line {
+    width: 1px;
+    height: 32px;
+    background: rgba(255,255,255,0.3);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; }
+    50%       { opacity: 1; }
+  }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 760px; margin: 0 auto; padding: 80px 32px 120px; }
+  .page-wide { max-width: 960px; margin: 0 auto; padding: 0 32px; }
+
+  /* ── META ── */
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 64px;
+  }
+  .meta-label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); margin-bottom: 4px; }
+  .meta-value { font-size: 0.9rem; color: var(--ink); }
+
+  /* ── STATS ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 72px;
+  }
+  .stat { background: var(--white); padding: 28px 24px; }
+  .stat-value { font-size: 2rem; font-weight: 400; line-height: 1; color: var(--ink); margin-bottom: 6px; }
+  .stat-label { font-size: 0.78rem; color: var(--mid); font-weight: 300; }
+
+  /* ── INTRO ── */
+  .intro {
+    font-size: 1.3rem;
+    font-weight: 300;
+    line-height: 1.75;
+    color: var(--ink);
+    margin-bottom: 72px;
+    max-width: 640px;
+  }
+  .intro strong { font-weight: 500; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 72px; }
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 1.6rem;
+    font-weight: 400;
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+  .section-body {
+    font-size: 0.92rem;
+    line-height: 1.85;
+    color: var(--mid);
+    font-weight: 300;
+    max-width: 600px;
+  }
+  .section-body strong { color: var(--ink); font-weight: 500; }
+  .section-body + .section-body { margin-top: 16px; }
+
+  /* ── HIGHLIGHT BLOCK ── */
+  .highlight {
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    padding: 20px 24px;
+    margin: 32px 0;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--ink);
+    font-weight: 300;
+  }
+  .highlight strong { font-weight: 500; color: var(--accent); }
+
+  /* ── DIVIDER ── */
+  hr { border: none; border-top: 1px solid var(--line); margin: 64px 0; }
+
+  /* ── TWO-COL ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin: 32px 0;
+  }
+
+  /* ── INSIGHT CARDS ── */
+  .insight-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 32px 0;
+  }
+  .insight-card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px 20px;
+  }
+  .insight-card-num {
+    font-size: 1.8rem;
+    font-weight: 400;
+    color: var(--accent);
+    margin-bottom: 8px;
+    line-height: 1;
+  }
+  .insight-card-label {
+    font-size: 0.82rem;
+    color: var(--mid);
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  /* ── QUOTE ── */
+  .quote {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 32px 0;
+    margin: 40px 0;
+  }
+  .quote-text {
+    font-size: 1.15rem;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.7;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .quote-attr {
+    font-size: 0.78rem;
+    color: var(--faint);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── PROCESS STEPS ── */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 32px 0;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 20px;
+    padding: 20px 0;
+    border-top: 1px solid var(--line);
+  }
+  .step:last-child { border-bottom: 1px solid var(--line); }
+  .step-num {
+    font-size: 0.75rem;
+    color: var(--faint);
+    padding-top: 3px;
+  }
+  .step-content {}
+  .step-title { font-size: 0.92rem; font-weight: 500; margin-bottom: 6px; }
+  .step-body { font-size: 0.85rem; color: var(--mid); font-weight: 300; line-height: 1.7; }
+
+  /* ── IMG BLOCK ── */
+  .img-block {
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    margin: 32px 0;
+    background: var(--line);
+    aspect-ratio: 16 / 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .img-block img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .img-block-placeholder { font-size: 12px; color: var(--faint); letter-spacing: 0.08em; text-transform: uppercase; }
+  .img-caption { font-size: 0.75rem; color: var(--faint); text-align: center; margin-top: -20px; margin-bottom: 32px; }
+
+  /* ── OUTCOME PILLS ── */
+  .outcome-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .outcome-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 0.9rem;
+    color: var(--mid);
+    font-weight: 300;
+    line-height: 1.6;
+  }
+  .outcome-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    border: 1.5px solid var(--accent);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+    font-size: 11px;
+    color: var(--accent);
+  }
+
+  /* ── LEARNINGS ── */
+  .learning-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .learning-card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px 20px;
+  }
+  .learning-title { font-size: 0.88rem; font-weight: 500; margin-bottom: 8px; }
+  .learning-body { font-size: 0.82rem; color: var(--mid); font-weight: 300; line-height: 1.65; }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+  .reveal-d1 { transition-delay: 0.08s; }
+  .reveal-d2 { transition-delay: 0.16s; }
+  .reveal-d3 { transition-delay: 0.24s; }
+  .reveal-d4 { transition-delay: 0.32s; }
+
+  /* ── SECTION HEADER (decorative number) ── */
+  .section-header { position: relative; margin-bottom: 28px; }
+  .section-num {
+    position: absolute;
+    top: -28px;
+    left: -4px;
+    font-size: 6rem;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--line);
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+    letter-spacing: -0.04em;
+  }
+  .section-header .section-label,
+  .section-header .section-title { position: relative; z-index: 1; }
+
+  /* ── EDITORIAL PULL QUOTE ── */
+  .pull-quote {
+    background: var(--ink);
+    border-radius: 20px;
+    padding: 40px 36px;
+    margin: 40px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .pull-quote-mark {
+    position: absolute;
+    top: 16px;
+    left: 24px;
+    font-size: 7rem;
+    line-height: 1;
+    font-family: Georgia, serif;
+    color: rgba(255,255,255,0.06);
+    pointer-events: none;
+  }
+  .pull-quote-text {
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .pull-quote-attr {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.06em;
+    position: relative;
+    z-index: 1;
+  }
+  .pull-quote-accent {
+    position: absolute;
+    bottom: -20px;
+    right: -20px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.15;
+    pointer-events: none;
+  }
+
+  /* ── CARD HOVERS ── */
+  .insight-card, .learning-card {
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .insight-card:hover, .learning-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+  }
+
+  /* ── INLINE STAT CALLOUT ── */
+  .stat-callout {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    background: var(--accent-light);
+    border-radius: 8px;
+    padding: 2px 10px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  /* ── STEP number bigger ── */
+  .step-num {
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--accent);
+    background: var(--accent-light);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding-top: 0;
+    letter-spacing: 0;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 20px;
+    padding: 20px 0;
+    border-top: 1px solid var(--line);
+  }
+
+  /* ── DIVIDER with label ── */
+  .divider-label {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 64px 0;
+    color: var(--faint);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .divider-label::before, .divider-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  /* ── STATS count-up ── */
+  .stat-value { transition: none; }
+
+  /* ── INTRO callout ── */
+  .intro-question {
+    font-size: clamp(1.3rem, 2.5vw, 1.65rem);
+    font-weight: 300;
+    line-height: 1.6;
+    color: var(--ink);
+    margin-bottom: 80px;
+    max-width: 660px;
+    border-left: 3px solid var(--accent);
+    padding-left: 24px;
+  }
+  .intro-question strong { font-weight: 500; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .project-nav { top: 16px; }
+    .nav-progress-wrap { display: none; }
+    .page { padding: 56px 20px 80px; }
+    .two-col { grid-template-columns: 1fr; }
+    .learning-grid { grid-template-columns: 1fr; }
+    .intro-question { font-size: 1.1rem; }
+    .section-title { font-size: 1.3rem; }
+    .pull-quote { padding: 28px 24px; }
+    .section-num { font-size: 4.5rem; }
+  }
+
+  /* ── TOP-LEFT BACK BUTTON ── */
+  .back-btn {
+    position: fixed;
+    top: 28px;
+    left: 28px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    text-decoration: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ink);
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(26,23,20,0.09);
+    border-radius: 100px;
+    padding: 6px 14px 6px 10px;
+    transition: background 0.15s, box-shadow 0.4s;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.9); }
+  .back-btn.scrolled { box-shadow: 0 2px 16px rgba(0,0,0,0.06); }
+  @media (max-width: 600px) {
+    .back-btn { top: 16px; left: 16px; }
+  }
+
+</style>
+</head>
+<body>
+
+<a href="cards.html" class="back-btn" id="backBtn">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  Back
+</a>
+
+<nav class="project-nav" id="projectNav">
+  <a href="cards.html" class="nav-back">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Projects
+  </a>
+  <div class="nav-divider"></div>
+  <span class="nav-title">Kron</span>
+  <div class="nav-progress-wrap">
+    <div class="nav-progress-track">
+      <div class="nav-progress-fill" id="navProgress"></div>
+    </div>
+  </div>
+</nav>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-overlay"></div>
+  <div class="cover-logo"><img src="Logos/Kron.svg" alt="Kron"></div>
+  <div class="cover-label">
+    <p class="cover-eyebrow">Case Study · Storebrand</p>
+    <h1 class="cover-title">Kron</h1>
+  </div>
+  <div class="cover-scroll"><div class="cover-scroll-line"></div></div>
+</div>
+
+<!-- CONTENT -->
+<main class="page">
+
+  <!-- META -->
+  <div class="meta reveal">
+    <div class="meta-item"><p class="meta-label">Role</p><p class="meta-value">UX Designer – Summer Intern</p></div>
+    <div class="meta-item"><p class="meta-label">Timeline</p><p class="meta-value">Jun – Aug 2025</p></div>
+    <div class="meta-item"><p class="meta-label">Company</p><p class="meta-value">Storebrand (Kron)</p></div>
+    <div class="meta-item"><p class="meta-label">Platform</p><p class="meta-value">iOS &amp; Android</p></div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats reveal reveal-d1">
+    <div class="stat"><p class="stat-value" data-count="80" data-suffix="K+">80K+</p><p class="stat-label">Active users</p></div>
+    <div class="stat"><p class="stat-value" data-count="4.8" data-suffix="★">4.8★</p><p class="stat-label">App Store rating</p></div>
+    <div class="stat"><p class="stat-value">Top 3</p><p class="stat-label">Finance apps in Norway</p></div>
+  </div>
+
+  <!-- PROBLEM STATEMENT -->
+  <p class="intro-question reveal reveal-d2">
+    How can we solve the <strong>portfolio switching anxiety</strong> users feel when migrating
+    from their original investment platform — and how do we design a home savings feature
+    that meets the real needs of <strong>younger adults</strong>?
+  </p>
+
+  <!-- CHALLENGE -->
+  <div class="section">
+    <div class="section-header reveal">
+      <span class="section-num">01</span>
+      <p class="section-label">Challenge</p>
+      <p class="section-title">Understanding a new kind of saver</p>
+    </div>
+    <p class="section-body reveal">
+      Kron's existing users were engaged investors — but a large and growing segment
+      had a fundamentally different goal: saving for a home. This group brought different
+      motivations, different anxieties, and a different relationship with money.
+    </p>
+    <p class="section-body reveal" style="margin-top:14px;">
+      The challenge was to design a feature that felt <strong>native to Kron</strong>
+      while serving a mindset the platform hadn't fully addressed before — goal-driven,
+      emotionally charged, and long-horizon.
+    </p>
+
+    <div class="highlight reveal">
+      <strong>"Where do we even start?"</strong> — The brief was deliberately open. My job was to
+      define the problem space before designing any solution.
+    </div>
+  </div>
+
+  <div class="divider-label reveal">Research</div>
+
+  <!-- RESEARCH -->
+  <div class="section">
+    <div class="section-header reveal">
+      <span class="section-num">02</span>
+      <p class="section-label">Research</p>
+      <p class="section-title">Uncovering pains and barriers</p>
+    </div>
+    <p class="section-body reveal">
+      I ran a research sprint across user interviews, competitor analysis, and platform
+      analytics to understand the emotional and practical barriers younger adults face
+      when thinking about saving for a home through an investment platform.
+    </p>
+
+    <div class="steps reveal">
+      <div class="step">
+        <span class="step-num">01</span>
+        <div class="step-content">
+          <p class="step-title">User interviews</p>
+          <p class="step-body">Spoke with Kron users and non-users aged 22–32 about their home-saving habits, anxieties, and current tools. Uncovered a consistent fear of "locking money away" and confusion around investment risk vs. savings goals.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">02</span>
+        <div class="step-content">
+          <p class="step-title">Competitor mapping</p>
+          <p class="step-body">Analysed how competing platforms (DNB, Sbanken, Bulder) positioned home savings. Found a gap: most treated it as a pure savings product, not an emotionally resonant goal.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">03</span>
+        <div class="step-content">
+          <p class="step-title">Platform analytics</p>
+          <p class="step-body">Worked with the product team to identify drop-off points and portfolio-switching behaviour among new users migrating from other platforms.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">04</span>
+        <div class="step-content">
+          <p class="step-title">Synthesis</p>
+          <p class="step-body">Mapped findings into insight themes that directly shaped the design direction and feature scope.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div class="section">
+    <div class="section-header reveal">
+      <p class="section-label">Key Insights</p>
+      <p class="section-title">Four things research kept confirming</p>
+    </div>
+
+    <div class="insight-grid">
+      <div class="insight-card reveal reveal-d1">
+        <p class="insight-card-num">01</p>
+        <p class="insight-card-label">Younger adults don't separate "saving" from "investing" — they need one coherent experience.</p>
+      </div>
+      <div class="insight-card reveal reveal-d2">
+        <p class="insight-card-num">02</p>
+        <p class="insight-card-label">Home saving is emotionally loaded. Users want to <em>feel</em> progress, not just see numbers.</p>
+      </div>
+      <div class="insight-card reveal reveal-d3">
+        <p class="insight-card-num">03</p>
+        <p class="insight-card-label">Portfolio switching creates anxiety. Users fear making the "wrong" choice when migrating.</p>
+      </div>
+      <div class="insight-card reveal reveal-d4">
+        <p class="insight-card-num">04</p>
+        <p class="insight-card-label">Trust is built through transparency. Users want to understand <em>why</em> a recommendation is made.</p>
+      </div>
+    </div>
+
+    <div class="pull-quote reveal">
+      <span class="pull-quote-mark">"</span>
+      <div class="pull-quote-accent"></div>
+      <p class="pull-quote-text">"I don't really know if I should keep my money in funds or just save normally. It feels like a big decision and I'm scared of getting it wrong."</p>
+      <p class="pull-quote-attr">— User interview, age 26</p>
+    </div>
+  </div>
+
+  <div class="divider-label reveal">Solution</div>
+
+  <!-- SOLUTION -->
+  <div class="section">
+    <div class="section-header reveal">
+      <span class="section-num">03</span>
+      <p class="section-label">Solution</p>
+      <p class="section-title">A home savings feature built on clarity</p>
+    </div>
+    <p class="section-body reveal">
+      The solution centred on a dedicated home savings flow within Kron — designed to reduce
+      decision anxiety, surface relevant portfolio recommendations, and make progress feel
+      real and motivating.
+    </p>
+
+    <div class="img-block reveal"><span class="img-block-placeholder">Solution designs</span></div>
+    <p class="img-caption">Home savings feature — key screens</p>
+
+    <div class="outcome-list">
+      <div class="outcome-item reveal reveal-d1">
+        <div class="outcome-icon">✓</div>
+        <span>A goal-setting onboarding flow that frames investing in terms of life milestones, not financial jargon</span>
+      </div>
+      <div class="outcome-item reveal reveal-d2">
+        <div class="outcome-icon">✓</div>
+        <span>Transparent portfolio recommendations with plain-language explanations of risk and return</span>
+      </div>
+      <div class="outcome-item reveal reveal-d3">
+        <div class="outcome-icon">✓</div>
+        <span>A progress view that shows users how their savings track against their home goal</span>
+      </div>
+      <div class="outcome-item reveal reveal-d4">
+        <div class="outcome-icon">✓</div>
+        <span>A simplified migration flow that reduces portfolio switching anxiety with guided decision-making</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEST -->
+  <div class="section">
+    <div class="section-header reveal">
+      <p class="section-label">Testing</p>
+      <p class="section-title">Test, iterate, test more</p>
+    </div>
+    <p class="section-body reveal">
+      Prototypes were tested in two rounds with users matching the target profile.
+      Key findings shaped significant changes between rounds — particularly around
+      how portfolio risk was communicated and how the goal-setting flow was ordered.
+    </p>
+
+    <div class="img-block reveal"><span class="img-block-placeholder">Testing rounds</span></div>
+    <p class="img-caption">Prototype testing — two rounds, six participants each</p>
+
+    <div class="highlight reveal" style="margin-top: 24px;">
+      The final designs were reviewed by the Kron product team and presented at executive level.
+      The work was <strong>recognised by Storebrand leadership</strong> for quality, clarity, and strategic relevance.
+    </div>
+  </div>
+
+  <div class="divider-label reveal">Reflection</div>
+
+  <!-- LEARNINGS -->
+  <div class="section">
+    <div class="section-header reveal">
+      <p class="section-label">Learnings</p>
+      <p class="section-title">What I took away</p>
+    </div>
+
+    <div class="learning-grid">
+      <div class="learning-card reveal reveal-d1">
+        <p class="learning-title">Start with the emotion, not the feature</p>
+        <p class="learning-body">The most important design decision was reframing the feature around a life goal rather than a product category. That shift changed everything downstream.</p>
+      </div>
+      <div class="learning-card reveal reveal-d2">
+        <p class="learning-title">Data and intuition work together</p>
+        <p class="learning-body">Analytics told us where users dropped off. Interviews told us why. Neither alone was enough — the combination shaped the most impactful decisions.</p>
+      </div>
+      <div class="learning-card reveal reveal-d3">
+        <p class="learning-title">Clarity is a design output</p>
+        <p class="learning-body">The feedback from leadership centred on clarity. That confirmed that simplifying complexity is as valuable as any visual craft skill.</p>
+      </div>
+      <div class="learning-card reveal reveal-d4">
+        <p class="learning-title">Velocity doesn't mean shortcuts</p>
+        <p class="learning-body">Delivering executive-ready work in a summer internship timeframe taught me how to prioritise ruthlessly without sacrificing quality.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  const nav      = document.getElementById('projectNav');
+  const progress = document.getElementById('navProgress');
+  const label    = document.querySelector('.cover-label');
+  const scrollEl = document.querySelector('.cover-scroll');
+  const coverH   = document.querySelector('.cover').offsetHeight;
+
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    const maxScroll = document.body.scrollHeight - window.innerHeight;
+    nav.classList.toggle('scrolled', y > coverH * 0.6);
+    progress.style.width = (y / maxScroll * 100) + '%';
+    label.style.opacity  = Math.max(0, 1 - y / 400);
+    scrollEl.style.opacity = Math.max(0, 1 - y / 120);
+  }, { passive: true });
+
+  // ── SCROLL REVEAL ──
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+  // ── STATS COUNT-UP ──
+  const statObs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      const target = parseFloat(el.dataset.count);
+      const suffix = el.dataset.suffix || '';
+      if (isNaN(target)) return;
+      const isDecimal = String(target).includes('.');
+      const duration = 900;
+      const start = performance.now();
+      const animate = (now) => {
+        const t = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 3);
+        const val = target * eased;
+        el.textContent = (isDecimal ? val.toFixed(1) : Math.round(val)) + suffix;
+        if (t < 1) requestAnimationFrame(animate);
+      };
+      requestAnimationFrame(animate);
+      statObs.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.stat-value[data-count]').forEach(el => statObs.observe(el));
+</script>
+</body>
+</html>

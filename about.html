@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About – Ingeborg Sili Østgaard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:    #2B2828;
+    --mid:    #696767;
+    --faint:  #BCBAB8;
+    --line:   #E5E4E2;
+    --bg:     #f0f0f0;
+    --nav-h:  72px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding-top: var(--nav-h);
+  }
+
+  /* ── NAV ── */
+  .site-nav {
+    position: fixed;
+    top: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(26,23,20,0.09);
+    border-radius: 100px;
+    padding: 5px;
+    z-index: 100;
+  }
+  .site-nav a {
+    text-decoration: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ink);
+    padding: 6px 16px;
+    border-radius: 100px;
+    transition: background 0.15s;
+  }
+  .site-nav a:hover { background: rgba(43,40,40,0.06); }
+  .site-nav a.active { background: var(--ink); color: #fff; }
+
+  /* ── PAGE LAYOUT ── */
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 32px 96px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    display: flex;
+    align-items: flex-start;
+    gap: 32px;
+    margin-bottom: 56px;
+  }
+  .hero-photo {
+    width: 96px;
+    height: 96px;
+    border-radius: 14px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--line);
+    cursor: zoom-in;
+  }
+
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .lightbox.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .lightbox img {
+    max-width: min(480px, 90vw);
+    max-height: 85vh;
+    border-radius: 20px;
+    object-fit: cover;
+    transform: scale(0.92);
+    transition: transform 0.25s ease;
+  }
+  .lightbox.open img {
+    transform: scale(1);
+  }
+  .hero-photo-placeholder {
+    width: 96px;
+    height: 96px;
+    border-radius: 14px;
+    background: var(--line);
+    flex-shrink: 0;
+  }
+  .hero-text { padding-top: 4px; }
+  .hero-name {
+    font-size: 2rem;
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+  .hero-role {
+    font-size: 0.875rem;
+    color: var(--mid);
+    margin-bottom: 16px;
+  }
+  .hero-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .hero-links a {
+    font-size: 12px;
+    color: var(--mid);
+    text-decoration: none;
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    padding: 4px 12px;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .hero-links a:hover { border-color: var(--faint); color: var(--ink); }
+  #emailCopy, #phoneCopy { transition: background 0.2s, color 0.2s, border-color 0.2s; }
+  #emailCopy.copied, #phoneCopy.copied { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  /* ── BIO ── */
+  .bio {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--mid);
+    font-weight: 300;
+    margin-bottom: 64px;
+    max-width: 600px;
+  }
+  .bio strong { color: var(--ink); font-weight: 500; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 56px; }
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 20px;
+  }
+
+  /* ── ENTRY ── */
+  details.entry {
+    border-top: 1px solid var(--line);
+  }
+  details.entry:last-child { border-bottom: 1px solid var(--line); }
+
+  details.entry summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 0;
+    cursor: pointer;
+    user-select: none;
+  }
+  details.entry summary::-webkit-details-marker { display: none; }
+
+  .entry-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .entry-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .entry-main { flex: 1; min-width: 0; }
+  .entry-org {
+    font-size: 0.78rem;
+    color: var(--faint);
+    margin-bottom: 2px;
+  }
+  .entry-title {
+    font-size: 0.92rem;
+    font-weight: 500;
+  }
+  .entry-date {
+    font-size: 0.75rem;
+    color: var(--faint);
+    text-align: right;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .entry-chevron {
+    width: 14px;
+    height: 14px;
+    color: var(--faint);
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+  details.entry.is-open .entry-chevron { transform: rotate(180deg); }
+
+  .entry-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.22s ease;
+  }
+  details.entry.is-open .entry-body { grid-template-rows: 1fr; }
+
+  .entry-desc {
+    overflow: hidden;
+    min-height: 0;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    color: var(--mid);
+    font-weight: 300;
+    padding-bottom: 18px;
+  }
+
+  /* ── ACHIEVEMENTS ── */
+  .achievement {
+    padding: 16px 0;
+    border-top: 1px solid var(--line);
+  }
+  .achievement:last-child { border-bottom: 1px solid var(--line); }
+  .achievement-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .achievement-desc {
+    font-size: 0.82rem;
+    color: var(--mid);
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 480px) {
+    :root { --nav-h: 60px; }
+    .site-nav { top: 16px; padding: 4px; }
+    .site-nav a { font-size: 12px; padding: 5px 14px; }
+    .page { padding: 32px 20px 72px; }
+    .hero { flex-direction: column; gap: 20px; }
+    .hero-name { font-size: 1.6rem; }
+    details.entry summary { flex-wrap: wrap; gap: 4px 16px; }
+    .entry-date { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="cards.html">Projects</a>
+  <a href="about.html" class="active">About</a>
+</nav>
+
+<main class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <img class="hero-photo" src="Me.JPG" alt="Ingeborg Sili Østgaard">
+    <div class="hero-text">
+      <h1 class="hero-name">Ingeborg Sili<br>Østgaard</h1>
+      <p class="hero-role">UX Designer &nbsp;·&nbsp; Oslo, Norway</p>
+      <div class="hero-links">
+        <a href="#" id="emailCopy" data-email="ingeborg2809@gmail.com">ingeborg2809@gmail.com</a>
+        <a href="#" id="phoneCopy" data-phone="+47 90 21 30 71">+47 90 21 30 71</a>
+        <a href="https://www.linkedin.com/in/ingeborg-sili-oestgaard/" target="_blank">LinkedIn&nbsp;↗</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIO -->
+  <p class="bio">
+    <strong>UX designer</strong> with 4 years of experience delivering strategic design for ambitious products.
+    I've led design end-to-end at <strong>Altek AI</strong>, interned at <strong>Telenor</strong> and <strong>Storebrand's Kron</strong>,
+    and taught and mentored students at the <strong>University of Oslo</strong>.
+    Currently pursuing a master's in Interaction Design, specialising in universal design — making taxes accessible
+    for people with dyslexia and dyscalculia with <strong>Skatteetaten</strong>.
+  </p>
+
+  <!-- EXPERIENCE -->
+  <section class="section">
+    <p class="section-label">Experience</p>
+
+    <details class="entry">
+      <summary>
+        <div class="entry-logo"><img src="Logos/Altek Ai.svg" alt="Altek AI"></div>
+        <div class="entry-main">
+          <p class="entry-org">Altek AI</p>
+          <p class="entry-title">UX &amp; UI Lead Designer</p>
+        </div>
+        <p class="entry-date">Jan 2025 – Present<br>Oslo</p>
+        <svg class="entry-chevron" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </summary>
+      <div class="entry-body"><p class="entry-desc">End-to-end responsibility for product and UX design. Built scalable AI solutions used by 100+ hotels across Scandinavia, including The Well, Britannia, and The Thief, contributing to USD $100K ARR and NOK 5M in funding.</p></div>
+    </details>
+
+    <details class="entry">
+      <summary>
+        <div class="entry-logo"><img src="Logos/Kron.svg" alt="Kron"></div>
+        <div class="entry-main">
+          <p class="entry-org">Storebrand (Kron)</p>
+          <p class="entry-title">UX Designer – Summer Intern</p>
+        </div>
+        <p class="entry-date">Jun – Aug 2025<br>Oslo</p>
+        <svg class="entry-chevron" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </summary>
+      <div class="entry-body"><p class="entry-desc">Led the design of the next phase of the Kron investment platform (80,000+ users, 4.8★). Drove a data- and insight-led home savings feature; work recognised by Storebrand leadership for quality, clarity, and strategic relevance.</p></div>
+    </details>
+
+    <details class="entry">
+      <summary>
+        <div class="entry-logo"><img src="Logos/Telenor.svg" alt="Telenor"></div>
+        <div class="entry-main">
+          <p class="entry-org">Telenor</p>
+          <p class="entry-title">UX Designer – Summer Intern</p>
+        </div>
+        <p class="entry-date">Jun – Sep 2024<br>Oslo</p>
+        <svg class="entry-chevron" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </summary>
+      <div class="entry-body"><p class="entry-desc">Drove design research and concept development for a dedicated CRM solution serving Telenor's 180,000+ B2B customers, informed by insights from 50+ companies. Extended into employer branding, designing campaigns that increased job listing traffic by 124%.</p></div>
+    </details>
+
+    <details class="entry">
+      <summary>
+        <div class="entry-logo"><img src="Logos/Nabostylist.svg" alt="Nabostylisten"></div>
+        <div class="entry-main">
+          <p class="entry-org">Nabostylisten</p>
+          <p class="entry-title">UX &amp; UI Designer</p>
+        </div>
+        <p class="entry-date">Apr – Oct 2024<br>Oslo</p>
+        <svg class="entry-chevron" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </summary>
+      <div class="entry-body"><p class="entry-desc">Redesigned the design system and UI, increasing average user satisfaction from 3.1 to 7.5; featured by MinMote and TV 2.</p></div>
+    </details>
+
+    <details class="entry">
+      <summary>
+        <div class="entry-logo"><img src="Logos/Experis.svg" alt="Experis"></div>
+        <div class="entry-main">
+          <p class="entry-org">Experis</p>
+          <p class="entry-title">UX Designer – Summer Intern</p>
+        </div>
+        <p class="entry-date">Jun – Aug 2023<br>Oslo</p>
+        <svg class="entry-chevron" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </summary>
+      <div class="entry-body"><p class="entry-desc">Enhanced music accessibility by designing features for a colour-notation app tailored for people with disabilities. Ensured WCAG 2.1 compliance in an agile Scrum environment.</p></div>
+    </details>
+
+    <details class="entry">
+      <summary>
+        <div class="entry-logo"><img src="Logos/Insj UiO.svg" alt="Insj UiO"></div>
+        <div class="entry-main">
+          <p class="entry-org">Insj UiO</p>
+          <p class="entry-title">UX &amp; Web Designer</p>
+        </div>
+        <p class="entry-date">Sep 2022 – Aug 2023<br>Oslo</p>
+        <svg class="entry-chevron" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </summary>
+      <div class="entry-body"><p class="entry-desc">Improved website flows in Webflow and WordPress, increasing student engagement in entrepreneurship programs by 15%. Co-hosted Innovation Week, earning Innovation Norway recognition for connecting women entrepreneurs nationwide.</p></div>
+    </details>
+
+    <details class="entry">
+      <summary>
+        <div class="entry-logo"><img src="Logos/University of Oslo.svg" alt="University of Oslo"></div>
+        <div class="entry-main">
+          <p class="entry-org">University of Oslo</p>
+          <p class="entry-title">Design Teaching &amp; Examiner</p>
+        </div>
+        <p class="entry-date">Sep 2022 – Jun 2025<br>Oslo</p>
+        <svg class="entry-chevron" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </summary>
+      <div class="entry-body"><p class="entry-desc">Taught and mentored 30+ students; 4 of 8 guided teams nominated for Best App out of 54. Led annual Figma workshops for 70+ students (2022–2024).</p></div>
+    </details>
+
+  </section>
+
+  <!-- VOLUNTEERING -->
+  <section class="section">
+    <p class="section-label">Volunteering</p>
+
+    <details class="entry">
+      <summary>
+        <div class="entry-logo"><img src="Logos/Defi.svg" alt="Defi"></div>
+        <div class="entry-main">
+          <p class="entry-org">Defi</p>
+          <p class="entry-title">Volunteer for Student Organisation</p>
+        </div>
+        <p class="entry-date">Sep 2022 – Mar 2023<br>Oslo</p>
+        <svg class="entry-chevron" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </summary>
+      <div class="entry-body"><p class="entry-desc">Contributed to planning and implementation of academic and social events to strengthen unity and engagement in the design student community at UiO.</p></div>
+    </details>
+  </section>
+
+  <!-- EDUCATION -->
+  <section class="section">
+    <p class="section-label">Education</p>
+
+    <details class="entry">
+      <summary>
+        <div class="entry-logo"><img src="Logos/University of Oslo.svg" alt="University of Oslo"></div>
+        <div class="entry-main">
+          <p class="entry-org">University of Oslo</p>
+          <p class="entry-title">BSc &amp; MSc Design</p>
+        </div>
+        <p class="entry-date">Aug 2021 – Jun 2026<br>Oslo</p>
+        <svg class="entry-chevron" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </summary>
+      <div class="entry-body"><p class="entry-desc">Multidisciplinary degree in informatics and design, focused on user needs, agile teamwork, and iterative design; with additional courses in leadership, strategy, sustainable design, and entrepreneurship.</p></div>
+    </details>
+
+  </section>
+
+  <!-- ACHIEVEMENTS -->
+  <section class="section">
+    <p class="section-label">Achievements</p>
+
+    <div class="achievement">
+      <p class="achievement-title">Winner – UX CUP, BEKK Oslo (2023)</p>
+      <p class="achievement-desc">Won Oslo semifinal; competed in national finale against other regional winners.</p>
+    </div>
+
+    <div class="achievement">
+      <p class="achievement-title">Winner – Mine Studier UiO Case (2023)</p>
+      <p class="achievement-desc">Designed winning concept for UiO's student app (27,000+ users), later developed with the Mine Studier team.</p>
+    </div>
+
+    <div class="achievement">
+      <p class="achievement-title">Recognition Award – UiO (2023)</p>
+      <p class="achievement-desc">Recognition for outstanding contributions to design education and student engagement at UiO.</p>
+    </div>
+  </section>
+
+</main>
+
+<div class="lightbox" id="lightbox">
+  <img src="Me.JPG" alt="Ingeborg Sili Østgaard">
+</div>
+
+<script>
+  const lightbox = document.getElementById('lightbox');
+  document.querySelector('.hero-photo').addEventListener('click', () => lightbox.classList.add('open'));
+  lightbox.addEventListener('click', () => lightbox.classList.remove('open'));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') lightbox.classList.remove('open'); });
+
+  const phoneBtn = document.getElementById('phoneCopy');
+  phoneBtn.addEventListener('click', e => {
+    e.preventDefault();
+    navigator.clipboard.writeText(phoneBtn.dataset.phone).then(() => {
+      phoneBtn.textContent = 'Copied!';
+      phoneBtn.classList.add('copied');
+      setTimeout(() => {
+        phoneBtn.textContent = phoneBtn.dataset.phone;
+        phoneBtn.classList.remove('copied');
+      }, 2000);
+    });
+  });
+
+  const emailBtn = document.getElementById('emailCopy');
+  emailBtn.addEventListener('click', e => {
+    e.preventDefault();
+    navigator.clipboard.writeText(emailBtn.dataset.email).then(() => {
+      emailBtn.textContent = 'Copied!';
+      emailBtn.classList.add('copied');
+      setTimeout(() => {
+        emailBtn.textContent = emailBtn.dataset.email;
+        emailBtn.classList.remove('copied');
+      }, 2000);
+    });
+  });
+
+  document.querySelectorAll('details.entry').forEach(details => {
+    const summary = details.querySelector('summary');
+    const chevron = details.querySelector('.entry-chevron');
+
+    const body = details.querySelector('.entry-body');
+
+    summary.addEventListener('click', e => {
+      e.preventDefault();
+
+      if (details.open) {
+        details.classList.remove('is-open');
+        body.addEventListener('transitionend', () => {
+          details.open = false;
+        }, { once: true });
+      } else {
+        details.open = true;
+        body.getBoundingClientRect(); // force reflow so transition fires
+        details.classList.add('is-open');
+      }
+    });
+  });
+</script>
+</body>
+</html>
