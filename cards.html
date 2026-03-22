@@ -223,13 +223,15 @@
     width: 100%;
     max-width: 1400px;
     display: block;
-    margin: 40px auto;
+    margin: 80px auto 40px;
     border-radius: 12px;
     box-shadow: 0 24px 80px rgba(0,0,0,0.5);
     cursor: default;
   }
-  #caseOverlay .close-btn {
+  #caseClose {
+    display: none;
     position: fixed; top: 20px; right: 24px;
+    z-index: 1100;
     width: 36px; height: 36px; border-radius: 50%;
     background: rgba(255,255,255,0.15);
     border: 1px solid rgba(255,255,255,0.3);
@@ -237,7 +239,7 @@
     cursor: pointer; backdrop-filter: blur(8px);
     transition: background 0.15s;
   }
-  #caseOverlay .close-btn:hover { background: rgba(255,255,255,0.28); }
+  #caseClose:hover { background: rgba(255,255,255,0.28); }
   #caseTopBtn {
     position: fixed; bottom: 28px; right: 24px;
     z-index: 1100;
@@ -267,10 +269,10 @@
 <body>
 <div id="cursorLabel">Click to open</div>
 <div id="caseOverlay">
-  <span class="close-btn" id="caseClose">&#x2715;</span>
   <div id="caseSpinner"></div>
   <img id="caseImg" src="" alt="Case study">
 </div>
+<span class="close-btn" id="caseClose">&#x2715;</span>
 <button id="caseTopBtn" title="Back to top">&#x2191;</button>
 <nav class="site-nav">
   <a href="cards.html" class="active">Projects</a>
@@ -660,22 +662,34 @@ function goTo(i){ target = Math.max(0, Math.min(N-1, i)); kick(); }
 // ── Input ─────────────────────────────────────────────────────────
 window.addEventListener('wheel', e => { if(_overlay.classList.contains('open')) return; e.preventDefault(); handleDelta(e.deltaY); }, { passive:false });
 
-let lastTy = 0;
-window.addEventListener('touchstart', e => { lastTy = e.touches[0].clientY; }, { passive:true });
-window.addEventListener('touchmove',  e => {
-  const dy = lastTy - e.touches[0].clientY; lastTy = e.touches[0].clientY;
-  handleDelta(dy / DELTA_SCALE * 0.003);
+let lastTx = 0, lastTy = 0;
+window.addEventListener('touchstart', e => {
+  lastTx = e.touches[0].clientX;
+  lastTy = e.touches[0].clientY;
 }, { passive:true });
+window.addEventListener('touchmove', e => {
+  if(_overlay.classList.contains('open')) return;
+  const dx = lastTx - e.touches[0].clientX;
+  const dy = lastTy - e.touches[0].clientY;
+  lastTx = e.touches[0].clientX;
+  lastTy = e.touches[0].clientY;
+  // Use whichever axis has more movement
+  const delta = Math.abs(dx) > Math.abs(dy) ? dx : dy;
+  e.preventDefault();
+  handleDelta(delta / DELTA_SCALE * 0.003);
+}, { passive:false });
 
 document.getElementById('btnPrev').addEventListener('click', () => { if(!snapLocked){ goTo(Math.round(target)-1); lockSnap(); } });
 document.getElementById('btnNext').addEventListener('click', () => { if(!snapLocked){ goTo(Math.round(target)+1); lockSnap(); } });
 
 // Case study lightbox close
-const _overlay = document.getElementById('caseOverlay');
-const _topBtn  = document.getElementById('caseTopBtn');
-function openOverlay()  { _overlay.classList.add('open');    document.body.style.overflow = 'hidden'; }
+const _overlay   = document.getElementById('caseOverlay');
+const _topBtn    = document.getElementById('caseTopBtn');
+const _closeBtn  = document.getElementById('caseClose');
+function openOverlay()  { _overlay.classList.add('open'); _closeBtn.style.display = 'block'; document.body.style.overflow = 'hidden'; }
 function closeOverlay() {
   _overlay.classList.add('closing');
+  _closeBtn.style.display = 'none';
   _topBtn.classList.remove('visible');
   setTimeout(() => {
     _overlay.classList.remove('open', 'closing');
@@ -832,6 +846,14 @@ document.querySelectorAll('a[href]').forEach(a => {
 // ── Init ──────────────────────────────────────────────────────────
 updateInfo(0);
 draw();
+
+// Preload case study images in the background after page is interactive
+setTimeout(() => {
+  ['AltekCase','KronCase','TelenorCase','NabostylistenCase','DFØCase'].forEach(name => {
+    const img = new Image();
+    img.src = `CaseStudy/${name}.png`;
+  });
+}, 1000);
 
 // Staggered entrance
 requestAnimationFrame(() => {
