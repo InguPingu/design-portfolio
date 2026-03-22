@@ -81,7 +81,9 @@
   .pill {
     font-size: 11px; padding: 4px 12px; border-radius: 100px;
     border: 1px solid #E5E4E2; color: #696767;
+    display:inline-flex; align-items:center; gap:5px;
   }
+  .pill svg { flex-shrink:0; opacity:0.75; }
   .pill.hi { border-color:#BCBAB8; color:#2B2828; background:rgba(43,40,40,0.04); }
 
   .nav-dots {
@@ -179,12 +181,12 @@ const NATIVE_H = 701;
 const FILL = 0.52;
 
 const projects = [
-  { title:"Bloom Health",    role:"Mobile App · 2024",  desc:"Redesigned core tracking flows to reduce cognitive load, introducing ambient check-ins that fit naturally into daily routines.",                         pills:[{text:"↑ 38% retention",hi:true},{text:"4.8 ★"},{text:"iOS & Android"}],          color:"#c8a882", image:"CardCover/Card.png" },
-  { title:"Prism Analytics", role:"Dashboard · 2024",   desc:"A flexible dashboard system for complex data teams, cutting time-to-insight through progressive disclosure and smart defaults.",                        pills:[{text:"↓ 52% task time",hi:true},{text:"Enterprise SaaS"},{text:"Design system"}], color:"#2c4a6e", image:"CardCover/AltekCover.png" },
-  { title:"Nabostylisten",   role:"Mobile App · 2023",  desc:"A beauty marketplace connecting clients with nearby stylists — discover, book, and enjoy professional beauty services wherever you are.",               pills:[{text:"↑ bookings",hi:true},{text:"Oslo-based"},{text:"iOS & Android"}],    color:"#b8d48a", image:"CardCover/KronCover.png" },
-  { title:"Relay",           role:"Messaging · 2023",   desc:"An async-first communication tool where urgency levels guide notification behaviour, protecting focus time across distributed teams.",                  pills:[{text:"↓ 41% interruptions",hi:true},{text:"YC-backed"},{text:"5,000+ teams"}],   color:"#c47a9f", image:"CardCover/TelenorCover.png"},
-  { title:"Curious",         role:"EdTech · 2022",      desc:"An adaptive learning platform pairing AI-powered content pacing with social accountability in a game-informed interface.",                              pills:[{text:"↑ 67% completion",hi:true},{text:"500K+ learners"},{text:"12 languages"}], color:"#2a4a2e", image:"CardCover/NabostylistenCover.png"},
-  { title:"Ledger",          role:"Fintech · 2022",     desc:"Personal finance reimagined for Gen Z — transparent, educational, and non-judgmental, with visual money stories that make numbers feel real.",          pills:[{text:"↑ 44% savings rate",hi:true},{text:"FCA regulated"},{text:"80K+ users"}],  color:"#9f7ac4" },
+  { title:"Bloom Health",    role:"Mobile App · 2024",  desc:"Redesigned core tracking flows to reduce cognitive load, introducing ambient check-ins that fit naturally into daily routines.",                         pills:[{text:"↑ 38% retention",hi:true,icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"2 12 6 7 10 9 14 4\"/><\/svg>"},{text:"4.8 ★",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"8 2 10 6 14 6.5 11 9.5 11.5 14 8 12 4.5 14 5 9.5 2 6.5 6 6\"/><\/svg>"},{text:"iOS & Android",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"4.5\" y=\"1\" width=\"7\" height=\"14\" rx=\"2\"/><line x1=\"7\" y1=\"12\" x2=\"9\" y2=\"12\"/><\/svg>"}],          color:"#c8a882", image:"CardCover/Card.png" },
+  { title:"Altek AI",         role:"Freelance · 2025–present",   desc:"Improved the SaaS training dashboard hotels use to teach their AI assistants, supporting hotels like The Well, Britannia and The Thief with better guest answers and smoother operations.",                pills:[{text:"$100K ARR",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"8\" cy=\"8\" r=\"6\"/><path d=\"M8 5v6M6.5 6.5h3a1 1 0 010 2H7a1 1 0 000 2h3\"/><\/svg>"},{text:"60+ hotels",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"2\" y=\"7\" width=\"12\" height=\"8\"/><path d=\"M5 15V9h6v6\"/><path d=\"M2 7l6-5 6 5\"/><\/svg>"},{text:"NOK 5M pre-seed",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 2C6 2 4 8 4 14M4 14c2-4 5-6 8-7\"/><\/svg>"}],           color:"#2c4a6e", image:"CardCover/AltekCover.png" },
+  { title:"Kron (Storebrand)", role:"Fintech Internship · 2025",    desc:"Designed the next step for Storebrands investment app, used by 80,000+ users. Led the full design process as sole UX designer, from 54 user interviews to an interactive prototype presented to executive leadership.",               pills:[{text:"54 interviews",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M10 8a3 3 0 100-6 3 3 0 000 6zM14 14s.5-5-4-5M6 8a3 3 0 100-6 3 3 0 000 6zM2 14s-.5-5 4-5\"/><\/svg>"},{text:"1,022 survey responses",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"2 12 6 7 10 9 14 4\"/><\/svg>"},{text:"80K+ app users",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M10 8a3 3 0 100-6 3 3 0 000 6zM14 14s.5-5-4-5M6 8a3 3 0 100-6 3 3 0 000 6zM2 14s-.5-5 4-5\"/><\/svg>"}],    color:"#b8d48a", image:"CardCover/KronCover.png" },
+  { title:"Telenor",           role:"Telecom Internship · 2024",   desc:"Designed Business Pro for Norway's largest telecom, a simplified mobile CRM helping small and medium businesses manage customers with minimal manual input. Led UX across 51 participants and 6 prototype cycles.",                  pills:[{text:"↓ 40% complexity",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"2 12 6 7 10 9 14 4\"/><\/svg>"},{text:"51 participants",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M10 8a3 3 0 100-6 3 3 0 000 6zM14 14s.5-5-4-5M6 8a3 3 0 100-6 3 3 0 000 6zM2 14s-.5-5 4-5\"/><\/svg>"},{text:"86K+ B2B market",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"2\" y=\"7\" width=\"12\" height=\"8\"/><path d=\"M5 15V9h6v6\"/><path d=\"M2 7l6-5 6 5\"/><\/svg>"}],   color:"#c47a9f", image:"CardCover/TelenorCover.png"},
+  { title:"Nabostylisten",         role:"Part-time · 2024",      desc:"Redesigned the mobile booking flow for a beauty-at-home platform, cutting task time by 74.5% and lifting satisfaction from 3.1 to 7.5. The relaunch earned coverage in TV 2 and MinMote.",                              pills:[{text:"↓ 74.5% task time",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"2 12 6 7 10 9 14 4\"/><\/svg>"},{text:"3.1 → 7.5 satisfaction",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"8 2 10 6 14 6.5 11 9.5 11.5 14 8 12 4.5 14 5 9.5 2 6.5 6 6\"/><\/svg>"},{text:"TV 2 featured",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"1\" y=\"4\" width=\"14\" height=\"9\" rx=\"1\"/><line x1=\"5\" y1=\"15\" x2=\"11\" y2=\"15\"/><line x1=\"8\" y1=\"13\" x2=\"8\" y2=\"15\"/><\/svg>"}], color:"#2a4a2e", image:"CardCover/NabostylistenCover.png"},
+  { title:"DFØ",          role:"University Project · 2024",     desc:"Streamlined DFØs hour registration for University of Oslo employees through participatory design with 15 users, cutting the process from 7 steps to 2 and reducing task time by 87%. Graded A.",          pills:[{text:"↓ 87% task time",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"2 12 6 7 10 9 14 4\"/><\/svg>"},{text:"100% rated it easier",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"8 2 10 6 14 6.5 11 9.5 11.5 14 8 12 4.5 14 5 9.5 2 6.5 6 6\"/><\/svg>"},{text:"70% → 100% success",icon:"<svg width=\"12\" height=\"12\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"2 8 6 12 14 4\"/><\/svg>"}],  color:"#9f7ac4", image:"CardCover/DFØCover.png"},
 ];
 
 const N = projects.length;
@@ -306,7 +308,8 @@ const cardEls = projects.map((p, i) => {
     1: 'Logos/Altek Ai.svg',
     2: 'Logos/Kron.svg',
     3: 'Logos/Telenor.svg',
-    4: 'Logos/Nabostylist.svg'
+    4: 'Logos/Nabostylist.svg',
+    5: 'Logos/DFØ.svg'
   };
   if (logos[i]) {
     const img = document.createElement('img');
@@ -319,12 +322,13 @@ const cardEls = projects.map((p, i) => {
     logo.style.border = 'none';
   }
   if (i === 0) logo.style.display = 'none';
+
   if (i !== 0) {
     const grad = document.createElement('div');
     grad.style.cssText = `
       position:absolute; bottom:0; left:0; right:0;
       height:15%; pointer-events:none;
-      background:linear-gradient(to top, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.65) 25%, rgba(255,255,255,0.35) 55%, rgba(255,255,255,0.08) 80%, transparent 100%);
+      background:linear-gradient(to top, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.38) 25%, rgba(255,255,255,0.18) 55%, rgba(255,255,255,0.04) 80%, transparent 100%);
     `;
     card.append(swatch, grad, logo, idx);
   } else {
@@ -346,6 +350,7 @@ let lastInfoIdx = -1;
 function updateInfo(idx){
   if(idx === lastInfoIdx) return;
   lastInfoIdx = idx;
+
   if(idx === 0){
     infoPanel.innerHTML = `
       <div style="animation:fadeUp 0.4s ease forwards; display:flex; flex-direction:column; align-items:center; gap:10px; padding-top:8px;">
@@ -360,7 +365,7 @@ function updateInfo(idx){
         <div class="info-eyebrow">${p.role}</div>
         <div class="info-title">${p.title}</div>
         <div class="info-desc">${p.desc}</div>
-        <div class="info-pills">${p.pills.map(pl => `<span class="pill${pl.hi?' hi':''}">${pl.text}</span>`).join('')}</div>
+        <div class="info-pills">${p.pills.map(pl => `<span class="pill${pl.hi?' hi':''}">${pl.icon||''} ${pl.text}</span>`).join('')}</div>
       </div>`;
   }
 }
