@@ -486,7 +486,7 @@ const cardEls = projects.map((p, i) => {
 
   if (p.blank) {
     const contact = document.createElement('div');
-    contact.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:48px;';
+    contact.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2.5vw,22px);padding:clamp(20px,4vw,48px);overflow:hidden;';
 
     const eyebrow = document.createElement('div');
     eyebrow.style.cssText = 'font-size:9.5px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(43,40,40,0.35);font-weight:500;';
@@ -500,17 +500,17 @@ const cardEls = projects.map((p, i) => {
     divider.style.cssText = 'width:32px;height:0.5px;background:rgba(43,40,40,0.12);';
 
     const links = document.createElement('div');
-    links.style.cssText = 'display:flex;flex-direction:column;gap:6px;width:100%;max-width:230px;';
+    links.style.cssText = 'display:flex;flex-direction:column;gap:clamp(4px,1vw,6px);width:100%;max-width:230px;';
     [
       { label:'ingeborg2809@gmail.com', copy:'ingeborg2809@gmail.com', href:'mailto:ingeborg2809@gmail.com' },
       { label:'+47 90 21 30 71',        copy:'+47 90 21 30 71',        href:'tel:+4790213071' },
-      { label:'LinkedIn ↗',             copy:null,                     href:'https://www.linkedin.com/in/ingeborg-sili-oestgaard/' },
-      { label:'CV ↗',                   copy:null,                     href:'IngeborgSØ_CV.pdf' },
+      { label:'LinkedIn \u2197\uFE0E',   copy:null,                     href:'https://www.linkedin.com/in/ingeborg-sili-oestgaard/' },
+      { label:'CV \u2197\uFE0E',        copy:null,                     href:'IngeborgSØ_CV.pdf' },
     ].forEach(c => {
       const a = document.createElement('a');
       a.href = c.href; if (!c.copy) a.target = '_blank';
       a.textContent = c.label;
-      a.style.cssText = 'display:block;text-align:center;font-size:11.5px;color:rgba(43,40,40,0.6);text-decoration:none;padding:8px 16px;border-radius:100px;border:0.5px solid rgba(43,40,40,0.12);background:rgba(255,255,255,0.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:background 0.15s,box-shadow 0.15s,transform 0.12s;letter-spacing:0.01em;';
+      a.style.cssText = 'display:block;text-align:center;font-size:11.5px;color:rgba(43,40,40,0.6);text-decoration:none;padding:clamp(5px,1.2vw,8px) 16px;border-radius:100px;border:0.5px solid rgba(43,40,40,0.12);background:rgba(255,255,255,0.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:background 0.15s,box-shadow 0.15s,transform 0.12s;letter-spacing:0.01em;';
       a.addEventListener('mouseenter',()=>{ a.style.background='rgba(255,255,255,0.95)'; a.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'; a.style.transform='translateY(-1px)'; });
       a.addEventListener('mouseleave',()=>{ a.style.background='rgba(255,255,255,0.6)'; a.style.boxShadow='none'; a.style.transform=''; });
       if (c.copy) a.addEventListener('click', e => {
