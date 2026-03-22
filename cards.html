@@ -502,7 +502,7 @@ const cardEls = projects.map((p, i) => {
     [
       { label:'ingeborg2809@gmail.com', copy:'ingeborg2809@gmail.com', href:'mailto:ingeborg2809@gmail.com' },
       { label:'+47 90 21 30 71',        copy:'+47 90 21 30 71',        href:'tel:+4790213071' },
-      { label:'LinkedIn ↗',        copy:null,                     href:'https://www.linkedin.com/in/ingeborg-sili-oestgaard/' },
+      { label:'LinkedIn ↗',             copy:null,                     href:'https://www.linkedin.com/in/ingeborg-sili-oestgaard/' },
     ].forEach(c => {
       const a = document.createElement('a');
       a.href = c.href; if (!c.copy) a.target = '_blank';
@@ -517,14 +517,7 @@ const cardEls = projects.map((p, i) => {
       links.appendChild(a);
     });
 
-    const restart = document.createElement('button');
-    restart.style.cssText = 'display:flex;align-items:center;gap:5px;font-family:inherit;font-size:10.5px;color:rgba(43,40,40,0.3);background:none;border:none;cursor:pointer;padding:5px 10px;border-radius:100px;transition:color 0.15s,background 0.15s;letter-spacing:0.02em;';
-    restart.innerHTML = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8a6 6 0 116 6"/><polyline points="2 4 2 8 6 8"/></svg> Back to start';
-    restart.addEventListener('mouseenter',()=>{ restart.style.color='rgba(43,40,40,0.7)'; restart.style.background='rgba(43,40,40,0.05)'; });
-    restart.addEventListener('mouseleave',()=>{ restart.style.color='rgba(43,40,40,0.3)'; restart.style.background='none'; });
-    restart.addEventListener('click', e => { e.stopPropagation(); goTo(0); lockSnap(); });
-
-    contact.append(eyebrow, nameEl, divider, links, restart);
+    contact.append(eyebrow, nameEl, divider, links);
     tilt.appendChild(contact);
   }
 
@@ -605,10 +598,22 @@ function updateInfo(idx){
   if(idx === lastInfoIdx) return;
   lastInfoIdx = idx;
   if(projects[idx] && projects[idx].blank){
-    infoPanel.style.opacity = '0';
-    infoPanel.style.pointerEvents = 'none';
+    infoPanel.style.animation = 'none';
+    infoPanel.style.opacity = '1';
+    infoPanel.style.pointerEvents = '';
+    infoPanel.innerHTML = `
+      <div style="animation:fadeUp 0.4s ease forwards; display:flex; flex-direction:column; align-items:center; gap:0;">
+        <button id="restartBtn" style="display:flex;align-items:center;gap:5px;font-family:inherit;font-size:10.5px;color:rgba(43,40,40,0.3);background:none;border:none;cursor:pointer;padding:5px 10px;border-radius:100px;transition:color 0.15s,background 0.15s;letter-spacing:0.02em;">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8a6 6 0 116 6"/><polyline points="2 4 2 8 6 8"/></svg> Back to start
+        </button>
+      </div>`;
+    const rb = document.getElementById('restartBtn');
+    rb.addEventListener('mouseenter',()=>{ rb.style.color='rgba(43,40,40,0.7)'; rb.style.background='rgba(43,40,40,0.05)'; });
+    rb.addEventListener('mouseleave',()=>{ rb.style.color='rgba(43,40,40,0.3)'; rb.style.background='none'; });
+    rb.addEventListener('click', e => { e.stopPropagation(); goTo(0); lockSnap(); });
     return;
   }
+  infoPanel.style.animation = 'none';
   infoPanel.style.opacity = '1';
   infoPanel.style.pointerEvents = '';
 
