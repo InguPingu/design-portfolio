@@ -53,7 +53,8 @@
     width: 100%;
     max-width: 540px;
     padding: 0 32px;
-    min-height: 130px;
+    height: 220px;
+    overflow: hidden;
     text-align: center;
     flex-shrink: 0;
   }
@@ -210,7 +211,7 @@
     .site-nav a { font-size: 12px; padding: 5px 14px; }
     .info-title  { font-size: 1.8rem; }
     .info-desc   { font-size: 0.82rem; line-height: 1.55; margin-bottom: 14px; }
-    .info-panel  { min-height: 0; padding: 0 16px; }
+    .info-panel  { height: 185px; padding: 0 16px; }
     .pill        { font-size: 10px; padding: 3px 9px; }
     .nav-dots    { margin-top: 14px; }
     .arrows      { margin-top: 10px; }
@@ -220,11 +221,13 @@
   @media (max-width: 360px) {
     .info-title { font-size: 1.55rem; }
     .info-desc  { display: none; }
+    .info-panel { height: 90px; }
     .card-info-gap { height: 12px; }
   }
 
   @media (max-height: 650px) and (orientation: portrait) {
     .info-desc  { font-size: 0.80rem; line-height: 1.5; }
+    .info-panel { height: 185px; }
     .nav-dots   { margin-top: 10px; }
     .arrows     { margin-top: 8px; }
     .card-info-gap { height: 16px; }
@@ -538,7 +541,7 @@ const cardEls = projects.map((p, i) => {
     divider.style.cssText = 'width:32px;height:0.5px;background:rgba(43,40,40,0.12);';
 
     const links = document.createElement('div');
-    links.style.cssText = `display:flex;flex-direction:column;gap:${Math.max(Math.round(S*5),5)}px;width:100%;max-width:${Math.round(S*230)}px;`;
+    links.style.cssText = `display:flex;flex-direction:column;gap:${Math.max(Math.round(S*5),5)}px;width:100%;max-width:${Math.max(Math.round(S*230), 200)}px;`;
     [
       { label:'ingeborg2809@gmail.com', copy:'ingeborg2809@gmail.com', href:'mailto:ingeborg2809@gmail.com' },
       { label:'+47 90 21 30 71',        copy:'+47 90 21 30 71',        href:'tel:+4790213071' },
@@ -548,7 +551,7 @@ const cardEls = projects.map((p, i) => {
       const a = document.createElement('a');
       a.href = c.href; if (!c.copy) a.target = '_blank';
       a.textContent = c.label;
-      a.style.cssText = `display:block;text-align:center;font-size:${linkFont}px;color:rgba(43,40,40,0.6);text-decoration:none;padding:${linkPad}px 16px;border-radius:100px;border:0.5px solid rgba(43,40,40,0.12);background:rgba(255,255,255,0.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:background 0.15s,box-shadow 0.15s,transform 0.12s;letter-spacing:0.01em;`;
+      a.style.cssText = `display:block;text-align:center;font-size:${linkFont}px;color:rgba(43,40,40,0.6);text-decoration:none;padding:${linkPad}px 16px;border-radius:100px;border:0.5px solid rgba(43,40,40,0.12);background:rgba(255,255,255,0.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:background 0.15s,box-shadow 0.15s,transform 0.12s;letter-spacing:0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`;
       a.addEventListener('mouseenter',()=>{ a.style.background='rgba(255,255,255,0.95)'; a.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'; a.style.transform='translateY(-1px)'; });
       a.addEventListener('mouseleave',()=>{ a.style.background='rgba(255,255,255,0.6)'; a.style.boxShadow='none'; a.style.transform=''; });
       if (c.copy) a.addEventListener('click', e => {
