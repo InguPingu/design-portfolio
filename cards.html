@@ -530,8 +530,8 @@ const cardEls = projects.map((p, i) => {
     tilt.appendChild(contact);
   }
 
-  // 3D tilt on hover — last card only
-  if (i === N - 1) {
+  // 3D tilt on hover — first and last card
+  if (i === 0 || i === N - 1) {
     let tiltRaf = false;
     card.addEventListener('mousemove', e => {
       if (tiltRaf) return; tiltRaf = true;
