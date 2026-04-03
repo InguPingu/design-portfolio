@@ -157,6 +157,27 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
+  .top-gradient {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 180px;
+    background: linear-gradient(#f0f0f0 5%, transparent 100%);
+    pointer-events: none;
+    z-index: 50;
+  }
+  .watermark {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.68rem;
+    color: rgba(43,40,40,0.3);
+    font-weight: 300;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+    letter-spacing: 0.01em;
+  }
   .site-nav   { opacity: 0; }
   .nav-dots   { opacity: 0; }
   #arcTrack   { opacity: 0; }
@@ -306,6 +327,8 @@
 </style>
 </head>
 <body>
+<div class="top-gradient"></div>
+<p class="watermark">Designed in Figma &nbsp;·&nbsp; Vibe coded with Claude</p>
 <div id="cursorLabel">Click to open</div>
 <div id="caseOverlay">
   <div id="caseSpinner"></div>

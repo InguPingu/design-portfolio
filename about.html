@@ -273,6 +273,57 @@
     line-height: 1.7;
   }
 
+  /* ── PHOTOS SLIDESHOW ── */
+  .photos-track-wrap {
+    overflow: hidden;
+    margin-top: 12px;
+    margin-left: -32px;
+    margin-right: -32px;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .photos-track-wrap.dragging { cursor: grabbing; }
+  .photos-track {
+    display: flex;
+    gap: 10px;
+    padding-right: 10px;
+    width: max-content;
+    will-change: transform;
+  }
+  .photos-track img {
+    height: 360px;
+    width: auto;
+    object-fit: cover;
+    flex-shrink: 0;
+    display: block;
+    pointer-events: none;
+  }
+  @media (max-width: 480px) {
+    .photos-track-wrap { margin-left: -20px; margin-right: -20px; }
+    .photos-track img { height: 220px; }
+  }
+
+  /* ── WATERMARK ── */
+  .watermark {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--faint);
+    font-weight: 300;
+    padding: 32px 0 48px;
+    letter-spacing: 0.01em;
+  }
+
+  /* ── TOP GRADIENT ── */
+  .top-gradient {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 180px;
+    background: linear-gradient(#f0f0f0 5%, transparent 100%);
+    pointer-events: none;
+    z-index: 50;
+  }
+
   /* ── PAGE TRANSITION ── */
   @keyframes fadeOutUp {
     from { opacity: 1; transform: translateY(0); }
@@ -310,6 +361,7 @@
 </head>
 <body>
 
+<div class="top-gradient"></div>
 <nav class="project-nav" id="projectNav">
   <a href="cards.html" class="nav-back">
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -499,6 +551,16 @@
     </div>
   </section>
 
+  <!-- PHOTOS -->
+  <section class="section">
+    <p class="section-label">Outside of work</p>
+    <div class="photos-track-wrap">
+      <div class="photos-track" id="photosTrack"></div>
+    </div>
+  </section>
+
+  <p class="watermark">Designed in Figma &nbsp;·&nbsp; Vibe coded with Claude</p>
+
 </main>
 
 <div class="lightbox" id="lightbox">
@@ -506,7 +568,60 @@
 </div>
 
 <script>
-  const lightbox = document.getElementById('lightbox');
+// ── PHOTO CAROUSEL ──
+(function() {
+  // Add new photos here (or run update-photos.sh to auto-update)
+  const PHOTOS = [
+    "0BE5C109-0189-4F07-A5E5-067E61862288_1_105_c 1.png",
+    "0BEB2D03-FBA4-4FC0-8839-2BEFD16D837B_1_105_c 1.png",
+    "2022-08-24 21 37 41 2.png",
+    "223CAA0B-E2DC-4041-A48B-E387E38167CD_1_105_c 1.png",
+    "82D4760E-225F-4C17-9523-376D1884D06A_1_105_c 1.png",
+    "9FAD2125-EBF4-475B-A1C3-444FF672DAB7_1_105_c 1.png",
+    "A875D0C9-9697-4AE5-B603-23C5424C2AA2_1_105_c 1.png",
+    "E7A1F220-03E4-4251-A9FA-A69722DB7218_1_105_c 1.png",
+    "F2BAF3F9-F95F-423C-945F-E903171C8B37_1_105_c 1.png",
+    "IMG_9383.JPG",
+    "IMG_1022.jpeg"
+  ];
+
+  const wrap  = document.querySelector('.photos-track-wrap');
+  const track = document.getElementById('photosTrack');
+  const AUTO  = 0.6;
+  let pos = 0, vel = 0, isDragging = false, lastX = 0;
+
+  [...PHOTOS, ...PHOTOS].forEach(name => {
+    const img = document.createElement('img');
+    img.src = 'AboutMePhotos/' + encodeURIComponent(name);
+    img.alt = '';
+    track.appendChild(img);
+  });
+
+  function tick() {
+    if (!isDragging) vel += (AUTO - vel) * 0.04;
+    pos += vel;
+    const hw = track.scrollWidth / 2;
+    if (pos >= hw) pos -= hw;
+    if (pos < 0)   pos += hw;
+    track.style.transform = `translateX(${-pos}px)`;
+    requestAnimationFrame(tick);
+  }
+
+  function startDrag(x) { isDragging = true; lastX = x; vel = 0; wrap.classList.add('dragging'); }
+  function moveDrag(x)  { if (!isDragging) return; const dx = lastX - x; lastX = x; vel = dx * 0.6 + AUTO; }
+  function endDrag()    { isDragging = false; wrap.classList.remove('dragging'); }
+
+  wrap.addEventListener('mousedown',   e => startDrag(e.clientX));
+  window.addEventListener('mousemove', e => moveDrag(e.clientX));
+  window.addEventListener('mouseup',   () => endDrag());
+  wrap.addEventListener('touchstart',  e => startDrag(e.touches[0].clientX), { passive: true });
+  wrap.addEventListener('touchmove',   e => moveDrag(e.touches[0].clientX),  { passive: true });
+  wrap.addEventListener('touchend',    () => endDrag());
+
+  tick();
+})();
+
+const lightbox = document.getElementById('lightbox');
   document.querySelector('.hero-photo').addEventListener('click', () => lightbox.classList.add('open'));
   lightbox.addEventListener('click', () => lightbox.classList.remove('open'));
   document.addEventListener('keydown', e => { if (e.key === 'Escape') lightbox.classList.remove('open'); });
