@@ -6,11 +6,11 @@
 <title>Ingeborg — Persona</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
 
   body {
     font-family: 'DM Sans', sans-serif;
-    background: #EDE9E3;
+    background: #F0F0F0;
     overflow: hidden;
     width: 100vw;
     height: 100vh;
@@ -23,12 +23,40 @@
     position: fixed;
     inset: 0;
     overflow: hidden;
-    cursor: grab;
-    background-color: #EDE9E3;
-    background-image: radial-gradient(circle, rgba(0,0,0,0.15) 1px, transparent 1px);
+    cursor: none;
+    background-color: #F0F0F0;
+    background-image: radial-gradient(circle, #C7C7C7 1px, transparent 1px);
     background-size: 24px 24px;
   }
-  #viewport.panning { cursor: grabbing; }
+  #viewport.panning { cursor: none; }
+
+  /* ── CUSTOM CURSOR ── */
+  #custom-cursor {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(0, 0);
+    will-change: transform;
+  }
+
+  #custom-cursor svg {
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.25));
+    display: block;
+  }
+  #custom-cursor .cursor-label {
+    background: #8B5CF6;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+    position: absolute;
+    top: 20px;
+    left: 16px;
+  }
 
   /* ── WORLD ── */
   #world {
@@ -41,7 +69,7 @@
   }
 
   /* ── DRAGGABLE BASE ── */
-  .draggable { cursor: move; position: absolute; }
+  .draggable { cursor: none; position: absolute; }
   .draggable:active { z-index: 100; }
   img.draggable { display: block; user-select: none; -webkit-user-select: none; }
 
@@ -408,6 +436,7 @@
     margin: 0 2px;
   }
 
+
   /* ── PAGE TRANSITION ── */
   @keyframes fadeIn {
     from { opacity: 0; }
@@ -455,99 +484,24 @@
 <div id="viewport">
   <div id="world">
 
-    <!-- TITLE + BADGE -->
-    <img src="Figjam/Frame 1321316570.png" draggable="false" style="position:absolute;left:140px;top:55px;width:580px;pointer-events:none;" alt="PERSONAS">
+    <!-- TITLE -->
+    <img src="Figjam/personasTitle.png" class="draggable" draggable="false" data-id="title" style="left:110px;top:80px;width:250px;" alt="Personas Title">
 
     <!-- BIO CARD -->
-    <div id="bio-card" class="white-card draggable">
-      <span class="section-label">Biography</span>
-      <div style="display:flex;align-items:flex-end;gap:6px;margin-bottom:10px;">
-        <img src="Figjam/Text.png" draggable="false" style="width:210px;" alt="Pst.. she acts more professional on Linkedin">
-        <img src="Figjam/Vector.png" draggable="false" style="width:70px;margin-bottom:4px;" alt="">
-      </div>
-      <div class="bio-text">
-        <p>As a child, Ingeborg was always the creative one. She spent most of her free time drawing, crafting 3D birthday cards, and experimenting with anything that allowed her to make something from scratch.</p>
-        <p>What she struggled with was finding a larger outlet for that creativity. At twelve, she began looking up to bloggers and even tried starting one herself. It failed quickly, but it opened the door to something more interesting. Designing blog headers became a new creative obsession, and she taught herself Photoshop to bring her ideas to life.</p>
-        <p>What began as a hobby quickly expanded into learning HTML and CSS, allowing her to build her own blog and customize every color and layout exactly as she envisioned.</p>
-        <p>She knew from that moment that she enjoyed making things for people. Back then, she imagined becoming a fashion designer or architect. At the time, she didn't realize that her interests were already pointing her toward what would later become her career → UX design.</p>
-        <p>Already as a kid, her mom had already purchased ingeborg.no in the hopes of her using it someday to showcase her work (or that a princess would be named Ingeborg and purchase the domain for a lot of money).</p>
-        <p>Unfortunately, neither happened. Instead, Ingeborg now use Figma as her creative stage, sharing designs that live far beyond a single domain name.</p>
-      </div>
-      <div class="bio-footer">
-        <a href="IngeborgSO_CV.pdf" target="_blank" style="display:block;text-decoration:none;">
-          <img src="Figjam/CV.png" draggable="false" style="width:160px;" alt="Ingeborg's CV">
-        </a>
-      </div>
-    </div>
+    <img src="Figjam/bio.png" class="draggable" draggable="false" data-id="bio" style="left:110px;top:155px;width:625px;" alt="Biography">
 
     <!-- PHOTO COLLAGE (includes name tag, star, sparkle, designer tag, folder) -->
-    <img src="Figjam/Me.png" class="draggable" draggable="false" style="left:730px;top:115px;width:400px;" alt="Ingeborg">
+    <img src="Figjam/Me.png" class="draggable" draggable="false" data-id="me" style="left:758px;top:175px;width:325px;" alt="Ingeborg">
 
     <!-- CONTACT CARD -->
-    <img src="Figjam/Contact full.png" class="draggable" draggable="false" style="left:1190px;top:75px;width:220px;" alt="Contact">
+    <img src="Figjam/Contact full.png" class="draggable" draggable="false" data-id="contact" style="left:1005px;top:42px;width:138px;" alt="Contact">
 
     <!-- ABOUT FRAME -->
-    <div id="about-frame" class="frame">
-      <span class="section-label">About</span>
-    </div>
+    <img src="Figjam/about.png" class="draggable" draggable="false" data-id="about" style="left:110px;top:460px;width:640px;" alt="About">
 
-    <!-- ABOUT STICKY NOTES -->
-    <div class="sticky draggable" style="left:165px;top:655px;transform:rotate(0.5deg);">
-      <span style="font-size:34px;font-weight:700;color:#1a1a1a;line-height:1.05;">UX<br>Designer</span>
-      <span class="sticky-author">Ingeborg S.</span>
-    </div>
-    <div class="sticky draggable" style="left:370px;top:655px;transform:rotate(-1.5deg);">
-      <span style="font-size:22px;color:#1a1a1a;line-height:1.3;">Is exploring with vibe-coding and AI tools 🤖</span>
-      <span class="sticky-author">Ingeborg S.</span>
-    </div>
-    <div class="sticky draggable" style="left:575px;top:655px;transform:rotate(1deg);">
-      <span style="font-size:22px;color:#1a1a1a;line-height:1.3;">From Trondheim, but been in Oslo for 5 years</span>
-      <span class="sticky-author">Ingeborg S.</span>
-    </div>
-    <div class="sticky draggable" style="left:780px;top:655px;transform:rotate(-0.8deg);">
-      <span style="font-size:22px;color:#1a1a1a;line-height:1.3;">Writes master's about Universal Design</span>
-      <span class="sticky-author">Ingeborg S.</span>
-    </div>
-    <div class="sticky draggable" style="left:985px;top:655px;transform:rotate(1.5deg);">
-      <span style="font-size:24px;color:#1a1a1a;line-height:1.3;">A tea drinker ☕</span>
-      <span class="sticky-author">Ingeborg S.</span>
-    </div>
+    <!-- INTERESTS -->
+    <img src="Figjam/interests.png" class="draggable" draggable="false" data-id="interests" style="left:110px;top:668px;width:858px;" alt="Interests">
 
-    <!-- INTERESTS FRAME -->
-    <div id="interests-frame" class="frame">
-      <span class="section-label">Interests</span>
-    </div>
-
-    <!-- INTERESTS STICKY NOTES -->
-    <div class="sticky draggable" style="left:165px;top:945px;transform:rotate(-1deg);">
-      <span style="font-size:21px;color:#1a1a1a;line-height:1.3;">Loves inviting friends over to make food 🍜</span>
-      <span class="sticky-author">Ingeborg S.</span>
-    </div>
-    <div class="sticky draggable" style="left:368px;top:945px;transform:rotate(1.5deg);">
-      <span style="font-size:23px;color:#1a1a1a;line-height:1.3;">Walking her dog(s) 🐕</span>
-      <span class="sticky-author">Ingeborg S.</span>
-    </div>
-    <div class="sticky draggable" style="left:571px;top:945px;transform:rotate(-0.5deg);">
-      <span style="font-size:21px;color:#1a1a1a;line-height:1.3;">Trying out new restaurants and cafes</span>
-      <span class="sticky-author">Ingeborg S.</span>
-    </div>
-    <div class="sticky draggable" style="left:774px;top:945px;transform:rotate(1deg);">
-      <span style="font-size:26px;color:#1a1a1a;line-height:1.3;">Traveling ✈️</span>
-      <span class="sticky-author">Ingeborg S.</span>
-    </div>
-    <div class="sticky draggable" style="left:977px;top:945px;transform:rotate(-1.5deg);">
-      <span style="font-size:23px;color:#1a1a1a;line-height:1.3;">Music and festivals 🎵</span>
-      <span class="sticky-author">Ingeborg S.</span>
-    </div>
-    <div class="sticky draggable" style="left:1180px;top:945px;transform:rotate(0.8deg);">
-      <span style="font-size:22px;color:#1a1a1a;line-height:1.3;">Taking photos and videos 📸</span>
-      <span class="sticky-author">Ingeborg S.</span>
-    </div>
-    <div class="sticky draggable" style="left:1383px;top:945px;transform:rotate(-1deg);padding-bottom:8px;">
-      <span style="font-size:24px;color:#1a1a1a;line-height:1.2;display:block;margin-bottom:6px;">Buldring 🧗</span>
-      <img src="Figjam/5E6F19F8-8895-4054-BF13-6FA91467198C_1_105_c 1.png" draggable="false" style="width:100%;border-radius:4px;display:block;" alt="Bouldering">
-      <span class="sticky-author">Ingeborg S.</span>
-    </div>
 
 
   </div><!-- /world -->
@@ -562,22 +516,61 @@
   <button class="zoom-btn" id="btn-fit" title="Fit to screen" style="font-size:13px;">⊞</button>
 </div>
 
+<!-- CUSTOM CURSOR -->
+<div id="custom-cursor">
+  <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M2 2L20 13.5L12.5 15.5L9 24L2 2Z" fill="#8B5CF6" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+  </svg>
+  <span class="cursor-label">You</span>
+</div>
+
 <!-- HINT -->
 <div id="hint">Scroll to zoom · Drag to pan · Items are movable</div>
 
 <script>
-  const viewport = document.getElementById('viewport');
-  const world    = document.getElementById('world');
-  const zoomDisplay = document.getElementById('zoom-display');
-  const hint     = document.getElementById('hint');
+  // ── PERSIST DRAGGABLE POSITIONS ──
+  const LAYOUT_V = 'v2';
+  function savePositions() {
+    const positions = { __v: LAYOUT_V };
+    document.querySelectorAll('.draggable[data-id]').forEach(el => {
+      positions[el.dataset.id] = { left: el.style.left, top: el.style.top };
+    });
+    localStorage.setItem('persona_positions', JSON.stringify(positions));
+  }
+  function restorePositions() {
+    try {
+      const positions = JSON.parse(localStorage.getItem('persona_positions') || '{}');
+      if (positions.__v !== LAYOUT_V) return; // reset to HTML defaults
+      document.querySelectorAll('.draggable[data-id]').forEach(el => {
+        const p = positions[el.dataset.id];
+        if (p) { el.style.left = p.left; el.style.top = p.top; }
+      });
+    } catch(e) {}
+  }
+  restorePositions();
 
-  let scale = 0.82;
-  let ox = 0, oy = 0;
+  const viewport    = document.getElementById('viewport');
+  const world       = document.getElementById('world');
+  const zoomDisplay = document.getElementById('zoom-display');
+  const hint        = document.getElementById('hint');
+
+  // ── CUSTOM CURSOR ──
+  const cursor = document.getElementById('custom-cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+  });
+  viewport.addEventListener('mouseleave', () => cursor.style.opacity = '0');
+  viewport.addEventListener('mouseenter', () => cursor.style.opacity = '1');
+
+  let scale = 0.82, targetScale = 0.82;
+  let ox = 0, oy = 0, targetOx = 0, targetOy = 0;
+  let zooming = false;
 
   // ── INIT ──
   function init() {
-    ox = window.innerWidth  / 2 - 900 * scale;
-    oy = window.innerHeight / 2 - 850 * scale;
+    scale = targetScale = 0.82;
+    ox = targetOx = window.innerWidth  / 2 - 620 * scale;
+    oy = targetOy = window.innerHeight / 2 - 520 * scale;
     applyTransform();
   }
 
@@ -587,6 +580,27 @@
     viewport.style.backgroundSize     = `${ds}px ${ds}px`;
     viewport.style.backgroundPosition = `${((ox % ds) + ds) % ds}px ${((oy % ds) + ds) % ds}px`;
     zoomDisplay.textContent = Math.round(scale * 100) + '%';
+  }
+
+  // ── SMOOTH ZOOM LOOP ──
+  function zoomTick() {
+    scale = scale + (targetScale - scale) * 0.5;
+    ox    = ox    + (targetOx    - ox)    * 0.5;
+    oy    = oy    + (targetOy    - oy)    * 0.5;
+    applyTransform();
+    if (Math.abs(scale - targetScale) > 0.0002 ||
+        Math.abs(ox - targetOx) > 0.2 ||
+        Math.abs(oy - targetOy) > 0.2) {
+      requestAnimationFrame(zoomTick);
+    } else {
+      scale = targetScale; ox = targetOx; oy = targetOy;
+      applyTransform();
+      zooming = false;
+    }
+  }
+
+  function startZoom() {
+    if (!zooming) { zooming = true; requestAnimationFrame(zoomTick); }
   }
 
   // ── PANNING ──
@@ -607,8 +621,8 @@
 
   window.addEventListener('mousemove', (e) => {
     if (!isPanning) return;
-    ox = panStartOx + (e.clientX - panStartX);
-    oy = panStartOy + (e.clientY - panStartY);
+    ox = targetOx = panStartOx + (e.clientX - panStartX);
+    oy = targetOy = panStartOy + (e.clientY - panStartY);
     applyTransform();
   });
 
@@ -619,18 +633,32 @@
     }
   });
 
-  // ── WHEEL ZOOM (toward cursor) ──
+  // ── WHEEL: PINCH = ZOOM, SCROLL = PAN (like Figma) ──
   viewport.addEventListener('wheel', (e) => {
     e.preventDefault();
-    const rect   = viewport.getBoundingClientRect();
-    const cx     = e.clientX - rect.left;
-    const cy     = e.clientY - rect.top;
-    const delta  = e.deltaY > 0 ? 0.92 : 1.08;
-    const newScale = Math.min(4, Math.max(0.1, scale * delta));
-    ox = cx - (cx - ox) * (newScale / scale);
-    oy = cy - (cy - oy) * (newScale / scale);
-    scale = newScale;
-    applyTransform();
+    if (e.ctrlKey) {
+      // Pinch gesture → zoom toward cursor
+      const rect = viewport.getBoundingClientRect();
+      const cx   = e.clientX - rect.left;
+      const cy   = e.clientY - rect.top;
+      let dy = e.deltaY;
+      if (e.deltaMode === 1) dy *= 16;
+      else if (e.deltaMode === 2) dy *= 300;
+      const factor = Math.pow(2, -dy / 500);
+      const newTarget = Math.min(4, Math.max(0.4, targetScale * factor));
+      targetOx = cx - (cx - targetOx) * (newTarget / targetScale);
+      targetOy = cy - (cy - targetOy) * (newTarget / targetScale);
+      targetScale = newTarget;
+      startZoom();
+    } else {
+      // Two-finger scroll → pan
+      let dx = e.deltaX, dy = e.deltaY;
+      if (e.deltaMode === 1) { dx *= 16; dy *= 16; }
+      else if (e.deltaMode === 2) { dx *= 300; dy *= 300; }
+      ox = targetOx = targetOx - dx;
+      oy = targetOy = targetOy - dy;
+      applyTransform();
+    }
   }, { passive: false });
 
   // ── DRAG ITEMS ──
@@ -663,6 +691,7 @@
     if (dragEl) {
       dragEl.style.zIndex = '';
       dragEl = null;
+      savePositions();
     }
   });
 
@@ -694,16 +723,16 @@
         const pinchScale = dist / lastTouchDist;
         const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
         const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-        const newScale = Math.min(4, Math.max(0.1, scale * pinchScale));
-        ox = midX - (midX - ox) * (newScale / scale);
-        oy = midY - (midY - oy) * (newScale / scale);
-        scale = newScale;
-        applyTransform();
+        const newTarget = Math.min(4, Math.max(0.4, targetScale * pinchScale));
+        targetOx = midX - (midX - targetOx) * (newTarget / targetScale);
+        targetOy = midY - (midY - targetOy) * (newTarget / targetScale);
+        targetScale = newTarget;
+        startZoom();
       }
       lastTouchDist = dist;
     } else if (e.touches.length === 1 && touchPanStart) {
-      ox = touchPanStart.ox + (e.touches[0].clientX - touchPanStart.x);
-      oy = touchPanStart.oy + (e.touches[0].clientY - touchPanStart.y);
+      ox = targetOx = touchPanStart.ox + (e.touches[0].clientX - touchPanStart.x);
+      oy = targetOy = touchPanStart.oy + (e.touches[0].clientY - touchPanStart.y);
       applyTransform();
     }
   }, { passive: false });
@@ -736,29 +765,29 @@
     }, { passive: false });
 
     el.addEventListener('touchend', () => {
-      if (dragEl) { dragEl.style.zIndex = ''; dragEl = null; }
+      if (dragEl) { dragEl.style.zIndex = ''; dragEl = null; savePositions(); }
     });
   });
 
   // ── ZOOM BUTTONS ──
   document.getElementById('btn-zoom-in').addEventListener('click', () => {
-    const newScale = Math.min(4, scale + 0.1);
+    const newTarget = Math.min(4, targetScale + 0.1);
     const cx = window.innerWidth  / 2;
     const cy = window.innerHeight / 2;
-    ox = cx - (cx - ox) * (newScale / scale);
-    oy = cy - (cy - oy) * (newScale / scale);
-    scale = newScale;
-    applyTransform();
+    targetOx = cx - (cx - targetOx) * (newTarget / targetScale);
+    targetOy = cy - (cy - targetOy) * (newTarget / targetScale);
+    targetScale = newTarget;
+    startZoom();
   });
 
   document.getElementById('btn-zoom-out').addEventListener('click', () => {
-    const newScale = Math.max(0.1, scale - 0.1);
+    const newTarget = Math.max(0.4, targetScale - 0.1);
     const cx = window.innerWidth  / 2;
     const cy = window.innerHeight / 2;
-    ox = cx - (cx - ox) * (newScale / scale);
-    oy = cy - (cy - oy) * (newScale / scale);
-    scale = newScale;
-    applyTransform();
+    targetOx = cx - (cx - targetOx) * (newTarget / targetScale);
+    targetOy = cy - (cy - targetOy) * (newTarget / targetScale);
+    targetScale = newTarget;
+    startZoom();
   });
 
   document.getElementById('btn-fit').addEventListener('click', () => {
