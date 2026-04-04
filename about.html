@@ -353,6 +353,22 @@
   .project-nav.intro-done { animation: fadeDown    1.1s cubic-bezier(0.22,1,0.36,1) 0.2s forwards; }
   .page.intro-done        { animation: fadeUpScale 1.3s cubic-bezier(0.22,1,0.36,1) 0.0s forwards; }
 
+  /* ── iPhone status bar cover ── */
+  @supports (padding-top: env(safe-area-inset-top)) {
+    @media (max-width: 430px) {
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: env(safe-area-inset-top);
+        background: var(--bg);
+        z-index: 9999;
+      }
+    }
+  }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 480px) {
     :root { --nav-h: 60px; }
