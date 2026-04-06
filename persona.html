@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Ingeborg — Persona</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
 
@@ -468,6 +470,31 @@
   .site-nav a:hover { background: rgba(43,40,40,0.06); }
   .site-nav a.active { background: #2B2828; color: #fff; }
 
+  /* ── RESET BUTTON ── */
+  #btn-reset {
+    position: fixed;
+    top: 28px;
+    left: 28px;
+    z-index: 600;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(26,23,20,0.09);
+    border-radius: 100px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: #2B2828;
+    cursor: pointer !important;
+    transition: background 0.15s, box-shadow 0.4s;
+  }
+  #btn-reset:hover { background: rgba(255,255,255,0.9); }
+  @media (max-width: 600px) { #btn-reset { top: 16px; left: 16px; } }
+
   /* ── ZOOM TOOLBAR ── */
   #zoom-toolbar {
     position: fixed;
@@ -575,7 +602,7 @@
     <img src="Figjam/Me.png" class="draggable" draggable="false" data-id="me" style="left:758px;top:175px;width:325px;" alt="Ingeborg">
 
     <!-- CV IMAGE -->
-    <div class="draggable" data-id="cv" style="left:645px;top:285px;width:155px;transform:rotate(4deg);">
+    <div class="draggable" data-id="cv" style="left:820px;top:535px;width:195px;transform:rotate(4deg);">
       <img src="Figjam/IngeborgCV.png" draggable="false" alt="CV">
     </div>
 
@@ -601,6 +628,12 @@
   <div class="zoom-divider"></div>
   <button class="zoom-btn" id="btn-fit" title="Fit to screen" style="font-size:13px;">⊞</button>
 </div>
+
+<!-- RESET BUTTON -->
+<button id="btn-reset" title="Reset to default layout">
+  <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 6.5a5 5 0 1 1 1.2 3.3M1.5 10V6.5H5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  Reset layout
+</button>
 
 <!-- CUSTOM CURSOR -->
 <div id="custom-cursor">
@@ -662,13 +695,13 @@
   viewport.addEventListener('mouseleave', () => cursor.style.opacity = '0');
   viewport.addEventListener('mouseenter', () => cursor.style.opacity = '1');
 
-  let scale = 0.82, targetScale = 0.82;
+  let scale = 1.1, targetScale = 1.1;
   let ox = 0, oy = 0, targetOx = 0, targetOy = 0;
   let zooming = false;
 
   // ── INIT ──
   function init() {
-    scale = targetScale = 0.82;
+    scale = targetScale = 1.1;
     ox = targetOx = window.innerWidth  / 2 - 620 * scale;
     oy = targetOy = window.innerHeight / 2 - 520 * scale;
     applyTransform();
@@ -745,7 +778,7 @@
       if (e.deltaMode === 1) dy *= 16;
       else if (e.deltaMode === 2) dy *= 300;
       const factor = Math.pow(2, -dy / 500);
-      const newTarget = Math.min(4, Math.max(0.4, targetScale * factor));
+      const newTarget = Math.min(4, Math.max(0.7, targetScale * factor));
       targetOx = cx - (cx - targetOx) * (newTarget / targetScale);
       targetOy = cy - (cy - targetOy) * (newTarget / targetScale);
       targetScale = newTarget;
@@ -828,7 +861,7 @@
         const pinchScale = dist / lastTouchDist;
         const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
         const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-        const newTarget = Math.min(4, Math.max(0.4, targetScale * pinchScale));
+        const newTarget = Math.min(4, Math.max(0.7, targetScale * pinchScale));
         targetOx = midX - (midX - targetOx) * (newTarget / targetScale);
         targetOy = midY - (midY - targetOy) * (newTarget / targetScale);
         targetScale = newTarget;
@@ -886,7 +919,7 @@
   });
 
   document.getElementById('btn-zoom-out').addEventListener('click', () => {
-    const newTarget = Math.max(0.4, targetScale - 0.1);
+    const newTarget = Math.max(0.7, targetScale - 0.1);
     const cx = window.innerWidth  / 2;
     const cy = window.innerHeight / 2;
     targetOx = cx - (cx - targetOx) * (newTarget / targetScale);
@@ -896,8 +929,13 @@
   });
 
   document.getElementById('btn-fit').addEventListener('click', () => {
-    scale = 0.82;
+    scale = 1.1;
     init();
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    localStorage.removeItem('persona_positions');
+    location.reload();
   });
 
   // ── HINT DISMISS ──
