@@ -544,6 +544,113 @@
   }
 
 
+  /* ── FOLDER COMPONENT ── */
+  /* ── PHOTOS FOLDER COMPONENT ── */
+  .fc {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    width: 188px;
+    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.14));
+  }
+  .fc-body {
+    position: relative;
+    flex-shrink: 0;
+    width: 188px;
+    height: 190px;
+    background-color: rgba(252,252,252,0.7);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(191,191,191,0.66);
+    border-radius: 14px;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 188 190'%3E%3Cpath fill='white' d='M 0 14 Q 0 0 14 0 L 60 0 Q 66 0 70 6 L 78 16 Q 82 20 90 20 L 180 20 Q 188 20 188 28 L 188 182 Q 188 190 180 190 L 8 190 Q 0 190 0 182 Z'/%3E%3C/svg%3E") no-repeat center / cover;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 188 190'%3E%3Cpath fill='white' d='M 0 14 Q 0 0 14 0 L 60 0 Q 66 0 70 6 L 78 16 Q 82 20 90 20 L 180 20 Q 188 20 188 28 L 188 182 Q 188 190 180 190 L 8 190 Q 0 190 0 182 Z'/%3E%3C/svg%3E") no-repeat center / cover;
+    transform: perspective(1200px) rotateX(-45deg);
+    transform-origin: 50% 100% 0;
+    transform-style: preserve-3d;
+    z-index: 2;
+    overflow: visible;
+    will-change: transform;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .fc:hover .fc-body {
+    transform: perspective(1200px) rotateX(-28deg);
+  }
+  .fc-line1, .fc-line2 {
+    position: absolute;
+    width: 168px;
+    height: 2px;
+    left: calc(50% - 84px);
+    border-radius: 98px;
+  }
+  .fc-line1 {
+    bottom: 40px;
+    background: rgba(252,252,252,0.25);
+    box-shadow: 0 2px 4px rgba(150,150,150,0.25);
+  }
+  .fc-line2 {
+    bottom: 27px;
+    background: rgba(255,255,255,0.25);
+    box-shadow: 0 2px 4px rgba(150,150,150,0.25), 0 -2px 4px rgba(255,255,255,0.25);
+  }
+  .fc-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .fc-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    color: #1a1a1a;
+  }
+  .fc-tag {
+    background: rgb(237,237,237);
+    border-radius: 35px;
+    padding: 3px 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgb(121,127,131);
+  }
+  .fc-photo {
+    position: absolute;
+    background: #fff;
+    border-radius: 18px;
+    border: 1px solid rgba(156,162,166,0.41);
+    padding: 10px;
+    z-index: 1;
+    will-change: top, left;
+    transition: top 0.5s cubic-bezier(0.34,1.56,0.64,1),
+                left 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .fc-photo img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+    pointer-events: none;
+    -webkit-user-drag: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .fc-p1 { left:-30px; top:39px; transform:perspective(1200px) rotate(-17deg); }
+  .fc-p2 { left:8px;   top:17px; transform:perspective(1200px); }
+  .fc-p3 { left:61%;   top:22px; transform:translateX(-50%) perspective(1200px) rotate(-14deg); }
+  .fc-p4 { left:125px; top:36px; transform:perspective(1200px) rotate(10deg); }
+  .fc:hover .fc-p1 { left:-55px; top:6px; }
+  .fc:hover .fc-p2 { left:28%;   top:-23px; }
+  .fc:hover .fc-p3 { left:61%;   top:-17px; }
+  .fc:hover .fc-p4 { left:97%;   top:4px; }
+
   /* ── PAGE TRANSITION ── */
   @keyframes fadeIn {
     from { opacity: 0; }
@@ -615,6 +722,26 @@
     <img src="Figjam/interests.png" class="draggable" draggable="false" data-id="interests" style="left:110px;top:668px;width:858px;" alt="Interests">
 
 
+
+    <!-- FOLDER -->
+    <div class="draggable folder-comp" data-id="folder" style="left:1150px;top:475px;">
+      <div class="folder-tilt">
+        <div class="folder-tab"></div>
+        <div class="folder-body">
+          <div class="folder-pic" style="width:100px;height:80px;top:20px;left:-2px;transform:rotate(-14deg);">
+            <img src="Figjam/Me.png" style="object-position:top;" draggable="false" alt="">
+          </div>
+          <div class="folder-pic" style="width:82px;height:68px;top:16px;left:58px;transform:rotate(-3deg);background:linear-gradient(135deg,#e9d5ff,#c4b5fd);"></div>
+          <div class="folder-pic" style="width:92px;height:74px;top:18px;left:108px;transform:rotate(12deg);">
+            <img src="AboutMePhotos/vsco5b59d50043e71.jpg" draggable="false" alt="">
+          </div>
+          <div class="folder-foot">
+            <span class="folder-name">Photos</span>
+            <span class="folder-count">24 photos</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
   </div><!-- /world -->
 </div><!-- /viewport -->

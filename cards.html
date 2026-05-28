@@ -81,11 +81,11 @@
   .info-pills { display:flex; gap:7px; flex-wrap:wrap; justify-content:center; }
   .pill {
     font-size: 11px; padding: 4px 12px; border-radius: 100px;
-    border: 1px solid #E5E4E2; color: #696767;
+    border: none; color: #696767; background: rgba(255,255,255,0.45);
     display:inline-flex; align-items:center; gap:5px;
   }
   .pill svg { flex-shrink:0; opacity:0.75; }
-  .pill.hi { border-color:#BCBAB8; color:#2B2828; background:rgba(43,40,40,0.04); }
+  .pill.hi { border: none; color: #2B2828; background: rgba(255,255,255,0.55); }
 
   .nav-dots {
     display:flex; gap:7px; justify-content:center;
@@ -517,11 +517,11 @@ const cardEls = projects.map((p, i) => {
     overflow:hidden;
   `;
   const logos = {
-    1: 'Logos/Altek Ai.svg',
-    2: 'Logos/Kron.svg',
-    3: 'Logos/Telenor.svg',
-    4: 'Logos/Nabostylist.svg',
-    5: 'Logos/DFØ.svg'
+    1: 'Logos/Altek Ai_withoutbackground.svg',
+    2: 'Logos/Kron_withoutbackground.svg',
+    3: 'Logos/Telenor_withoutbackground.svg',
+    4: 'Logos/Nabostylist_withoutbackground.svg',
+    5: 'Logos/DFØ_withoutbackground.svg'
   };
   if (logos[i]) {
     const img = document.createElement('img');

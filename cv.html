@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CV – Ingeborg Sili Østgaard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --ink:#2B2828; --mid:#696767; --faint:#BCBAB8; --line:#E5E4E2; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f7f7f7;
+    color: var(--ink);
+    padding: 28px 20px 40px;
+  }
+
+  .print-bar {
+    max-width: 600px; margin: 0 auto 14px;
+    display: flex; justify-content: flex-end; gap: 8px;
+  }
+  .btn {
+    font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--mid);
+    background: #fff; border: 1px solid var(--line); border-radius: 100px;
+    padding: 5px 13px; cursor: pointer; text-decoration: none;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .btn:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .btn-primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .page {
+    max-width: 600px; margin: 0 auto;
+    background: #fff; border-radius: 10px; border: 1px solid var(--line);
+    padding: 32px 40px 32px;
+    font-size: 10.5px; line-height: 1.45; color: var(--ink);
+  }
+
+  /* HEADER */
+  .header {
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;
+    padding-bottom: 14px; border-bottom: 1px solid var(--line); margin-bottom: 14px;
+  }
+  .name { font-size: 1.45rem; font-weight: 400; line-height: 1.1; margin-bottom: 3px; letter-spacing: -0.01em; }
+  .role { font-size: 0.78rem; color: var(--mid); font-weight: 300; }
+  .header-right { text-align: right; flex-shrink: 0; }
+  .contact-item { font-size: 0.69rem; color: var(--mid); font-weight: 300; line-height: 1.8; text-decoration: none; display: block; }
+  .contact-item:hover { color: var(--ink); }
+
+  /* SECTION */
+  .section { margin-bottom: 12px; }
+  .section:last-child { margin-bottom: 0; }
+  .section-label { font-size: 8.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); margin-bottom: 6px; }
+
+  /* ENTRY */
+  .entry { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-top: 1px solid var(--line); }
+  .entry:last-child { border-bottom: 1px solid var(--line); }
+  .entry-logo { width: 24px; height: 24px; border-radius: 5px; flex-shrink: 0; overflow: hidden; border: 1px solid var(--line); margin-top: 1px; }
+  .entry-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .entry-main { flex: 1; min-width: 0; }
+  .entry-org { font-size: 0.64rem; color: var(--faint); }
+  .entry-title { font-size: 0.78rem; font-weight: 500; margin-bottom: 2px; }
+  .entry-desc { font-size: 0.69rem; line-height: 1.5; color: var(--mid); font-weight: 300; }
+  .entry-date { font-size: 0.64rem; color: var(--faint); text-align: right; white-space: nowrap; flex-shrink: 0; padding-top: 2px; line-height: 1.6; }
+
+  /* TWO-COL */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; margin-bottom: 12px; }
+  .two-col .section { margin-bottom: 0; }
+
+  /* SKILLS */
+  .skills-row { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 6px 0; display: flex; flex-wrap: wrap; }
+  .skill-tag { font-size: 0.69rem; color: var(--mid); font-weight: 300; padding-right: 6px; }
+  .skill-tag::after { content: '·'; margin-left: 6px; color: var(--line); }
+  .skill-tag:last-child::after { content: ''; }
+
+  /* ACHIEVEMENTS */
+  .achievement { display: flex; gap: 6px; align-items: baseline; padding: 5px 0; border-top: 1px solid var(--line); }
+  .achievement:last-child { border-bottom: 1px solid var(--line); }
+  .achievement-title { font-size: 0.75rem; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
+  .achievement-sep { color: var(--faint); font-size: 0.69rem; flex-shrink: 0; }
+  .achievement-desc { font-size: 0.69rem; color: var(--mid); font-weight: 300; line-height: 1.45; }
+
+  /* PRINT */
+  @media print {
+    body { background: #fff; padding: 0; }
+    .page { border: none; border-radius: 0; padding: 0; max-width: 100%; box-shadow: none; }
+    .print-bar { display: none; }
+  }
+  @page { size: A4; margin: 13mm 15mm; }
+</style>
+</head>
+<body>
+
+<div class="print-bar">
+  <a href="about.html" class="btn">← About</a>
+  <button class="btn btn-primary" onclick="window.print()">Save as PDF</button>
+</div>
+
+<div class="page">
+
+  <header class="header">
+    <div>
+      <h1 class="name">Ingeborg Sili Østgaard</h1>
+      <p class="role">UX Designer &nbsp;·&nbsp; Oslo, Norway</p>
+    </div>
+    <div class="header-right">
+      <a class="contact-item" href="mailto:ingeborg2809@gmail.com">ingeborg2809@gmail.com</a>
+      <a class="contact-item" href="tel:+4790213071">+47 90 21 30 71</a>
+      <a class="contact-item" href="https://linkedin.com/in/ingeborg-sili-oestgaard" target="_blank">linkedin.com/in/ingeborg-sili-oestgaard</a>
+      <a class="contact-item" href="https://ingupingu.github.io/design-portfolio/cards.html" target="_blank">ingupingu.github.io/design-portfolio</a>
+    </div>
+  </header>
+
+  <section class="section">
+    <p class="section-label">Experience</p>
+
+    <div class="entry">
+      <div class="entry-logo"><img src="Logos/Altek Ai.svg" alt="Altek AI"></div>
+      <div class="entry-main">
+        <p class="entry-org">Altek AI</p>
+        <p class="entry-title">UX &amp; UI Lead Designer</p>
+        <p class="entry-desc">End-to-end product design for AI solutions used by 60+ hotels (The Well, Britannia, The Thief). Contributing to $100K ARR and NOK 5M in funding.</p>
+      </div>
+      <p class="entry-date">Jan 2025 – Present<br>Oslo</p>
+    </div>
+
+    <div class="entry">
+      <div class="entry-logo"><img src="Logos/Kron.svg" alt="Kron"></div>
+      <div class="entry-main">
+        <p class="entry-org">Storebrand (Kron)</p>
+        <p class="entry-title">UX Designer – Summer Intern</p>
+        <p class="entry-desc">Next phase of Kron investment platform (80,000+ users, 4.8★). Home savings feature recognised by Storebrand leadership.</p>
+      </div>
+      <p class="entry-date">Jun – Aug 2025<br>Oslo</p>
+    </div>
+
+    <div class="entry">
+      <div class="entry-logo"><img src="Logos/Telenor.svg" alt="Telenor"></div>
+      <div class="entry-main">
+        <p class="entry-org">Telenor</p>
+        <p class="entry-title">UX Designer – Summer Intern</p>
+        <p class="entry-desc">CRM concept for 180,000+ B2B customers (50+ interviews). Employer branding campaigns boosted job listing traffic by 124%.</p>
+      </div>
+      <p class="entry-date">Jun – Sep 2024<br>Oslo</p>
+    </div>
+
+    <div class="entry">
+      <div class="entry-logo"><img src="Logos/Nabostylist.svg" alt="Nabostylisten"></div>
+      <div class="entry-main">
+        <p class="entry-org">Nabostylisten</p>
+        <p class="entry-title">UX &amp; UI Designer</p>
+        <p class="entry-desc">Redesigned design system and UI — user satisfaction from 3.1 → 7.5. Featured by MinMote and TV 2.</p>
+      </div>
+      <p class="entry-date">Apr – Oct 2024<br>Oslo</p>
+    </div>
+
+    <div class="entry">
+      <div class="entry-logo"><img src="Logos/Experis.svg" alt="Experis"></div>
+      <div class="entry-main">
+        <p class="entry-org">Experis</p>
+        <p class="entry-title">UX Designer – Summer Intern</p>
+        <p class="entry-desc">Accessibility features for a colour-notation music app for users with disabilities. WCAG 2.1, agile Scrum.</p>
+      </div>
+      <p class="entry-date">Jun – Aug 2023<br>Oslo</p>
+    </div>
+
+    <div class="entry">
+      <div class="entry-logo"><img src="Logos/University of Oslo.svg" alt="UiO"></div>
+      <div class="entry-main">
+        <p class="entry-org">University of Oslo</p>
+        <p class="entry-title">Design Teaching &amp; Examiner</p>
+        <p class="entry-desc">Mentored 30+ students; 4/8 guided teams nominated Best App (out of 54). Annual Figma workshops for 70+ students.</p>
+      </div>
+      <p class="entry-date">Sep 2022 – Jun 2025<br>Oslo</p>
+    </div>
+  </section>
+
+  <div class="two-col">
+    <section class="section">
+      <p class="section-label">Education</p>
+      <div class="entry">
+        <div class="entry-logo"><img src="Logos/University of Oslo.svg" alt="UiO"></div>
+        <div class="entry-main">
+          <p class="entry-org">University of Oslo</p>
+          <p class="entry-title">BSc &amp; MSc Design, Use, Interaction</p>
+          <p class="entry-desc">Informatics &amp; design. Master's thesis on universal design for Skatteetaten (dyslexia &amp; dyscalculia).</p>
+        </div>
+        <p class="entry-date">2021 – 2026<br>Oslo</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <p class="section-label">Volunteering</p>
+      <div class="entry">
+        <div class="entry-logo"><img src="Logos/Insj UiO.svg" alt="Insj UiO"></div>
+        <div class="entry-main">
+          <p class="entry-org">Insj UiO</p>
+          <p class="entry-title">UX &amp; Web Designer</p>
+          <p class="entry-desc">+15% student engagement. Co-hosted Innovation Week, Innovation Norway recognised.</p>
+        </div>
+        <p class="entry-date">2022 – 2023</p>
+      </div>
+      <div class="entry">
+        <div class="entry-logo"><img src="Logos/Defi.svg" alt="Defi"></div>
+        <div class="entry-main">
+          <p class="entry-org">Defi</p>
+          <p class="entry-title">Volunteer – Student Organisation</p>
+          <p class="entry-desc">Events to strengthen the UiO design student community.</p>
+        </div>
+        <p class="entry-date">2022 – 2023</p>
+      </div>
+    </section>
+  </div>
+
+  <section class="section">
+    <p class="section-label">Skills &amp; Tools</p>
+    <div class="skills-row">
+      <span class="skill-tag">UX Research</span>
+      <span class="skill-tag">Interaction Design</span>
+      <span class="skill-tag">Universal Design / WCAG 2.1</span>
+      <span class="skill-tag">Figma &amp; FigJam</span>
+      <span class="skill-tag">Design Systems</span>
+      <span class="skill-tag">HTML · CSS · JS</span>
+      <span class="skill-tag">Webflow</span>
+      <span class="skill-tag">Norwegian (native)</span>
+      <span class="skill-tag">English (fluent)</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <p class="section-label">Achievements</p>
+    <div class="achievement">
+      <p class="achievement-title">Winner – UX CUP, BEKK Oslo (2023)</p>
+      <p class="achievement-sep">–</p>
+      <p class="achievement-desc">Won Oslo semifinal; competed in national finale.</p>
+    </div>
+    <div class="achievement">
+      <p class="achievement-title">Winner – Mine Studier UiO Case (2023)</p>
+      <p class="achievement-sep">–</p>
+      <p class="achievement-desc">Winning concept for UiO's student app (27,000+ users), later developed with the team.</p>
+    </div>
+    <div class="achievement">
+      <p class="achievement-title">Recognition Award – UiO (2023)</p>
+      <p class="achievement-sep">–</p>
+      <p class="achievement-desc">Outstanding contributions to design education and student engagement.</p>
+    </div>
+  </section>
+
+</div>
+
+</body>
+</html>
