@@ -52,7 +52,7 @@
 
   .info-panel {
     width: 100%;
-    max-width: 850px;
+    max-width: 100%;
     padding: 0 32px;
     height: 220px;
     overflow: hidden;
@@ -380,6 +380,7 @@ function computeDimensions() {
   S  = Math.min(sH, sW);
   CW = Math.round(NATIVE_W * S);
   CH = Math.round(NATIVE_H * S);
+  document.getElementById('infoPanel').style.maxWidth = CW + 'px';
 }
 
 // ── Spring ────────────────────────────────────────────────────────
