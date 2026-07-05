@@ -554,7 +554,7 @@ const cardEls = projects.map((p, i) => {
       a.href = c.href;
       if (!c.copy) a.target = '_blank';
       a.title = c.label;
-      a.style.cssText = `position:absolute;left:calc(${c.left * 100}% - ${linkWidth / 2}px);top:calc(${c.top * 100}% - ${linkHeight / 2}px);width:${linkWidth}px;height:${linkHeight}px;opacity:0;cursor:pointer;pointer-events:auto;border-radius:8px;`;
+      a.style.cssText = `position:absolute;left:${c.left * 100}%;top:${c.top * 100}%;width:${linkWidth}px;height:${linkHeight}px;opacity:0;cursor:pointer;pointer-events:auto;border-radius:8px;`;
       if (c.copy) a.addEventListener('click', e => {
         e.preventDefault(); e.stopPropagation();
         navigator.clipboard.writeText(c.copy).then(()=>{ const originalTitle = a.title; a.title = 'Copied!'; setTimeout(() => a.title = originalTitle, 1500); });
