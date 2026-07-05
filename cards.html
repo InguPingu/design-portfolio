@@ -469,13 +469,9 @@ const cardEls = projects.map((p, i) => {
   card.style.marginLeft = (-CW / 2) + 'px';
   const swatch = document.createElement('div'); swatch.className = 'card-swatch';
   if (p.blank) {
-    swatch.style.background = 'transparent';
-    card.style.background = 'rgba(255,255,255,0.05)';
-    card.style.backdropFilter = 'blur(5px)';
-    card.style.webkitBackdropFilter = 'blur(5px)';
-    card.style.border = '1px solid rgba(255,255,255,0.3)';
-    card.style.boxShadow = '0 4px 30px rgba(0,0,0,0.01)';
-    card.style.borderRadius = '16px';
+    swatch.style.backgroundImage = `url('Contact.png')`;
+    swatch.style.backgroundSize = 'cover';
+    swatch.style.backgroundPosition = 'center';
   } else if (i === 0) {
     swatch.style.backgroundImage = `url('${p.image}')`;
     swatch.style.backgroundSize = 'cover';
@@ -542,42 +538,29 @@ const cardEls = projects.map((p, i) => {
 
   if (p.blank) {
     const contact = document.createElement('div');
-    const gap = Math.round(S * 18);
-    const pad = Math.round(S * 40);
-    const linkPad = Math.max(Math.round(S * 7), 9);
-    const linkFont = Math.max(Math.round(S * 11.5 * 10) / 10, 11);
-    const nameFont = Math.max(Math.round(S * 26 * 10) / 10, 16);
-    contact.style.cssText = `position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:${gap}px;padding:${pad}px;overflow:hidden;`;
+    contact.style.cssText = `position:absolute;inset:0;overflow:hidden;`;
+    const contactLinks = [
+      { label:'Email',     copy:'ingeborg2809@gmail.com', href:'mailto:ingeborg2809@gmail.com',                                  top: 0.48, left: 0.08 },
+      { label:'Phone',     copy:'+47 90 21 30 71',        href:'tel:+4790213071',                                               top: 0.54, left: 0.08 },
+      { label:'LinkedIn',  copy:null,                     href:'https://www.linkedin.com/in/ingeborg-sili-oestgaard/',         top: 0.60, left: 0.08 },
+      { label:'CV',        copy:null,                     href:'IngeborgSO_CV.pdf',                                             top: 0.66, left: 0.08 },
+    ];
 
-    const nameEl = document.createElement('div');
-    nameEl.style.cssText = `font-size:${nameFont}px;font-weight:300;color:#1d1d1f;line-height:1.25;text-align:center;letter-spacing:-0.01em;`;
-    nameEl.innerHTML = 'Ingeborg Sili<br>Østgaard';
+    const linkHeight = Math.max(Math.round(S * 30), 20);
+    const linkWidth = Math.max(Math.round(S * 200), 140);
 
-    const divider = document.createElement('div');
-    divider.style.cssText = 'width:32px;height:0.5px;background:rgba(43,40,40,0.12);';
-
-    const links = document.createElement('div');
-    links.style.cssText = `display:flex;flex-direction:column;gap:${Math.max(Math.round(S*5),5)}px;width:100%;max-width:${Math.max(Math.round(S*230), 200)}px;`;
-    [
-      { label:'ingeborg2809@gmail.com', copy:'ingeborg2809@gmail.com', href:'mailto:ingeborg2809@gmail.com' },
-      { label:'+47 90 21 30 71',        copy:'+47 90 21 30 71',        href:'tel:+4790213071' },
-      { label:'LinkedIn \u2197\uFE0E',   copy:null,                     href:'https://www.linkedin.com/in/ingeborg-sili-oestgaard/' },
-      { label:'CV \u2197\uFE0E',        copy:null,                     href:'IngeborgSO_CV.pdf' },
-    ].forEach(c => {
+    contactLinks.forEach(c => {
       const a = document.createElement('a');
-      a.href = c.href; if (!c.copy) a.target = '_blank';
-      a.textContent = c.label;
-      a.style.cssText = `display:block;text-align:center;font-size:${linkFont}px;color:rgba(43,40,40,0.6);text-decoration:none;padding:${linkPad}px 16px;border-radius:100px;border:0.5px solid rgba(43,40,40,0.12);background:rgba(255,255,255,0.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:background 0.15s,box-shadow 0.15s,transform 0.12s;letter-spacing:0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`;
-      a.addEventListener('mouseenter',()=>{ a.style.background='rgba(255,255,255,0.95)'; a.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'; a.style.transform='translateY(-1px)'; });
-      a.addEventListener('mouseleave',()=>{ a.style.background='rgba(255,255,255,0.6)'; a.style.boxShadow='none'; a.style.transform=''; });
+      a.href = c.href;
+      if (!c.copy) a.target = '_blank';
+      a.title = c.label;
+      a.style.cssText = `position:absolute;left:calc(${c.left * 100}% - ${linkWidth / 2}px);top:calc(${c.top * 100}% - ${linkHeight / 2}px);width:${linkWidth}px;height:${linkHeight}px;opacity:0;cursor:pointer;pointer-events:auto;border-radius:8px;`;
       if (c.copy) a.addEventListener('click', e => {
         e.preventDefault(); e.stopPropagation();
-        navigator.clipboard.writeText(c.copy).then(()=>{ const t=a.textContent; a.textContent='Copied!'; setTimeout(()=>a.textContent=t,1500); });
+        navigator.clipboard.writeText(c.copy).then(()=>{ const originalTitle = a.title; a.title = 'Copied!'; setTimeout(() => a.title = originalTitle, 1500); });
       });
-      links.appendChild(a);
+      contact.appendChild(a);
     });
-
-    contact.append(nameEl, divider, links);
     tilt.appendChild(contact);
   }
 
