@@ -193,17 +193,11 @@
   /* ── NAV ── */
   .site-nav {
     position: fixed;
-    top: max(28px, env(safe-area-inset-top, 0px) + 14px);
+    top: max(24px, env(safe-area-inset-top, 0px) + 12px);
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 4px;
-    background: rgba(255,255,255,0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(26,23,20,0.09);
-    border-radius: 100px;
-    padding: 5px;
+    gap: 20px;
     z-index: 100;
     white-space: nowrap;
   }
@@ -213,12 +207,10 @@
     font-size: 13px;
     font-weight: 400;
     color: #2B2828;
-    padding: 6px 16px;
-    border-radius: 100px;
-    transition: background 0.15s;
+    transition: opacity 0.2s;
   }
-  .site-nav a:hover { background: rgba(43,40,40,0.06); }
-  .site-nav a.active { background: #2B2828; color: #fff; }
+  .site-nav a:hover { opacity: 0.6; }
+  .site-nav a.active { font-weight: 500; }
 
   /* ── STAGE ── */
   .stage {
