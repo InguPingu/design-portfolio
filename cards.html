@@ -555,6 +555,12 @@ const cardEls = projects.map((p, i) => {
       if (!c.copy) a.target = '_blank';
       a.title = c.label;
       a.style.cssText = `position:absolute;left:${c.left * 100}%;top:${c.top * 100}%;width:${linkWidth}px;height:${linkHeight}px;opacity:0;cursor:pointer;pointer-events:auto;border-radius:8px;`;
+      a.addEventListener('mouseenter', () => {
+        cursorLabel.textContent = c.label;
+      });
+      a.addEventListener('mouseleave', () => {
+        cursorLabel.textContent = "Let's work together :)";
+      });
       if (c.copy) a.addEventListener('click', e => {
         e.preventDefault(); e.stopPropagation();
         navigator.clipboard.writeText(c.copy).then(()=>{
