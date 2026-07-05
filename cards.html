@@ -693,11 +693,7 @@ function updateInfo(idx){
     const p = projects[idx];
     infoPanel.innerHTML = `
       <div style="animation:fadeUp 0.4s ease forwards">
-        <div style="display: flex; align-items: center; gap: 8px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap;">
-          <div class="info-title" style="margin: 0;">${p.title}</div>
-          <span style="font-size: 0.86rem; color: #696767;">(${p.role})</span>
-        </div>
-        <div class="info-desc">${p.desc}</div>
+        <div class="info-title" style="margin-bottom: 12px;">${p.title} <span style="font-weight: 300; font-size: 0.9em; color: #696767;">(${p.role})</span> · <span style="font-weight: 300; font-size: 0.9em; color: #696767;">${p.desc}</span></div>
         <div class="info-pills">${p.pills.map(pl => `<span class="pill${pl.hi?' hi':''}">${pl.icon||''} ${pl.text}</span>`).join('')}</div>
       </div>`;
   }
