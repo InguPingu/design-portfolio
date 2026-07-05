@@ -542,12 +542,12 @@ const cardEls = projects.map((p, i) => {
     const contactLinks = [
       { label:'Email',     copy:'ingeborg2809@gmail.com', href:'mailto:ingeborg2809@gmail.com',                                  top: 0.67, left: 0.025 },
       { label:'Phone',     copy:'+47 90 21 30 71',        href:'tel:+4790213071',                                               top: 0.72, left: 0.025 },
-      { label:'LinkedIn',  copy:null,                     href:'https://www.linkedin.com/in/ingeborg-sili-oestgaard/',         top: 0.77, left: 0.025 },
-      { label:'CV',        copy:null,                     href:'IngeborgSO_CV.pdf',                                             top: 0.82, left: 0.025 },
+      { label:'LinkedIn',  copy:null,                     href:'https://www.linkedin.com/in/ingeborg-sili-oestgaard/',         top: 0.80, left: 0.025 },
+      { label:'CV',        copy:null,                     href:'IngeborgSO_CV.pdf',                                             top: 0.88, left: 0.025 },
     ];
 
     const linkHeight = Math.max(Math.round(S * 30), 20);
-    const linkWidth = Math.max(Math.round(S * 200), 140);
+    const linkWidth = Math.max(Math.round(S * 400), 300);
 
     contactLinks.forEach(c => {
       const a = document.createElement('a');
