@@ -590,14 +590,14 @@ const cardEls = projects.map((p, i) => {
 
     const titleContainer = document.createElement('div');
     titleContainer.style.cssText = `font-family:'Bitcount Prop',monospace;color:#2B7FFF;line-height:0.95;`;
-    titleContainer.innerHTML = `<div style="font-size:${Math.round(S*50)}px;font-weight:700;letter-spacing:${Math.round(S*6)}px;margin:0;">INGEBORG</div><div style="font-size:${Math.round(S*50)}px;font-weight:700;letter-spacing:${Math.round(S*6)}px;margin:0;">SILI</div><div style="font-size:${Math.round(S*45)}px;font-weight:700;letter-spacing:${Math.round(S*5)}px;margin-top:${Math.round(S*4)}px;margin:0;">ØSTGAARD</div>`;
+    titleContainer.innerHTML = `<div style="font-size:${Math.round(S*85)}px;font-weight:700;letter-spacing:${Math.round(S*10)}px;margin:0;">INGEBORG</div><div style="font-size:${Math.round(S*85)}px;font-weight:700;letter-spacing:${Math.round(S*10)}px;margin:0;">SILI</div><div style="font-size:${Math.round(S*75)}px;font-weight:700;letter-spacing:${Math.round(S*8)}px;margin-top:${Math.round(S*4)}px;margin:0;">ØSTGAARD</div>`;
 
     const locationEl = document.createElement('div');
-    locationEl.style.cssText = `position:absolute;top:${Math.round(S*30)}px;right:${Math.round(S*35)}px;font-size:${Math.round(S*13)}px;color:#2B7FFF;letter-spacing:${Math.round(S*0.5)}px;`;
+    locationEl.style.cssText = `position:absolute;top:${Math.round(S*30)}px;right:${Math.round(S*35)}px;font-size:${Math.round(S*18)}px;color:#2B7FFF;letter-spacing:${Math.round(S*0.8)}px;`;
     locationEl.textContent = 'Oslo, Norway';
 
     const contactLinks = document.createElement('div');
-    contactLinks.style.cssText = `display:flex;flex-direction:column;gap:${Math.round(S*8)}px;`;
+    contactLinks.style.cssText = `display:flex;flex-direction:column;gap:${Math.round(S*12)}px;`;
     [
       { label:'ingeborg2809@gmail.com', copy:'ingeborg2809@gmail.com', href:'mailto:ingeborg2809@gmail.com' },
       { label:'+47 90 21 30 71',        copy:'+47 90 21 30 71',        href:'tel:+4790213071' },
@@ -607,7 +607,7 @@ const cardEls = projects.map((p, i) => {
       const a = document.createElement('a');
       a.href = c.href; if (!c.copy) a.target = '_blank';
       a.textContent = c.label;
-      a.style.cssText = `font-size:${Math.round(S*10)}px;color:#2B7FFF;text-decoration:underline;font-weight:400;letter-spacing:${Math.round(S*0.4)}px;cursor:pointer;`;
+      a.style.cssText = `font-size:${Math.round(S*15)}px;color:#2B7FFF;text-decoration:underline;font-weight:400;letter-spacing:${Math.round(S*0.6)}px;cursor:pointer;`;
       if (c.copy) a.addEventListener('click', e => {
         e.preventDefault(); e.stopPropagation();
         navigator.clipboard.writeText(c.copy).then(()=>{ const t=a.textContent; a.textContent='Copied!'; setTimeout(()=>a.textContent=t,1500); });
