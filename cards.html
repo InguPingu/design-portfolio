@@ -55,7 +55,7 @@
     max-width: 100%;
     padding: 0 32px;
     height: 220px;
-    overflow: hidden;
+    overflow: visible;
     text-align: left;
     flex-shrink: 0;
   }
@@ -225,7 +225,7 @@
     .site-nav a { font-size: 12px; padding: 5px 14px; }
     .info-title  { font-size: 1.8rem; }
     .info-desc   { font-size: 0.82rem; line-height: 1.55; margin-bottom: 14px; }
-    .info-panel  { height: 185px; padding: 0 16px; }
+    .info-panel  { height: auto; min-height: 220px; padding: 0 16px; overflow: visible; }
     .pill        { font-size: 10px; padding: 3px 9px; }
     .nav-dots    { margin-top: 14px; }
     .arrows      { margin-top: 10px; }
@@ -235,7 +235,7 @@
   @media (max-width: 360px) {
     .info-title { font-size: 1.55rem; }
     .info-desc  { display: none; }
-    .info-panel { height: 90px; }
+    .info-panel { height: auto; min-height: 150px; overflow: visible; }
     .card-info-gap { height: 12px; }
   }
 
