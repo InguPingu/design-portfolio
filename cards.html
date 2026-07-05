@@ -66,13 +66,12 @@
   }
 
   .info-eyebrow {
-    font-size: 11px; letter-spacing: 0.14em;
-    text-transform: uppercase; color: #BCBAB8; margin-bottom: 10px;
+    display: none;
   }
   .info-title {
     font-family: 'DM Sans', sans-serif;
     font-size: 2.4rem; font-weight: 400; line-height: 1.05;
-    color: #2B2828; margin-bottom: 10px;
+    color: #2B2828;
   }
   .info-desc {
     font-size: 0.86rem; line-height: 1.75;
@@ -694,8 +693,10 @@ function updateInfo(idx){
     const p = projects[idx];
     infoPanel.innerHTML = `
       <div style="animation:fadeUp 0.4s ease forwards">
-        <div class="info-eyebrow">${p.role}</div>
-        <div class="info-title">${p.title}</div>
+        <div style="display: flex; align-items: center; gap: 8px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap;">
+          <div class="info-title" style="margin: 0;">${p.title}</div>
+          <span style="font-size: 0.86rem; color: #696767;">(${p.role})</span>
+        </div>
         <div class="info-desc">${p.desc}</div>
         <div class="info-pills">${p.pills.map(pl => `<span class="pill${pl.hi?' hi':''}">${pl.icon||''} ${pl.text}</span>`).join('')}</div>
       </div>`;
