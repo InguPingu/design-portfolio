@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Projects</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Bitcount+Prop:wght@400;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" href="Pingu.svg">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -582,41 +581,6 @@ const cardEls = projects.map((p, i) => {
     tilt.appendChild(contact);
   }
 
-  // Update blank card to business card style
-  if (p.blank) {
-    tilt.innerHTML = '';
-    const contact = tilt;
-    contact.style.cssText = `position:absolute;inset:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;padding:${Math.round(S*30)}px ${Math.round(S*35)}px;overflow:hidden;background:white;`;
-
-    const titleContainer = document.createElement('div');
-    titleContainer.style.cssText = `font-family:'Bitcount Prop',monospace;color:#2B7FFF;line-height:0.95;`;
-    titleContainer.innerHTML = `<div style="font-size:${Math.round(S*85)}px;font-weight:700;letter-spacing:${Math.round(S*10)}px;margin:0;">INGEBORG</div><div style="font-size:${Math.round(S*85)}px;font-weight:700;letter-spacing:${Math.round(S*10)}px;margin:0;">SILI</div><div style="font-size:${Math.round(S*75)}px;font-weight:700;letter-spacing:${Math.round(S*8)}px;margin-top:${Math.round(S*4)}px;margin:0;">ØSTGAARD</div>`;
-
-    const locationEl = document.createElement('div');
-    locationEl.style.cssText = `position:absolute;top:${Math.round(S*30)}px;right:${Math.round(S*35)}px;font-size:${Math.round(S*18)}px;color:#2B7FFF;letter-spacing:${Math.round(S*0.8)}px;`;
-    locationEl.textContent = 'Oslo, Norway';
-
-    const contactLinks = document.createElement('div');
-    contactLinks.style.cssText = `display:flex;flex-direction:column;gap:${Math.round(S*12)}px;`;
-    [
-      { label:'ingeborg2809@gmail.com', copy:'ingeborg2809@gmail.com', href:'mailto:ingeborg2809@gmail.com' },
-      { label:'+47 90 21 30 71',        copy:'+47 90 21 30 71',        href:'tel:+4790213071' },
-      { label:'LinkedIn',               copy:null,                     href:'https://www.linkedin.com/in/ingeborg-sili-oestgaard/' },
-      { label:'CV',                     copy:null,                     href:'IngeborgSO_CV.pdf' },
-    ].forEach(c => {
-      const a = document.createElement('a');
-      a.href = c.href; if (!c.copy) a.target = '_blank';
-      a.textContent = c.label;
-      a.style.cssText = `font-size:${Math.round(S*15)}px;color:#2B7FFF;text-decoration:underline;font-weight:400;letter-spacing:${Math.round(S*0.6)}px;cursor:pointer;`;
-      if (c.copy) a.addEventListener('click', e => {
-        e.preventDefault(); e.stopPropagation();
-        navigator.clipboard.writeText(c.copy).then(()=>{ const t=a.textContent; a.textContent='Copied!'; setTimeout(()=>a.textContent=t,1500); });
-      });
-      contactLinks.appendChild(a);
-    });
-
-    contact.append(locationEl, titleContainer, contactLinks);
-  }
 
   // 3D tilt on hover — first and last card
   if (i === 0 || i === N - 1) {
