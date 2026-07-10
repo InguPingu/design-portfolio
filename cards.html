@@ -27,6 +27,33 @@
     justify-content: center;
   }
 
+  /* ── LOADING SPINNER ── */
+  #loadingSpinner {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+    transition: opacity 0.5s ease;
+  }
+  #loadingSpinner.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 2px solid rgba(43,40,40,0.15);
+    border-top: 2px solid #2B2828;
+    border-radius: 50%;
+    animation: spin 1.2s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
   .stage {
     display: flex;
     flex-direction: column;
@@ -334,6 +361,9 @@
 </style>
 </head>
 <body>
+<div id="loadingSpinner">
+  <div class="spinner"></div>
+</div>
 <div class="top-gradient"></div>
 <p class="watermark">Designed in Figma &nbsp;·&nbsp; Vibe coded with Claude</p>
 <div id="cursorLabel">Click to open</div>
@@ -938,12 +968,17 @@ setTimeout(() => {
   });
 }, 1000);
 
-// Staggered entrance
-requestAnimationFrame(() => {
-  document.querySelector('.site-nav').classList.add('intro-done');
-  document.getElementById('arcTrack').classList.add('intro-done');
-  document.querySelector('.nav-dots').classList.add('intro-done');
-  document.getElementById('infoPanel').classList.add('intro-done');
+// Hide loading spinner and start entrance
+window.addEventListener('load', () => {
+  const loader = document.getElementById('loadingSpinner');
+  loader.classList.add('hidden');
+
+  requestAnimationFrame(() => {
+    document.querySelector('.site-nav').classList.add('intro-done');
+    document.getElementById('arcTrack').classList.add('intro-done');
+    document.querySelector('.nav-dots').classList.add('intro-done');
+    document.getElementById('infoPanel').classList.add('intro-done');
+  });
 });
 
 </script>
