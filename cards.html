@@ -38,13 +38,19 @@
   /* ── LOADING SPINNER ── */
   #loadingSpinner {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     z-index: 10000;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #f0f0f0;
     transition: opacity 0.5s ease;
+    opacity: 1;
+    pointer-events: auto;
+    will-change: opacity;
   }
   #loadingSpinner.hidden {
     opacity: 0;
@@ -57,6 +63,7 @@
     border-top: 2px solid #2B2828;
     border-radius: 50%;
     animation: spin 1.2s linear infinite;
+    will-change: transform;
   }
   @keyframes spin {
     to { transform: rotate(360deg); }
@@ -977,17 +984,21 @@ setTimeout(() => {
 }, 1000);
 
 // Hide loading spinner and start entrance
-window.addEventListener('load', () => {
+function hideLoader() {
   const loader = document.getElementById('loadingSpinner');
-  loader.classList.add('hidden');
-
-  requestAnimationFrame(() => {
-    document.querySelector('.site-nav').classList.add('intro-done');
-    document.getElementById('arcTrack').classList.add('intro-done');
-    document.querySelector('.nav-dots').classList.add('intro-done');
-    document.getElementById('infoPanel').classList.add('intro-done');
-  });
-});
+  if (!loader.classList.contains('hidden')) {
+    loader.classList.add('hidden');
+    requestAnimationFrame(() => {
+      document.querySelector('.site-nav').classList.add('intro-done');
+      document.getElementById('arcTrack').classList.add('intro-done');
+      document.querySelector('.nav-dots').classList.add('intro-done');
+      document.getElementById('infoPanel').classList.add('intro-done');
+    });
+  }
+}
+window.addEventListener('load', hideLoader);
+// Fallback: hide spinner after 5 seconds max
+setTimeout(hideLoader, 5000);
 
 </script>
 </body>
