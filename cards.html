@@ -6,20 +6,6 @@
 <title>Projects</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" href="Pingu.svg">
-<link rel="preload" as="image" href="CaseStudy/AltekCase.png">
-<link rel="preload" as="image" href="CaseStudy/KronCase.png">
-<link rel="preload" as="image" href="CaseStudy/SkatteetatenCase.png">
-<link rel="preload" as="image" href="CaseStudy/TelenorCase.png">
-<link rel="preload" as="image" href="CaseStudy/NabostylistenCase.png">
-<link rel="preload" as="image" href="CaseStudy/DFØCase.png">
-<link rel="preload" as="image" href="CardCover/Card.png">
-<link rel="preload" as="image" href="CardCover/AltekCover.png">
-<link rel="preload" as="image" href="CardCover/KronCover.png">
-<link rel="preload" as="image" href="CardCover/SkatteetatenCover.png">
-<link rel="preload" as="image" href="CardCover/TelenorCover.png">
-<link rel="preload" as="image" href="CardCover/NabostylistenCover.png">
-<link rel="preload" as="image" href="CardCover/DFØCover.png">
-<link rel="preload" as="image" href="CardCover/Contact.png">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -33,40 +19,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-  }
-
-  /* ── LOADING SPINNER ── */
-  #loadingSpinner {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f0f0f0;
-    transition: opacity 0.5s ease;
-    opacity: 1;
-    pointer-events: auto;
-    will-change: opacity;
-  }
-  #loadingSpinner.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 2px solid rgba(43,40,40,0.15);
-    border-top: 2px solid #2B2828;
-    border-radius: 50%;
-    animation: spin 1.2s linear infinite;
-    will-change: transform;
-  }
-  @keyframes spin {
-    to { transform: rotate(360deg); }
   }
 
   .stage {
@@ -376,9 +328,6 @@
 </style>
 </head>
 <body>
-<div id="loadingSpinner">
-  <div class="spinner"></div>
-</div>
 <div class="top-gradient"></div>
 <p class="watermark">Designed in Figma &nbsp;·&nbsp; Vibe coded with Claude</p>
 <div id="cursorLabel">Click to open</div>
@@ -983,22 +932,11 @@ setTimeout(() => {
   });
 }, 1000);
 
-// Hide loading spinner and start entrance
-function hideLoader() {
-  const loader = document.getElementById('loadingSpinner');
-  if (!loader.classList.contains('hidden')) {
-    loader.classList.add('hidden');
-    requestAnimationFrame(() => {
-      document.querySelector('.site-nav').classList.add('intro-done');
-      document.getElementById('arcTrack').classList.add('intro-done');
-      document.querySelector('.nav-dots').classList.add('intro-done');
-      document.getElementById('infoPanel').classList.add('intro-done');
-    });
-  }
-}
-window.addEventListener('load', hideLoader);
-// Fallback: hide spinner after 5 seconds max
-setTimeout(hideLoader, 5000);
+// Start entrance animations
+document.querySelector('.site-nav').classList.add('intro-done');
+document.getElementById('arcTrack').classList.add('intro-done');
+document.querySelector('.nav-dots').classList.add('intro-done');
+document.getElementById('infoPanel').classList.add('intro-done');
 
 </script>
 </body>
