@@ -753,7 +753,7 @@ document.getElementById('btnNext').addEventListener('click', () => { if(!snapLoc
 const _overlay   = document.getElementById('caseOverlay');
 const _topBtn    = document.getElementById('caseTopBtn');
 const _closeBtn  = document.getElementById('caseClose');
-function openOverlay()  { _overlay.classList.add('open'); _closeBtn.style.display = 'block'; document.body.style.overflow = 'hidden'; }
+function openOverlay()  { _overlay.scrollTop = 0; _overlay.classList.add('open'); _closeBtn.style.display = 'block'; document.body.style.overflow = 'hidden'; }
 function closeOverlay() {
   _overlay.classList.add('closing');
   _closeBtn.style.display = 'none';
