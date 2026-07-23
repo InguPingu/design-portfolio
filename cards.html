@@ -211,59 +211,6 @@
   .site-nav a:hover { opacity: 0.6; }
   .site-nav a.active { font-weight: 500; }
 
-  /* ── GRID TOGGLE ── */
-  .grid-toggle {
-    position: fixed;
-    top: max(24px, env(safe-area-inset-top, 0px) + 12px);
-    right: 24px;
-    z-index: 101;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    border: 1px solid rgba(43,40,40,0.15);
-    background: rgba(255,255,255,0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    cursor: pointer;
-    color: #2B2828;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    font-family: inherit;
-  }
-  .grid-toggle:hover {
-    background: rgba(255,255,255,0.9);
-    border-color: rgba(43,40,40,0.25);
-  }
-
-  /* ── GRID MODE ── */
-  .arc-track.grid-mode {
-    display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 24px;
-    position: static !important;
-    width: 100% !important;
-    height: auto !important;
-    padding: 40px 24px !important;
-  }
-  .arc-track.grid-mode .card {
-    position: static !important;
-    transform: none !important;
-    opacity: 1 !important;
-    z-index: auto !important;
-    will-change: auto;
-    left: auto !important;
-    top: auto !important;
-    margin-left: 0 !important;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-  }
-  .arc-track.grid-mode .card:hover {
-    transform: scale(0.98) !important;
-  }
-
   /* ── STAGE ── */
   .stage {
     padding-top: max(72px, env(safe-area-inset-top, 0px) + 64px);
@@ -394,15 +341,6 @@
   <a href="cards.html" class="active">Projects</a>
   <a href="about.html">About</a>
 </nav>
-
-<button id="gridToggle" class="grid-toggle" title="Toggle grid view">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="3" y="3" width="7" height="7"></rect>
-    <rect x="14" y="3" width="7" height="7"></rect>
-    <rect x="14" y="14" width="7" height="7"></rect>
-    <rect x="3" y="14" width="7" height="7"></rect>
-  </svg>
-</button>
 
 <div class="stage">
   <div class="arc-track" id="arcTrack">
@@ -865,43 +803,6 @@ const cursorLabel = document.getElementById('cursorLabel');
 window.addEventListener('mousemove', e => {
   cursorLabel.style.left = e.clientX + 'px';
   cursorLabel.style.top  = e.clientY + 'px';
-});
-
-// ── Grid View Toggle ──────────────────────────────────────────────
-let gridMode = false;
-const gridToggle = document.getElementById('gridToggle');
-const infoPanel = document.getElementById('infoPanel');
-const navDots = document.getElementById('navDots');
-const cardInfoGap = document.querySelector('.card-info-gap');
-
-gridToggle.addEventListener('click', () => {
-  gridMode = !gridMode;
-  arcTrack.classList.toggle('grid-mode', gridMode);
-  if (gridMode) {
-    infoPanel.style.display = 'none';
-    navDots.style.display = 'none';
-    cardInfoGap.style.display = 'none';
-  } else {
-    infoPanel.style.display = '';
-    navDots.style.display = '';
-    cardInfoGap.style.display = '';
-    draw();
-    goTo(Math.round(pos));
-  }
-});
-
-cardEls.forEach((card, i) => {
-  card.addEventListener('click', (e) => {
-    if (gridMode && !_overlay.classList.contains('open')) {
-      e.stopPropagation();
-      gridMode = false;
-      arcTrack.classList.remove('grid-mode');
-      infoPanel.style.display = '';
-      navDots.style.display = '';
-      cardInfoGap.style.display = '';
-      goTo(i);
-    }
-  });
 });
 
 // ── Liquid Glass cursor (Chrome only) ─────────────────────────────
