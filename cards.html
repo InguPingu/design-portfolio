@@ -492,14 +492,17 @@ const cardEls = projects.map((p, i) => {
     card.style.boxShadow = '0 4px 30px rgba(0,0,0,0.01)';
     card.style.borderRadius = '16px';
   } else if (p.video) {
-    swatch.style.background = p.color;
+    const source = document.createElement('source');
+    source.src = p.video;
+    source.type = 'video/mp4';
+
     const video = document.createElement('video');
-    video.src = p.video;
+    video.appendChild(source);
     video.autoplay = true;
     video.loop = true;
     video.muted = true;
     video.playsInline = true;
-    video.style.cssText = 'position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block;';
+    video.style.cssText = 'position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; display:block;';
     swatch.appendChild(video);
   } else if (p.image) {
     swatch.style.backgroundImage = `url('${p.image}')`;
