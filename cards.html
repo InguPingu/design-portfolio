@@ -498,12 +498,13 @@ const cardEls = projects.map((p, i) => {
 
     const video = document.createElement('video');
     video.appendChild(source);
-    video.autoplay = true;
+    video.autoplay = false;
     video.loop = true;
     video.muted = true;
     video.playsInline = true;
     video.style.cssText = 'position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; display:block;';
     swatch.appendChild(video);
+    card.videoElement = video;
   } else if (p.image) {
     swatch.style.backgroundImage = `url('${p.image}')`;
     swatch.style.backgroundSize = 'cover';
@@ -735,6 +736,17 @@ function draw(){
   dotEls.forEach((d, i) => d.classList.toggle('active', i === ci));
   document.getElementById('btnPrev').disabled = target <= 0;
   document.getElementById('btnNext').disabled = target >= N-1;
+
+  // Control video playback based on active card
+  cardEls.forEach((card, i) => {
+    if (card.videoElement) {
+      if (i === ci) {
+        card.videoElement.play().catch(() => {});
+      } else {
+        card.videoElement.pause();
+      }
+    }
+  });
 }
 
 function goTo(i){ target = Math.max(0, Math.min(N-1, i)); kick(); }
