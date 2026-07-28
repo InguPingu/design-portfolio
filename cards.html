@@ -544,7 +544,7 @@ const cardEls = projects.map((p, i) => {
   if (i === 0 || p.blank) logo.style.display = 'none';
 
   const tilt = document.createElement('div'); tilt.className = 'card-tilt';
-  if (i !== 0 && !p.blank) {
+  if (i !== 0 && !p.blank && !p.video) {
     const grad = document.createElement('div');
     grad.style.cssText = `
       position:absolute; bottom:0; left:0; right:0;
