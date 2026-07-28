@@ -395,6 +395,7 @@ function computeDimensions() {
 const KS=160, DS=24, MS=1;
 let pos=0, vel=0, target=0;
 let raf=null, lastTs=null;
+let firstDraw = true;
 
 function springStep(x,v,t,dt){
   const a=(-KS*(x-t)-DS*v)/MS;
@@ -738,15 +739,18 @@ function draw(){
   document.getElementById('btnNext').disabled = target >= N-1;
 
   // Control video playback based on active card
-  cardEls.forEach((card, i) => {
-    if (card.videoElement) {
-      if (i === ci) {
-        card.videoElement.play().catch(() => {});
-      } else {
-        card.videoElement.pause();
+  if (!firstDraw) {
+    cardEls.forEach((card, i) => {
+      if (card.videoElement) {
+        if (i === ci) {
+          card.videoElement.play().catch(() => {});
+        } else {
+          card.videoElement.pause();
+        }
       }
-    }
-  });
+    });
+  }
+  firstDraw = false;
 }
 
 function goTo(i){ target = Math.max(0, Math.min(N-1, i)); kick(); }
