@@ -753,6 +753,7 @@ function draw(){
         if (!card.hasVideoOverlay) {
           card.querySelector('.card-swatch').style.backgroundImage = 'none';
           card.videoElement.style.display = 'block';
+          card.videoElement.currentTime = 0;
           card.hasVideoOverlay = true;
           card.videoElement.play().catch(() => {});
         }
