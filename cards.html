@@ -969,21 +969,23 @@ document.querySelectorAll('a[href]').forEach(a => {
 
 // ── Init ──────────────────────────────────────────────────────────
 updateInfo(0);
-draw();
+
+// Start entrance animations first (before heavy draw)
+document.querySelector('.site-nav').classList.add('intro-done');
+document.getElementById('arcTrack').classList.add('intro-done');
+document.querySelector('.nav-dots').classList.add('intro-done');
+document.getElementById('infoPanel').classList.add('intro-done');
+
+// Then render after animations start
+requestAnimationFrame(() => draw());
 
 // Preload case study images in the background after page is interactive
 setTimeout(() => {
   ['AltekCase','SkatteetatenCase','KronCase','TelenorCase','NabostylistenCase','DFØCase'].forEach(name => {
     const img = new Image();
-    img.src = `CaseStudy/${name}.png`;
+    img.src = `CaseStudy/${name}.jpg`;
   });
 }, 1000);
-
-// Start entrance animations
-document.querySelector('.site-nav').classList.add('intro-done');
-document.getElementById('arcTrack').classList.add('intro-done');
-document.querySelector('.nav-dots').classList.add('intro-done');
-document.getElementById('infoPanel').classList.add('intro-done');
 
 </script>
 </body>
