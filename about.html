@@ -376,10 +376,10 @@
     -webkit-backdrop-filter: blur(6px);
     border: 1px solid rgba(255, 255, 255, 0.7);
     border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
     z-index: 150;
     width: 340px;
+    height: 190px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s;
@@ -390,36 +390,11 @@
     pointer-events: auto;
     display: block;
   }
-  .project-preview-image {
+  .project-preview video {
     width: 100%;
-    height: 180px;
-    border-radius: 12px;
+    height: 100%;
     object-fit: cover;
-    margin-bottom: 16px;
     cursor: pointer;
-  }
-  .project-preview-title {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--ink);
-    margin-bottom: 4px;
-  }
-  .project-preview-role {
-    font-size: 0.85rem;
-    color: var(--mid);
-    margin-bottom: 12px;
-  }
-  .project-preview-pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .project-preview-pill {
-    font-size: 10px;
-    padding: 3px 10px;
-    border-radius: 100px;
-    background: rgba(0, 0, 0, 0.05);
-    color: var(--mid);
   }
 
   /* ── RESPONSIVE ── */
@@ -781,13 +756,11 @@ const lightbox = document.getElementById('lightbox');
     nav.classList.toggle('scrolled', window.scrollY > 40);
   });
 
-  // Project links with hover preview
+  // Project links with video hover preview
   const projectData = {
     altek: {
       title: 'Altek AI',
-      role: 'Freelance · 2025–present',
-      image: 'CardCover/AltekCover.png',
-      pills: ['$100K ARR', '60+ hotels', 'NOK 5M pre-seed']
+      video: 'CardCover/Altek2.mp4'
     }
   };
 
@@ -802,14 +775,15 @@ const lightbox = document.getElementById('lightbox');
 
     const preview = document.createElement('div');
     preview.className = 'project-preview';
-    preview.innerHTML = `
-      <img src="${project.image}" alt="${project.title}" class="project-preview-image">
-      <div class="project-preview-title">${project.title}</div>
-      <div class="project-preview-role">${project.role}</div>
-      <div class="project-preview-pills">
-        ${project.pills.map(pill => `<span class="project-preview-pill">${pill}</span>`).join('')}
-      </div>
-    `;
+
+    const video = document.createElement('video');
+    video.src = project.video;
+    video.autoplay = false;
+    video.loop = true;
+    video.muted = true;
+    video.playsInline = true;
+    preview.appendChild(video);
+
     document.body.appendChild(preview);
 
     link.addEventListener('mouseenter', (e) => {
@@ -817,11 +791,13 @@ const lightbox = document.getElementById('lightbox');
       preview.style.top = (rect.bottom + 12) + 'px';
       preview.style.left = (rect.left - 80) + 'px';
       preview.classList.add('show');
+      video.play();
       currentPreview = preview;
     });
 
     link.addEventListener('mouseleave', () => {
       preview.classList.remove('show');
+      video.pause();
       currentPreview = null;
     });
 
@@ -831,11 +807,13 @@ const lightbox = document.getElementById('lightbox');
 
     preview.addEventListener('mouseenter', () => {
       preview.classList.add('show');
+      video.play();
       currentPreview = preview;
     });
 
     preview.addEventListener('mouseleave', () => {
       preview.classList.remove('show');
+      video.pause();
       currentPreview = null;
     });
 
