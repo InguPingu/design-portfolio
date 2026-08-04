@@ -438,9 +438,9 @@
 
   <!-- BIO -->
   <p class="bio">
-    I'm a UX designer who loves turning complex problems into meaningful experiences. Over the past four years, I have shaped ambitious products from start to finish, leading design at <span class="project-link" data-project="altek">Altek AI</span>, and interning at <strong>Telenor</strong> and <strong>Storebrand's Kron</strong>. I have also enjoyed mentoring and teaching students at the <strong>University of Oslo</strong>, sharing what I know and learning from them along the way.
+    I'm a UX designer who loves turning complex problems into meaningful experiences. Over the past four years, I have shaped ambitious products from start to finish, leading design at <span class="project-link" data-project="altek">Altek AI</span>, and interning at <span class="project-link" data-project="telenor">Telenor</span> and <span class="project-link" data-project="kron">Storebrand's Kron</span>. I have also enjoyed mentoring and teaching students at the <strong>University of Oslo</strong>, sharing what I know and learning from them along the way.
     <br><br>
-    I am currently pursuing a master's in interaction design with a focus on universal design. My work with <strong>Skatteetaten</strong> is especially meaningful, making taxes more accessible for people with dyslexia and dyscalculia. I am passionate about creating experiences that truly make life easier for everyone.
+    I am currently pursuing a master's in interaction design with a focus on universal design. My work with <span class="project-link" data-project="skatteetaten">Skatteetaten</span> is especially meaningful, making taxes more accessible for people with dyslexia and dyscalculia. I am passionate about creating experiences that truly make life easier for everyone.
     <br><br>
     Outside of work, I love inviting friends over to make food 🥟, walking my dogs 🐶, trying out new restaurants and cafes 🥐, traveling 🗺️, enjoying music and festivals 🎶, bouldering 🧗🏻‍♀️, and capturing moments through photos and videos 📸.
   </p>
@@ -756,7 +756,23 @@ const lightbox = document.getElementById('lightbox');
   const projectData = {
     altek: {
       title: 'Altek AI',
-      video: 'CardCover/Altek2.mp4'
+      video: 'CardCover/Altek2.mp4',
+      caseHash: '#open-case-altek'
+    },
+    telenor: {
+      title: 'Telenor',
+      video: 'CardCover/Telenor.mp4',
+      caseHash: '#open-case-telenor'
+    },
+    kron: {
+      title: "Storebrand's Kron",
+      video: 'CardCover/Kron.mp4',
+      caseHash: '#open-case-kron'
+    },
+    skatteetaten: {
+      title: 'Skatteetaten',
+      video: 'CardCover/SkatteetatenCover.mp4',
+      caseHash: '#open-case-skatteetaten'
     }
   };
 
@@ -798,7 +814,7 @@ const lightbox = document.getElementById('lightbox');
     });
 
     link.addEventListener('click', () => {
-      window.location.href = 'cards.html#open-case-altek';
+      window.location.href = 'cards.html' + project.caseHash;
     });
 
     preview.addEventListener('mouseenter', () => {
@@ -814,7 +830,7 @@ const lightbox = document.getElementById('lightbox');
     });
 
     preview.addEventListener('click', () => {
-      window.location.href = 'cards.html#open-case-altek';
+      window.location.href = 'cards.html' + project.caseHash;
     });
   });
 

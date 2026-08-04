@@ -990,10 +990,17 @@ setTimeout(() => {
 // Check for hash to open case study automatically
 setTimeout(() => {
   const hash = window.location.hash;
-  if (hash === '#open-case-altek') {
+  const caseStudies = {
+    '#open-case-altek': 'AltekCase.jpg',
+    '#open-case-kron': 'KronCase.png',
+    '#open-case-skatteetaten': 'SkatteetatenCase.jpg',
+    '#open-case-telenor': 'TelenorCase.png'
+  };
+
+  if (caseStudies[hash]) {
     const img = document.getElementById('caseImg');
     _overlay.classList.remove('loaded');
-    img.src = 'CaseStudy/AltekCase.jpg';
+    img.src = 'CaseStudy/' + caseStudies[hash];
     openOverlay();
     window.history.replaceState({}, document.title, window.location.pathname);
   }
