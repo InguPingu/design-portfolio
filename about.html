@@ -392,6 +392,29 @@
     object-fit: cover;
     cursor: pointer;
   }
+  .project-preview-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.2s;
+  }
+  .project-preview-icon:hover {
+    background: white;
+  }
+  .project-preview-icon svg {
+    width: 16px;
+    height: 16px;
+    stroke: #2B2828;
+  }
 
   /* ── RESPONSIVE ── */
   @media (max-width: 480px) {
@@ -403,7 +426,9 @@
     details.entry summary { flex-wrap: wrap; gap: 4px 16px; }
     .entry-date { text-align: left; }
 
-    .project-preview { width: 280px; padding: 16px; }
+    .project-preview { width: 280px; height: 157px; }
+    .project-preview-icon { width: 24px; height: 24px; top: 8px; right: 8px; }
+    .project-preview-icon svg { width: 14px; height: 14px; }
   }
 </style>
 </head>
@@ -787,6 +812,7 @@ const lightbox = document.getElementById('lightbox');
 
     const preview = document.createElement('div');
     preview.className = 'project-preview';
+    preview.style.position = 'relative';
 
     const video = document.createElement('video');
     video.src = project.video;
@@ -795,6 +821,11 @@ const lightbox = document.getElementById('lightbox');
     video.muted = true;
     video.playsInline = true;
     preview.appendChild(video);
+
+    const icon = document.createElement('div');
+    icon.className = 'project-preview-icon';
+    icon.innerHTML = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2H14V6"/><path d="M14 2L6 10"/></svg>';
+    preview.appendChild(icon);
 
     document.body.appendChild(preview);
 
@@ -814,7 +845,7 @@ const lightbox = document.getElementById('lightbox');
     });
 
     link.addEventListener('click', () => {
-      window.location.href = 'cards.html' + project.caseHash;
+      window.open('cards.html' + project.caseHash, '_blank');
     });
 
     preview.addEventListener('mouseenter', () => {
@@ -830,7 +861,12 @@ const lightbox = document.getElementById('lightbox');
     });
 
     preview.addEventListener('click', () => {
-      window.location.href = 'cards.html' + project.caseHash;
+      window.open('cards.html' + project.caseHash, '_blank');
+    });
+
+    icon.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.open('cards.html' + project.caseHash, '_blank');
     });
   });
 
