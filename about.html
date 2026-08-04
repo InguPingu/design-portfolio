@@ -798,14 +798,40 @@ const lightbox = document.getElementById('lightbox');
 
     document.body.appendChild(preview);
 
-    link.addEventListener('mouseenter', (e) => {
+    function showPreview() {
       const rect = link.getBoundingClientRect();
-      preview.style.top = (rect.bottom + 12) + 'px';
-      preview.style.left = (rect.left - 80) + 'px';
+      const previewWidth = 340;
+      const previewHeight = 190;
+      const padding = 12;
+
+      let top = rect.bottom + padding;
+      let left = rect.left - 80;
+
+      // Adjust for viewport width on mobile
+      const maxLeft = window.innerWidth - previewWidth - padding;
+      const minLeft = padding;
+
+      if (left + previewWidth > window.innerWidth) {
+        left = maxLeft;
+      }
+      if (left < minLeft) {
+        left = minLeft;
+      }
+
+      // Adjust for viewport height
+      if (top + previewHeight > window.innerHeight) {
+        top = rect.top - previewHeight - padding;
+      }
+
+      preview.style.top = top + 'px';
+      preview.style.left = left + 'px';
       preview.classList.add('show');
       video.play();
       currentPreview = preview;
-    });
+    }
+
+    link.addEventListener('mouseenter', showPreview);
+    link.addEventListener('touchstart', showPreview);
 
     link.addEventListener('mouseleave', () => {
       preview.classList.remove('show');
@@ -829,9 +855,21 @@ const lightbox = document.getElementById('lightbox');
       currentPreview = null;
     });
 
-    preview.addEventListener('click', () => {
+    preview.addEventListener('click', (e) => {
+      e.stopPropagation();
       window.location.href = 'cards.html' + project.caseHash;
     });
+  });
+
+  // Close preview when clicking outside
+  document.addEventListener('click', (e) => {
+    const isClickOnLink = Array.from(projectLinks).some(link => link.contains(e.target));
+    const isClickOnPreview = e.target.closest('.project-preview');
+
+    if (!isClickOnLink && !isClickOnPreview && currentPreview) {
+      currentPreview.classList.remove('show');
+      currentPreview = null;
+    }
   });
 
 </script>
