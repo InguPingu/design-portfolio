@@ -987,6 +987,18 @@ setTimeout(() => {
   });
 }, 1000);
 
+// Check for hash to open case study automatically
+setTimeout(() => {
+  const hash = window.location.hash;
+  if (hash === '#open-case-altek') {
+    const img = document.getElementById('caseImg');
+    _overlay.classList.remove('loaded');
+    img.src = 'CaseStudy/AltekCase.jpg';
+    openOverlay();
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}, 100);
+
 </script>
 </body>
 </html>
