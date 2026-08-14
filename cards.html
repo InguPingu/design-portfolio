@@ -568,43 +568,18 @@ const cardEls = projects.map((p, i) => {
   card.appendChild(tilt);
 
   if (p.blank) {
-    const contact = document.createElement('div');
-    contact.style.cssText = `position:absolute;inset:0;overflow:hidden;`;
-    const contactLinks = [
-      { label:'Email',     copy:'ingeborg2809@gmail.com', href:'mailto:ingeborg2809@gmail.com',                                  top: 0.67, left: 0.025 },
-      { label:'Phone',     copy:'+47 90 21 30 71',        href:'tel:+4790213071',                                               top: 0.72, left: 0.025 },
-      { label:'LinkedIn',  copy:null,                     href:'https://www.linkedin.com/in/ingeborg-sili-oestgaard/',         top: 0.80, left: 0.025 },
-      { label:'CV',        copy:null,                     href:'IngeborgSO_CV.pdf',                                             top: 0.88, left: 0.025 },
-    ];
-
-    const linkHeight = Math.max(Math.round(S * 70), 50);
-    const linkWidth = Math.max(Math.round(S * 400), 300);
-
-    contactLinks.forEach(c => {
-      const a = document.createElement('a');
-      a.href = c.href;
-      if (!c.copy) a.target = '_blank';
-      a.title = c.label;
-      a.style.cssText = `position:absolute;left:${c.left * 100}%;top:${c.top * 100}%;width:${linkWidth}px;height:${linkHeight}px;opacity:0;cursor:pointer;pointer-events:auto;border-radius:8px;`;
-      a.addEventListener('mouseenter', () => {
-        cursorLabel.textContent = c.label;
-      });
-      a.addEventListener('mouseleave', () => {
-        cursorLabel.textContent = "Let's work together :)";
-      });
-      if (c.copy) a.addEventListener('click', e => {
-        e.preventDefault(); e.stopPropagation();
-        navigator.clipboard.writeText(c.copy).then(()=>{
-          const toast = document.createElement('div');
-          toast.style.cssText = `position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);color:white;padding:16px 32px;border-radius:8px;font-size:14px;z-index:10000;pointer-events:none;`;
-          toast.textContent = 'Copied!';
-          document.body.appendChild(toast);
-          setTimeout(() => toast.remove(), 1500);
-        });
-      });
-      contact.appendChild(a);
-    });
-    tilt.appendChild(contact);
+    const gameContainer = document.createElement('div');
+    gameContainer.style.cssText = `position:absolute;inset:0;overflow:hidden;display:flex;align-items:center;justify-content:center;`;
+    gameContainer.innerHTML = `<div style="padding: 0.5rem;">
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">An office themed endless runner with a detailed corridor of windows, whiteboards, doors, desks, and a water cooler, where the character jumps obstacles and collects matcha.</h2>
+<canvas id="stage13" width="660" height="250" style="width:100%;border-radius:12px;display:block;image-rendering:pixelated;border:0.5px solid var(--border);cursor:pointer;"></canvas>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;">
+<button id="b13j" style="flex:1;min-width:160px;">Jump</button>
+<button id="b13s" style="min-width:120px;">Start shift</button>
+<span style="font-size:13px;color:var(--text-secondary);margin-left:auto;">Space, up arrow, or tap the scene</span>
+</div>
+</div>`;
+    tilt.appendChild(gameContainer);
   }
 
 
@@ -1011,6 +986,103 @@ setTimeout(() => {
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 }, 100);
+
+// ── MINI GAME ────────────────────────────────────────────────────────────
+(function(){
+var c=document.getElementById('stage13'),g=c.getContext('2d');
+g.imageSmoothingEnabled=false;
+var PAL={K:'#2a1d22',h:'#5a3d45',S:'#fbd8ba',s:'#e8b393',b:'#f7a6b3',E:'#4a2b1c',L:'#2b1a16',W:'#fff9fb',I:'#ffffff',M:'#c4626b',P:'#e0479b',p:'#fce2ee',G:'#e9b53f',B:'#7a4a38'};
+var A=['........KKKKKK........','......KKKKKKKKKK......','....KKKKKKKKKKKKKK....','...KKKhhKKKKKKKhKKK...','..KKKKKKKKKKKKKKKKKK..','..KKKKKKKKKKKKKKKKKK..','..KKKKSSSSSSSSSSKKKK..','..KKKSSSSSSSSSSSSKKK..','..KKKSSSSSSSSSSSSKKK..','..KKKSLLLSSSSLLLSKKK..','..KKKSIEESSSSIEESKKK..','..KKKSEEWSSSSEEWSKKK..','..KKKbbSSSsSSSbbSKKK..','..KKKSSSSSMMSSSSSKKK..','..KKKKSSSSSSSSSSKKKK..','..KKKKKSSSSSSSSKKKKK..','..KKKKKKKSSSSKKKKKKK..','..KKKKKKKSGGSKKKKKKK..','....KKPPPPPPPPPPKK....','...KKPPpPPPPPPpPPKK...','..KKKKKPPPPPPPPKKKKK..','.....PPPPPPPPPPPP.....','....PPpPPPPPPPPpPP....','....PPPPPPPPPPPPPP....','........SS..SS........','........BB..BB........'];
+var B=A.slice(0,22).concat(['....PPPPPPPPPPPPPP....','....PPPPPPPPPPPPPP....','.......SS....SS.......','.......BB....BB.......']);
+var J=A.slice(0,22).concat(['....PPPPPPPPPPPPPP....','...PPPPPPPPPPPPPPPP...','......SSS..SSS........','......BBB..BBB........']);
+function blink(f){var q=f.slice();q[9]='..KKKSSSSSSSSSSSSKKK..';q[10]='..KKKSLLLSSSSLLLSKKK..';q[11]='..KKKSSSSSSSSSSSSKKK..';return q;}
+var Ab=blink(A),Bb=blink(B);
+var S=4,SW=22*S,SH=26*S,GY=206;
+function spr(f,px,py){for(var r=0;r<f.length;r++){var row=f[r];for(var i=0;i<row.length;i++){var ch=row[i];if(ch==='.')continue;g.fillStyle=PAL[ch];g.fillRect(px+i*S,py+r*S,S,S);}}}
+function matcha(x,y){g.fillStyle='#e0479b';g.fillRect(x+16,y-10,5,12);g.fillStyle='#dde4e0';g.fillRect(x+2,y+2,24,5);g.fillStyle='#c8d1cc';g.fillRect(x+2,y+2,24,2);g.fillStyle='#7fae52';g.fillRect(x+4,y+7,20,10);g.fillStyle='#96c268';g.fillRect(x+6,y+9,4,5);g.fillStyle='#f7f0e2';g.fillRect(x+5,y+17,18,8);g.fillStyle='#e8dfcd';g.fillRect(x+7,y+25,14,4);}
+function wWindow(x){g.fillStyle='#aeb5bb';g.fillRect(x,42,124,90);g.fillStyle='#cfe3ee';g.fillRect(x+5,47,114,80);g.fillStyle='#e3f0f6';g.fillRect(x+5,47,114,26);g.fillStyle='#aeb5bb';g.fillRect(x+59,47,6,80);g.fillRect(x+5,84,114,5);g.fillStyle='#96a0a6';g.fillRect(x,128,124,6);}
+function wBoard(x){g.fillStyle='#9ba3a9';g.fillRect(x,48,116,70);g.fillStyle='#fbfaf6';g.fillRect(x+4,52,108,58);g.fillStyle='#7fa8c9';g.fillRect(x+12,62,54,4);g.fillRect(x+12,72,72,4);g.fillStyle='#8fbe7a';g.fillRect(x+12,84,40,4);g.fillStyle='#dd8fb4';g.fillRect(x+62,84,30,4);g.fillStyle='#8c949a';g.fillRect(x+4,110,108,6);g.fillStyle='#c96a8f';g.fillRect(x+80,112,12,3);}
+function wDoor(x){g.fillStyle='#8f8272';g.fillRect(x,56,74,GY-56);g.fillStyle='#a39684';g.fillRect(x+4,60,66,GY-64);g.fillStyle='#c3d7e2';g.fillRect(x+16,70,42,34);g.fillStyle='#8f8272';g.fillRect(x+16,70,42,4);g.fillStyle='#e2d9c8';g.fillRect(x+18,116,38,10);g.fillStyle='#d8d2c4';g.fillRect(x+58,140,8,5);g.fillStyle='#5f8f6a';g.fillRect(x+18,38,38,14);g.fillStyle='#e8f0e6';g.fillRect(x+22,43,30,4);}
+function wCork(x){g.fillStyle='#8a6f4f';g.fillRect(x,52,100,62);g.fillStyle='#b08c62';g.fillRect(x+4,56,92,54);g.fillStyle='#f2d97e';g.fillRect(x+12,64,20,20);g.fillStyle='#f0a8b8';g.fillRect(x+40,62,20,20);g.fillStyle='#a8cfe8';g.fillRect(x+66,68,20,20);g.fillStyle='#f2d97e';g.fillRect(x+30,88,20,16);
+ g.fillStyle='#9ba3a9';g.fillRect(x+116,56,26,26);g.fillStyle='#fbfaf6';g.fillRect(x+119,59,20,20);g.fillStyle='#3f4348';g.fillRect(x+128,63,2,8);g.fillRect(x+128,69,7,2);}
+function pDesk(x){g.fillStyle='#3f464d';g.fillRect(x+56,GY-58,26,12);g.fillStyle='#4d545b';g.fillRect(x+60,GY-46,18,20);
+ g.fillStyle='#c2b8a6';g.fillRect(x,GY-46,96,8);g.fillStyle='#a89e8c';g.fillRect(x+6,GY-38,7,38);g.fillRect(x+83,GY-38,7,38);
+ g.fillStyle='#5a6169';g.fillRect(x+14,GY-78,42,26);g.fillStyle='#8fa7b5';g.fillRect(x+17,GY-75,36,20);g.fillStyle='#5a6169';g.fillRect(x+31,GY-52,8,6);
+ g.fillStyle='#f7f0e2';g.fillRect(x+64,GY-52,10,6);g.fillStyle='#e0479b';g.fillRect(x+78,GY-51,8,5);}
+function pCooler(x){g.fillStyle='#e6e2d8';g.fillRect(x,GY-44,28,44);g.fillStyle='#c9c4b8';g.fillRect(x,GY-44,28,5);g.fillStyle='#a9c9d8';g.fillRect(x+4,GY-76,20,32);g.fillStyle='#c3dde8';g.fillRect(x+6,GY-72,6,24);g.fillStyle='#8f99a0';g.fillRect(x+6,GY-30,6,5);g.fillRect(x+16,GY-30,6,5);g.fillStyle='#f7f0e2';g.fillRect(x+32,GY-12,8,12);}
+function pPrinter(x){g.fillStyle='#8f979e';g.fillRect(x,GY-40,52,40);g.fillStyle='#6f777e';g.fillRect(x,GY-40,52,8);g.fillStyle='#c6ccd1';g.fillRect(x+6,GY-24,40,10);g.fillStyle='#fbfaf6';g.fillRect(x+10,GY-46,30,8);g.fillStyle='#5f8f6a';g.fillRect(x+42,GY-36,5,5);g.fillStyle='#6f777e';g.fillRect(x+2,GY-6,48,6);}
+function pPlant(x){g.fillStyle='#5e7f57';g.fillRect(x+2,GY-44,22,14);g.fillRect(x+6,GY-50,14,8);g.fillStyle='#6f9866';g.fillRect(x+4,GY-40,10,6);g.fillRect(x+14,GY-46,8,6);g.fillStyle='#5e7f57';g.fillRect(x+11,GY-26,4,12);g.fillStyle='#a37f58';g.fillRect(x+4,GY-16,18,4);g.fillStyle='#b9926a';g.fillRect(x+6,GY-14,14,14);}
+function pStack(x){g.fillStyle='#9aa3ab';g.fillRect(x,GY-46,30,46);g.fillStyle='#7b848c';g.fillRect(x,GY-46,30,4);g.fillStyle='#d6dce1';g.fillRect(x+11,GY-38,8,3);g.fillRect(x+11,GY-24,8,3);g.fillStyle='#c9a071';g.fillRect(x+34,GY-22,24,22);g.fillStyle='#a87f52';g.fillRect(x+34,GY-22,24,4);g.fillStyle='#f7f0e2';g.fillRect(x+8,GY-56,14,10);}
+function boxes(x,y,w,hh){g.fillStyle='#c9a071';g.fillRect(x,y,w,hh);g.fillStyle='#a87f52';g.fillRect(x,y,w,4);g.fillRect(x,y+Math.floor(hh/2),w,3);g.fillStyle='#e8ddc9';g.fillRect(x+Math.floor(w/2)-3,y,6,hh);}
+function cabinet(x,y,w,hh){g.fillStyle='#9aa3ab';g.fillRect(x,y,w,hh);g.fillStyle='#7b848c';g.fillRect(x,y,w,3);for(var i=y+10;i<y+hh-4;i+=14)g.fillRect(x+2,i,w-4,2);g.fillStyle='#d6dce1';for(var k=y+4;k<y+hh-8;k+=14)g.fillRect(x+Math.floor(w/2)-4,k,8,3);}
+function chair(x,y,w,hh){g.fillStyle='#4d545b';g.fillRect(x+2,y,w-4,Math.floor(hh*0.45));g.fillRect(x,y+Math.floor(hh*0.5),w,6);g.fillRect(x+Math.floor(w/2)-2,y+Math.floor(hh*0.56),4,Math.floor(hh*0.3));g.fillStyle='#31373d';g.fillRect(x+2,y+hh-6,w-4,4);g.fillRect(x,y+hh-4,4,4);g.fillRect(x+w-4,y+hh-4,4,4);}
+function drawObs(o){var y=GY-o.h;if(o.t===0)boxes(o.x,y,o.w,o.h);else if(o.t===1)cabinet(o.x,y,o.w,o.h);else chair(o.x,y,o.w,o.h);}
+var p={y:GY-SH,vy:0,ground:true},PX=110;
+var obs=[],cups=[],sp=[],score=0,dist=0,best=0,speed=270,running=false,over=false,last=0,anim=0,clock=0,scroll=0,nextO=340,nextC=520;
+function reset(){obs=[];cups=[];sp=[];score=0;dist=0;speed=270;p.y=GY-SH;p.vy=0;p.ground=true;nextO=340;nextC=520;running=true;over=false;last=performance.now();}
+function jump(){if(!running){reset();document.getElementById('b13s').textContent='Restart';return;}if(p.ground){p.vy=-560;p.ground=false;}}
+function puff(x,y,col){for(var i=0;i<9;i++)sp.push({x:x,y:y,vx:(Math.random()-0.5)*140,vy:-Math.random()*120-40,l:1,c:col});}
+function step(dt){
+ clock+=dt;
+ for(var i=sp.length-1;i>=0;i--){var q=sp[i];q.x+=q.vx*dt;q.y+=q.vy*dt;q.vy+=600*dt;q.l-=dt*1.6;if(q.l<=0)sp.splice(i,1);}
+ if(!running)return;
+ speed+=dt*7;if(speed>560)speed=560;
+ var mv=speed*dt;
+ dist+=mv;scroll=(scroll+mv)%40;anim+=dt*(speed/34);
+ p.vy+=1700*dt;p.y+=p.vy*dt;
+ if(p.y>=GY-SH){p.y=GY-SH;p.vy=0;p.ground=true;}
+ nextO-=mv;nextC-=mv;
+ if(nextO<=0){var t=Math.floor(Math.random()*3),hh=t===0?(28+Math.floor(Math.random()*2)*14):(t===1?44:36),w=t===0?(22+Math.floor(Math.random()*2)*12):28;obs.push({x:700,w:w,h:hh,t:t});nextO=speed*(0.85+Math.random()*0.75);}
+ if(nextC<=0){cups.push({x:700,y:GY-112-Math.random()*44});nextC=speed*(1.1+Math.random()*1.4);}
+ var hx=PX+22,hw=SW-44,hy=p.y+26,hh2=SH-26;
+ for(var j=obs.length-1;j>=0;j--){var o=obs[j];o.x-=mv;
+  if(o.x+o.w<-40){obs.splice(j,1);continue;}
+  if(hx<o.x+o.w&&hx+hw>o.x&&hy+hh2>GY-o.h+4){running=false;over=true;if(dist>best)best=dist;puff(PX+SW/2,p.y+SH/2,'#f7c9dd');}
+ }
+ for(var k=cups.length-1;k>=0;k--){var m=cups[k];m.x-=mv;
+  if(m.x<-40){cups.splice(k,1);continue;}
+  if(hx<m.x+28&&hx+hw>m.x&&hy<m.y+29&&hy+hh2>m.y-10){score++;puff(m.x+14,m.y+12,'#a6cd7a');cups.splice(k,1);}
+ }
+}
+function wrap(i,sp2,par,n){var per=n*sp2;return ((i*sp2-dist*par)%per+per)%per-sp2;}
+function draw(){
+ g.fillStyle='#eae6de';g.fillRect(0,0,660,GY);
+ g.fillStyle='#e0dbd1';g.fillRect(0,132,660,74);
+ g.fillStyle='#d2ccc0';g.fillRect(0,20,660,10);
+ for(var l=0;l<8;l++){var lx=wrap(l,110,0.55,8);g.fillStyle='#dcd7cd';g.fillRect(lx,0,104,20);g.fillStyle='#fdfbf3';g.fillRect(lx+24,6,56,10);}
+ for(var w2=0;w2<8;w2++){var wx=wrap(w2,300,0.22,8),ty=w2%4;
+  if(ty===0)wWindow(wx);else if(ty===1)wBoard(wx);else if(ty===2)wDoor(wx);else wCork(wx);}
+ g.fillStyle='#cfc9bd';g.fillRect(0,GY-10,660,10);
+ g.fillStyle='#bdb6a8';g.fillRect(0,GY-10,660,3);
+ g.fillStyle='#a9a396';g.fillRect(0,GY,660,44);
+ g.fillStyle='#9b9488';g.fillRect(0,GY,660,4);
+ for(var i3=-40;i3<700;i3+=40)g.fillRect(i3-scroll,GY+4,2,40);
+ g.fillStyle='#b3ada1';for(var i2=-40;i2<700;i2+=40)g.fillRect(i2-scroll+18,GY+22,6,3);
+ for(var d2=0;d2<9;d2++){var dx=wrap(d2,190,0.5,9),ty2=d2%5;
+  g.fillStyle='#9b9488';g.fillRect(dx,GY,dx>0?60:60,3);
+  if(ty2===0)pDesk(dx);else if(ty2===1)pCooler(dx+20);else if(ty2===2)pPrinter(dx+14);else if(ty2===3)pPlant(dx+24);else pStack(dx+10);}
+ for(var o2=0;o2<obs.length;o2++)drawObs({x:Math.round(obs[o2].x),h:obs[o2].h,w:obs[o2].w,t:obs[o2].t});
+ for(var k2=0;k2<cups.length;k2++)matcha(Math.round(cups[k2].x),Math.round(cups[k2].y));
+ var bl=(clock%3.4)<0.16;
+ var f=!p.ground?J:(Math.floor(anim)%2===1?(bl?Bb:B):(bl?Ab:A));
+ spr(f,PX,Math.round(p.y));
+ for(var s2=0;s2<sp.length;s2++){var q=sp[s2];g.fillStyle=q.l>0.5?'#ffffff':q.c;g.fillRect(Math.round(q.x),Math.round(q.y),4,4);}
+ g.fillStyle='#3f4348';g.font='500 16px system-ui, sans-serif';
+ g.fillText('Matcha '+score,16,46);
+ g.fillText('Corridor '+Math.round(dist/10)+'m',470,46);
+ if(!running){g.fillStyle='rgba(45,48,52,0.6)';g.fillRect(0,0,660,250);g.fillStyle='#f7f5f1';g.font='500 22px system-ui, sans-serif';g.textAlign='center';
+  g.fillText(over?'Blocked by office clutter at '+Math.round(dist/10)+'m':'Tap or press space to clock in',330,110);
+  g.font='400 15px system-ui, sans-serif';
+  g.fillText(over?'Matcha '+score+'   best run '+Math.round(best/10)+'m':'Jump the clutter, grab every matcha',330,140);
+  g.textAlign='left';}
+}
+function loop(t){var dt=Math.min(0.05,(t-last)/1000);last=t;step(dt);draw();requestAnimationFrame(loop);}
+window.addEventListener('keydown',function(e){if(e.key===' '||e.key==='ArrowUp'){jump();e.preventDefault();}});
+c.addEventListener('pointerdown',function(e){e.preventDefault();jump();});
+document.getElementById('b13j').addEventListener('click',jump);
+document.getElementById('b13s').addEventListener('click',function(){reset();this.textContent='Restart';});
+last=performance.now();requestAnimationFrame(loop);
+})();
 
 </script>
 </body>
