@@ -755,13 +755,20 @@ function draw(){
   cardEls.forEach((card, i) => {
     if (card.videoElement && card.hasVideoOverlay !== undefined) {
       if (i === ci) {
-        // Show video, hide image
+        // Prepare video, keep image visible until video is ready
         if (!card.hasVideoOverlay) {
-          card.querySelector('.card-swatch').style.backgroundImage = 'none';
-          card.videoElement.style.display = 'block';
           card.videoElement.currentTime = 0;
+          card.videoElement.style.display = 'block';
           card.hasVideoOverlay = true;
-          card.videoElement.play().catch(() => {});
+          const onCanPlay = () => {
+            card.querySelector('.card-swatch').style.backgroundImage = 'none';
+            card.videoElement.removeEventListener('canplay', onCanPlay);
+          };
+          card.videoElement.addEventListener('canplay', onCanPlay, { once: true });
+          card.videoElement.play().catch(() => {
+            card.videoElement.style.display = 'none';
+            card.hasVideoOverlay = false;
+          });
         }
       } else {
         // Hide video, show image
