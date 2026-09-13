@@ -639,46 +639,22 @@ const cardEls = projects.map((p, i) => {
     cursorLabel.classList.remove('visible');
     if(Math.abs(i - target) > 0.4){ goTo(i); lockSnap(); }
     else if(i === 1){
-      const img = document.getElementById('caseImg');
-      _overlay.classList.remove('loaded');
-      img.src = '';
-      img.src = 'CaseStudy/AltekCase.jpg';
-      openOverlay();
+      loadCaseStudy('CaseStudy/AltekCase.jpg');
     }
     else if(i === 2){
-      const img = document.getElementById('caseImg');
-      _overlay.classList.remove('loaded');
-      img.src = '';
-      img.src = 'CaseStudy/KronCase.jpg';
-      openOverlay();
+      loadCaseStudy('CaseStudy/KronCase.jpg');
     }
     else if(i === 3){
-      const img = document.getElementById('caseImg');
-      _overlay.classList.remove('loaded');
-      img.src = '';
-      img.src = 'CaseStudy/SkatteetatenCase.jpg';
-      openOverlay();
+      loadCaseStudy('CaseStudy/SkatteetatenCase.jpg');
     }
     else if(i === 4){
-      const img = document.getElementById('caseImg');
-      _overlay.classList.remove('loaded');
-      img.src = '';
-      img.src = 'CaseStudy/TelenorCase.jpg';
-      openOverlay();
+      loadCaseStudy('CaseStudy/TelenorCase.jpg');
     }
     else if(i === 5){
-      const img = document.getElementById('caseImg');
-      _overlay.classList.remove('loaded');
-      img.src = '';
-      img.src = 'CaseStudy/NabostylistenCase.jpg';
-      openOverlay();
+      loadCaseStudy('CaseStudy/NabostylistenCase.jpg');
     }
     else if(i === 6){
-      const img = document.getElementById('caseImg');
-      _overlay.classList.remove('loaded');
-      img.src = '';
-      img.src = 'CaseStudy/DFØCase.jpg';
-      openOverlay();
+      loadCaseStudy('CaseStudy/DFØCase.jpg');
     }
   });
   arcTrack.insertBefore(card, snapBarWrap);
@@ -806,6 +782,16 @@ document.getElementById('btnNext').addEventListener('click', () => { if(!snapLoc
 const _overlay   = document.getElementById('caseOverlay');
 const _topBtn    = document.getElementById('caseTopBtn');
 const _closeBtn  = document.getElementById('caseClose');
+function loadCaseStudy(src) {
+  const img = document.getElementById('caseImg');
+  _overlay.classList.remove('loaded');
+  const onLoadHandler = () => { _overlay.classList.add('loaded'); };
+  const onErrorHandler = () => { _overlay.classList.add('loaded'); };
+  img.onload = onLoadHandler;
+  img.onerror = onErrorHandler;
+  img.src = src;
+  openOverlay();
+}
 function openOverlay()  { _overlay.scrollTop = 0; _overlay.classList.add('open'); _closeBtn.style.display = 'block'; document.body.style.overflow = 'hidden'; }
 function closeOverlay() {
   _overlay.classList.add('closing');
@@ -816,7 +802,6 @@ function closeOverlay() {
     document.body.style.overflow = '';
   }, 280);
 }
-document.getElementById('caseImg').addEventListener('load', () => _overlay.classList.add('loaded'));
 _overlay.addEventListener('scroll', () => _topBtn.classList.toggle('visible', _overlay.scrollTop > 200));
 _topBtn.addEventListener('click', () => _overlay.scrollTo({ top: 0, behavior: 'smooth' }));
 document.getElementById('caseClose').addEventListener('click', closeOverlay);
