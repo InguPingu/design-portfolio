@@ -370,6 +370,9 @@
 
   @media (max-height: 500px) and (orientation: landscape) { #gridBtnWrap { display: none; } }
 
+  @keyframes hintPulse { 0%, 100% { color: #BCBAB8; } 45% { color: #6f6c6b; } }
+  .scroll-hint.nudge { animation: hintPulse 1.2s ease-in-out; }
+
   #focusBackdrop {
     position: fixed; inset: 0; z-index: 500;
     background: rgba(22,20,19,0.58);
@@ -467,6 +470,9 @@ let gridMode=false, gridT=0, gridV=0, gridTarget=0;
 // Focus overlay: the intro and contact cards lift out of the grid to centre.
 const FK=90, FD=19;
 let focusIdx=null, focusT=0, focusV=0, focusTarget=0;
+// Idle nudge on the first card: a small peek toward the next card plus a label pulse.
+const NUDGE_FIRST = 6000, NUDGE_REPEAT = 7000, NUDGE_MAX = 3, NUDGE_PEEK = 0.09;
+let nudgeTimer = null, nudgeCount = 0;
 
 function tick(ts){
   if(!lastTs) lastTs=ts;
@@ -882,7 +888,7 @@ function updateInfo(idx){
     infoPanel.innerHTML = `
       <div style="animation:fadeUp 0.4s ease forwards; display:flex; flex-direction:column; align-items:center; gap:10px; padding-top:8px;">
         <div style="display:flex; gap:6px; align-items:center;">
-          <span style="font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:#BCBAB8;">Scroll to explore</span>
+          <span class="scroll-hint" style="font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:#BCBAB8;">Scroll to explore</span>
         </div>
       </div>`;
   } else {
@@ -998,7 +1004,7 @@ function draw(){
   firstDraw = false;
 }
 
-function goTo(i){ target = Math.max(0, Math.min(N-1, i)); kick(); }
+function goTo(i){ target = Math.max(0, Math.min(N-1, i)); stopNudging(); kick(); }
 
 // ── Input ─────────────────────────────────────────────────────────
 window.addEventListener('wheel', e => { if(_overlay.classList.contains('open')) return; e.preventDefault(); handleDelta(e.deltaY); }, { passive:false });
@@ -1215,6 +1221,37 @@ document.querySelectorAll('a[href]').forEach(a => {
     setTimeout(() => { window.location.href = href; }, 340);
   });
 });
+
+// ── Idle nudge ────────────────────────────────────────────────────
+function canNudge(){
+  return !gridMode && focusIdx === null && target === 0 && Math.abs(pos) < 0.01 && !raf
+      && !_overlay.classList.contains('open') && document.visibilityState === 'visible';
+}
+function scheduleNudge(delay){
+  clearTimeout(nudgeTimer); nudgeTimer = null;
+  if (nudgeCount < NUDGE_MAX) nudgeTimer = setTimeout(runNudge, delay);
+}
+function stopNudging(){ nudgeCount = NUDGE_MAX; clearTimeout(nudgeTimer); nudgeTimer = null; }
+function runNudge(){
+  if (!canNudge()) { scheduleNudge(NUDGE_REPEAT); return; }
+  nudgeCount++;
+  const hint = infoPanel.querySelector('.scroll-hint');
+  if (hint) { hint.classList.remove('nudge'); void hint.offsetWidth; hint.classList.add('nudge'); }
+  if (!reducedMotion) {
+    target = NUDGE_PEEK; kick();
+    // Spring back unless the visitor navigated during the peek.
+    setTimeout(() => { if (target === NUDGE_PEEK) { target = 0; kick(); } }, 420);
+  }
+  scheduleNudge(NUDGE_REPEAT);
+}
+// Activity pushes the next nudge back; navigation (via goTo) stops it entirely.
+['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(ev =>
+  window.addEventListener(ev, () => { if (nudgeTimer) scheduleNudge(NUDGE_REPEAT); }, { passive: true }));
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') scheduleNudge(NUDGE_REPEAT);
+  else { clearTimeout(nudgeTimer); nudgeTimer = null; }
+});
+scheduleNudge(NUDGE_FIRST);
 
 // ── Init ──────────────────────────────────────────────────────────
 updateInfo(0);
