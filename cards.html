@@ -332,6 +332,46 @@
   @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
   #caseOverlay.loaded #caseSpinner { display: none; }
   #caseOverlay:not(.loaded) #caseImg { opacity: 0; }
+
+  /* ── GRID VIEW ── */
+  #gridBtnWrap {
+    position: fixed;
+    right:  max(24px, env(safe-area-inset-right, 0px) + 16px);
+    bottom: max(24px, env(safe-area-inset-bottom, 0px) + 16px);
+    z-index: 100;
+    opacity: 0;
+  }
+  #gridBtnWrap.intro-done { animation: fadeUp 2.0s cubic-bezier(0.22,1,0.36,1) 1.2s forwards; }
+  #gridBtn {
+    position: relative;
+    width: 42px; height: 42px; border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #2B2828;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), background 0.2s, border-color 0.2s;
+  }
+  #gridBtn:hover  { transform: scale(1.08); background: #fff; border-color: rgba(0,0,0,0.14); }
+  #gridBtn:active { transform: scale(0.94); }
+  #gridBtn svg {
+    position: absolute;
+    transition: opacity 0.3s ease, transform 0.45s cubic-bezier(0.22,1,0.36,1);
+  }
+  #gridBtn .ic-carousel { opacity: 0; transform: rotate(-90deg) scale(0.6); }
+  body.grid-mode #gridBtn .ic-grid     { opacity: 0; transform: rotate(90deg) scale(0.6); }
+  body.grid-mode #gridBtn .ic-carousel { opacity: 1; transform: none; }
+
+  #infoPanel, .nav-dots, .top-gradient, .watermark { transition: opacity 0.45s ease; }
+  body.grid-mode #infoPanel,
+  body.grid-mode .nav-dots,
+  body.grid-mode .top-gradient,
+  body.grid-mode .watermark { opacity: 0 !important; pointer-events: none; }
+
+  @media (max-height: 500px) and (orientation: landscape) { #gridBtnWrap { display: none; } }
 </style>
 </head>
 <body>
@@ -348,6 +388,12 @@
   <a href="cards.html" class="active">Projects</a>
   <a href="about.html">About</a>
 </nav>
+<div id="gridBtnWrap">
+  <button id="gridBtn" title="Grid view" aria-pressed="false" aria-label="Toggle grid view">
+    <svg class="ic-grid" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="1.5" y="1.5" width="5" height="5" rx="1.2"/><rect x="9.5" y="1.5" width="5" height="5" rx="1.2"/><rect x="1.5" y="9.5" width="5" height="5" rx="1.2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1.2"/></svg>
+    <svg class="ic-carousel" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="4.5" y="3" width="7" height="10" rx="1.4"/><path d="M1.5 5.5v5M14.5 5.5v5"/></svg>
+  </button>
+</div>
 
 <div class="stage">
   <div class="arc-track" id="arcTrack">
@@ -408,13 +454,21 @@ function springStep(x,v,t,dt){
   const a=(-KS*(x-t)-DS*v)/MS;
   return [x+((v+(a*dt))*dt), v+(a*dt)];
 }
+// Grid view morph: 0 = carousel, 1 = grid. Slightly under-damped for a soft settle.
+const GK=70, GD=16;
+let gridMode=false, gridT=0, gridV=0, gridTarget=0;
+
 function tick(ts){
   if(!lastTs) lastTs=ts;
   const dt=Math.min((ts-lastTs)/1000,0.05); lastTs=ts;
   [pos,vel]=springStep(pos,vel,target,dt);
+  gridV += (-GK*(gridT-gridTarget) - GD*gridV)*dt;
+  gridT += gridV*dt;
   draw();
-  if(Math.abs(pos-target)<0.0008 && Math.abs(vel)<0.001){
-    pos=target; vel=0; draw(); raf=null; lastTs=null;
+  const posDone  = Math.abs(pos-target)<0.0008 && Math.abs(vel)<0.001;
+  const gridDone = Math.abs(gridT-gridTarget)<0.0008 && Math.abs(gridV)<0.001;
+  if(posDone && gridDone){
+    pos=target; vel=0; gridT=gridTarget; gridV=0; draw(); raf=null; lastTs=null;
   } else {
     raf=requestAnimationFrame(tick);
   }
@@ -442,7 +496,7 @@ function lockSnap(){
 }
 
 function handleDelta(delta){
-  if(snapLocked) return;
+  if(snapLocked || gridMode) return;
   if(document.getElementById('caseOverlay').classList.contains('open')) return;
   scrollAccum += delta * DELTA_SCALE;
   if(Math.abs(scrollAccum) >= SNAP_THRESH){
@@ -466,6 +520,42 @@ function slotOf(offset){
     opacity: a > 2.3 ? 0 : 1 - Math.max(0, a - 0.5) * 0.46,
     zIndex:  Math.round(10 - a * 3),
   };
+}
+
+// Grid geometry. Cards keep their carousel box (left:50%, top:0 in the arc
+// track); the grid is reached purely through translate/scale, so no layout changes.
+const lerp = (a, b, t) => a + (b - a) * t;
+function gridLayout(){
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const cols   = vw >= 1100 ? 4 : vw >= 720 ? 3 : 2;
+  const rows   = Math.ceil(N / cols);
+  const gap    = Math.max(12, Math.round(vw * 0.012));
+  const topPad = 96, botPad = 84;
+  const availW = vw * 0.9 - (cols - 1) * gap;
+  const availH = (vh - topPad - botPad) - (rows - 1) * gap;
+  const gs     = Math.min(availW / (cols * CW), availH / (rows * CH), 1);
+  const tw = CW * gs, th = CH * gs;
+  const gridH   = rows * th + (rows - 1) * gap;
+  const gridTop = topPad + ((vh - topPad - botPad) - gridH) / 2;
+  return { cols, gap, gs, tw, th, gridTop, arcTop: arcTrack.offsetTop };
+}
+function gridSlotOf(i, L){
+  const col = i % L.cols, row = Math.floor(i / L.cols);
+  return {
+    x: (col - (L.cols - 1) / 2) * (L.tw + L.gap),
+    y: L.gridTop + row * (L.th + L.gap) + L.th / 2 - L.arcTop - CH / 2,
+    scale: L.gs,
+  };
+}
+function setGrid(on){
+  gridMode = on;
+  gridTarget = on ? 1 : 0;
+  document.body.classList.toggle('grid-mode', on);
+  const b = document.getElementById('gridBtn');
+  b.setAttribute('aria-pressed', on);
+  b.title = on ? 'Back to carousel' : 'Grid view';
+  cursorLabel.classList.remove('visible');
+  kick();
 }
 
 // ── DOM ───────────────────────────────────────────────────────────
@@ -635,7 +725,10 @@ const cardEls = projects.map((p, i) => {
     });
   }
   card.addEventListener('mouseenter', () => {
-    if (Math.abs(i - target) <= 0.4) {
+    if (gridMode) {
+      cursorLabel.textContent = p.blank ? "Let's work together :)" : i === 0 ? 'Start' : p.title;
+      cursorLabel.classList.add('visible');
+    } else if (Math.abs(i - target) <= 0.4) {
       cursorLabel.textContent = p.blank ? "Let's work together :)" : i === 0 ? 'Scroll to explore' : 'Click to open';
       cursorLabel.classList.add('visible');
     }
@@ -644,6 +737,7 @@ const cardEls = projects.map((p, i) => {
 
   card.addEventListener('click', () => {
     cursorLabel.classList.remove('visible');
+    if(gridMode){ target = i; setGrid(false); return; }
     if(Math.abs(i - target) > 0.4){ goTo(i); lockSnap(); }
     else if(i === 1){
       const img = document.getElementById('caseImg');
@@ -741,14 +835,22 @@ function updateInfo(idx){
 }
 
 function draw(){
+  const L = gridT > 0.0005 ? gridLayout() : null;
   cardEls.forEach((card, i) => {
-    const {x, y, rot, scale, opacity, zIndex} = slotOf(i - pos);
+    let {x, y, rot, scale, opacity, zIndex} = slotOf(i - pos);
+    if (L) {
+      const g = gridSlotOf(i, L), k = gridT;
+      x = lerp(x, g.x, k); y = lerp(y, g.y, k); rot = lerp(rot, 0, k);
+      scale = lerp(scale, g.scale, k); opacity = lerp(opacity, 1, k);
+      if (k > 0.5) zIndex = 1;
+    }
     const t = tilts[i]||{x:0,y:0};
     card.style.transform  = `perspective(900px) translateX(${x}px) translateY(${y}px) rotate(${rot}deg) scale(${scale}) rotateX(${t.x}deg) rotateY(${t.y}deg)`;
     card.style.opacity    = opacity;
     card.style.zIndex     = zIndex;
     const d = Math.abs(i - pos);
-    card.style.boxShadow  = d < 0.7 ? `0 20px 60px rgba(26,23,20,${(0.015*(1-d*1.3)).toFixed(3)})` : 'none';
+    card.style.boxShadow  = (L && gridT > 0.5) ? '0 10px 40px rgba(26,23,20,0.05)'
+                          : d < 0.7 ? `0 20px 60px rgba(26,23,20,${(0.015*(1-d*1.3)).toFixed(3)})` : 'none';
   });
 
   updateInfo(Math.max(0, Math.min(N-1, Math.round(pos))));
@@ -802,7 +904,7 @@ window.addEventListener('touchstart', e => {
   lastTy = e.touches[0].clientY;
 }, { passive:true });
 window.addEventListener('touchmove', e => {
-  if(_overlay.classList.contains('open')) return;
+  if(_overlay.classList.contains('open') || gridMode) return;
   const dx = lastTx - e.touches[0].clientX;
   const dy = lastTy - e.touches[0].clientY;
   lastTx = e.touches[0].clientX;
@@ -835,10 +937,14 @@ _overlay.addEventListener('scroll', () => _topBtn.classList.toggle('visible', _o
 _topBtn.addEventListener('click', () => _overlay.scrollTo({ top: 0, behavior: 'smooth' }));
 document.getElementById('caseClose').addEventListener('click', closeOverlay);
 _overlay.addEventListener('click', e => { if(e.target === _overlay) closeOverlay(); });
-document.addEventListener('keydown', e => { if(e.key === 'Escape') closeOverlay(); });
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Escape') return;
+  if(_overlay.classList.contains('open')) closeOverlay();
+  else if(gridMode) setGrid(false);
+});
 
 document.addEventListener('keydown', e => {
-  if(snapLocked) return;
+  if(snapLocked || gridMode) return;
   if(e.key==='ArrowRight'||e.key==='ArrowDown'){ goTo(Math.round(target)+1); lockSnap(); }
   if(e.key==='ArrowLeft' ||e.key==='ArrowUp')  { goTo(Math.round(target)-1); lockSnap(); }
 });
@@ -995,6 +1101,11 @@ document.querySelector('.site-nav').classList.add('intro-done');
 document.getElementById('arcTrack').classList.add('intro-done');
 document.querySelector('.nav-dots').classList.add('intro-done');
 document.getElementById('infoPanel').classList.add('intro-done');
+document.getElementById('gridBtnWrap').classList.add('intro-done');
+document.getElementById('gridBtn').addEventListener('click', () => setGrid(!gridMode));
+document.querySelector('.nav-dots').addEventListener('animationend', function(){
+  this.style.animation = 'none'; this.style.opacity = '1';
+}, { once: true });
 
 // Then render after animations start
 requestAnimationFrame(() => draw());
