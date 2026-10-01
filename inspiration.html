@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inspiration</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Homemade+Apple&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="Pingu.svg">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f0f0f0;
+    color: #2B2828;
+    overflow: hidden;
+    overscroll-behavior: none;
+    -webkit-user-select: none; user-select: none;
+    touch-action: none;
+  }
+
+  /* ── CANVAS ── */
+  #viewport {
+    position: fixed; inset: 0;
+    cursor: grab;
+    background-image: radial-gradient(rgba(43,40,40,0.11) 1px, transparent 1.3px);
+    background-size: 28px 28px;
+  }
+  #viewport.panning { cursor: grabbing; }
+  #world { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+
+  .item {
+    position: absolute; left: 0; top: 0;
+    transform: var(--t);
+    transform-origin: 50% 50%;
+    border-radius: 12px; overflow: hidden;
+    background: #e6e4e1;
+    box-shadow: 0 2px 4px rgba(26,23,20,0.06), 0 14px 36px rgba(26,23,20,0.14);
+    cursor: grab;
+    will-change: transform;
+  }
+  .item img, .item video { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+  .item.dragging { cursor: grabbing; box-shadow: 0 10px 18px rgba(26,23,20,0.10), 0 44px 90px rgba(26,23,20,0.22); }
+  .item.selected { outline: 2px solid #2B2828; outline-offset: 3px; }
+  .item.settling { transition: transform 0.75s cubic-bezier(0.22,1,0.36,1); }
+  .item.entering { animation: drop 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+  @keyframes drop {
+    from { opacity: 0; transform: var(--t) translateY(-22px) scale(1.06); }
+    to   { opacity: 1; transform: var(--t); }
+  }
+  .item .del {
+    position: absolute; top: 8px; right: 8px;
+    width: 26px; height: 26px; border-radius: 50%;
+    border: none; background: rgba(255,255,255,0.85); color: #2B2828;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    font: 14px/26px 'DM Sans', sans-serif; text-align: center;
+    cursor: pointer; opacity: 0; transition: opacity 0.18s, transform 0.2s;
+  }
+  .item:hover .del { opacity: 1; }
+  .item .del:hover { transform: scale(1.1); background: #fff; }
+
+  /* ── CHROME ── */
+  .site-nav {
+    position: fixed; top: max(24px, env(safe-area-inset-top, 0px) + 12px); left: 50%;
+    transform: translateX(-50%); display: flex; gap: 20px; z-index: 100; white-space: nowrap;
+  }
+  .site-nav a { text-decoration: none; font-size: 16px; font-weight: 400; color: #999999; transition: opacity 0.2s; }
+  .site-nav a:hover { opacity: 0.6; }
+  .site-nav a.active { font-weight: 500; }
+
+  .tools {
+    position: fixed; right: max(24px, env(safe-area-inset-right, 0px) + 16px);
+    bottom: max(24px, env(safe-area-inset-bottom, 0px) + 16px);
+    display: flex; align-items: center; gap: 18px; z-index: 100;
+  }
+  .tool {
+    border: none; background: none; font: inherit; font-size: 13px; color: #999999;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 2px;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.2s, transform 0.3s cubic-bezier(0.22,1,0.36,1);
+  }
+  .tool:hover { color: #2B2828; transform: translateY(-1px); }
+  .tool svg { display: block; }
+  .status {
+    position: fixed; left: max(24px, env(safe-area-inset-left, 0px) + 16px);
+    bottom: max(30px, env(safe-area-inset-bottom, 0px) + 22px);
+    font-size: 12px; color: rgba(43,40,40,0.45); letter-spacing: 0.02em;
+    z-index: 100; pointer-events: none; transition: opacity 0.4s;
+  }
+  body:not(.has-items) .status { opacity: 0; }
+
+  #empty {
+    position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; text-align: center; pointer-events: none; transition: opacity 0.4s; padding: 0 24px;
+  }
+  #empty h1 { font-weight: 400; font-size: 1.7rem; color: #2B2828; line-height: 1.2; }
+  #empty p  { font-size: 0.9rem; font-weight: 300; color: #696767; line-height: 1.6; }
+  #empty kbd { font: inherit; padding: 1px 6px; border-radius: 5px; background: rgba(43,40,40,0.06); }
+  body.has-items #empty { opacity: 0; }
+
+  #dropHint {
+    position: fixed; inset: 16px; border-radius: 22px;
+    border: 1.5px dashed rgba(43,40,40,0.28);
+    background: rgba(240,240,240,0.6);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; color: #696767; pointer-events: none;
+    opacity: 0; transition: opacity 0.2s; z-index: 200;
+  }
+  body.dragover #dropHint { opacity: 1; }
+
+  .watermark {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    font-family: 'Homemade Apple', cursive; font-size: 0.78rem; color: rgba(43,40,40,0.3);
+    white-space: nowrap; pointer-events: none; z-index: 10;
+  }
+
+  @media (max-width: 600px) {
+    .tool span { display: none; }
+    .tools { gap: 14px; }
+    .status { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .item.entering { animation: none; }
+    .item.settling { transition: none; }
+  }
+</style>
+</head>
+<body>
+<nav class="site-nav">
+  <a href="cards.html">Projects</a>
+  <a href="about.html">About</a>
+  <a href="inspiration.html" class="active">Inspiration</a>
+</nav>
+
+<div id="viewport"><div id="world"></div></div>
+
+<div id="empty">
+  <h1>Drop anything that inspires you</h1>
+  <p>Images and videos land where you drop them.<br>Scroll to pan, pinch to zoom, drag to rearrange, <kbd>⌘V</kbd> to paste.</p>
+</div>
+<div id="dropHint">Drop to add</div>
+
+<p class="status" id="status"></p>
+<div class="tools">
+  <button class="tool" id="btnFit" title="Fit everything in view">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg><span>Fit</span>
+  </button>
+  <button class="tool" id="btnShuffle" title="Scatter everything again">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h3l6 8h3M14 12l-2-2M14 12l-2 2M2 12h3l1.5-2M11 4h3l-2-2M14 4l-2 2M8.5 6l-.9 1.2"/></svg><span>Shuffle</span>
+  </button>
+  <button class="tool" id="btnClear" title="Remove everything">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M6 4V2.5h4V4M4.5 4l.7 9.5h5.6L11.5 4"/></svg><span>Clear</span>
+  </button>
+  <button class="tool" id="btnAdd" title="Add images or videos">
+    <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg><span>Add</span>
+  </button>
+</div>
+<input type="file" id="fileInput" accept="image/*,video/*" multiple hidden>
+<p class="watermark">Designed in Figma &nbsp;·&nbsp; Vibe coded with Claude</p>
+
+<script>
+// ── Storage ────────────────────────────────────────────────────────
+// Items live in IndexedDB so the board survives a reload. A record holds the
+// media itself (a Blob for dropped files, or a URL for things dragged from the
+// web) plus its layout: centre x/y in world units, width, aspect, rotation, z.
+const DB_NAME = 'inspiration', STORE = 'items';
+let db;
+function openDB(){
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(DB_NAME, 1);
+    r.onupgradeneeded = () => r.result.createObjectStore(STORE, { keyPath: 'id' });
+    r.onsuccess = () => res(r.result);
+    r.onerror   = () => rej(r.error);
+  });
+}
+const tx = (mode, fn) => new Promise((res, rej) => {
+  const t = db.transaction(STORE, mode), s = t.objectStore(STORE), out = fn(s);
+  t.oncomplete = () => res(out && out.result);
+  t.onerror    = () => rej(t.error);
+});
+const dbAll   = () => tx('readonly',  s => s.getAll());
+const dbPut   = rec => tx('readwrite', s => s.put(rec));
+const dbDel   = id  => tx('readwrite', s => s.delete(id));
+const dbClear = ()  => tx('readwrite', s => s.clear());
+
+// ── View ───────────────────────────────────────────────────────────
+const viewport = document.getElementById('viewport');
+const world    = document.getElementById('world');
+const view = Object.assign({ x: 0, y: 0, s: 1 }, JSON.parse(localStorage.getItem('inspiration.view') || 'null'));
+let saveViewT;
+function applyView(){
+  world.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.s})`;
+  const g = 28 * view.s;
+  viewport.style.backgroundSize = `${g}px ${g}px`;
+  viewport.style.backgroundPosition = `${view.x}px ${view.y}px`;
+  clearTimeout(saveViewT);
+  saveViewT = setTimeout(() => localStorage.setItem('inspiration.view', JSON.stringify(view)), 250);
+  updateStatus();
+}
+const toWorld = (sx, sy) => ({ x: (sx - view.x) / view.s, y: (sy - view.y) / view.s });
+const viewCentre = () => toWorld(innerWidth / 2, innerHeight / 2);
+
+function zoomAt(sx, sy, factor){
+  const s = Math.max(0.15, Math.min(4, view.s * factor));
+  view.x = sx - (sx - view.x) * (s / view.s);
+  view.y = sy - (sy - view.y) * (s / view.s);
+  view.s = s;
+  applyView();
+}
+
+// ── Items ──────────────────────────────────────────────────────────
+const items = new Map();   // id -> { rec, el }
+let zTop = 0, selectedId = null;
+const rnd = (a, b) => a + Math.random() * (b - a);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const heightOf = rec => rec.w / rec.aspect;
+const radiusOf = rec => Math.hypot(rec.w, heightOf(rec)) / 2 * 0.72;   // circles overlap a little: that is the mess
+
+function place(el, rec){
+  el.style.setProperty('--t', `translate(${rec.x - rec.w / 2}px, ${rec.y - heightOf(rec) / 2}px) rotate(${rec.rot}deg)`);
+  el.style.width  = rec.w + 'px';
+  el.style.height = heightOf(rec) + 'px';
+  el.style.zIndex = rec.z;
+}
+
+// Only videos that are actually on screen play, so a big board stays cheap.
+const playWatcher = new IntersectionObserver(entries => {
+  for (const e of entries) {
+    const v = e.target.querySelector('video');
+    if (!v) continue;
+    if (e.isIntersecting) v.play().catch(() => {}); else v.pause();
+  }
+}, { threshold: 0.05 });
+
+function mediaFor(rec){
+  const src = rec.blob ? URL.createObjectURL(rec.blob) : rec.url;
+  if (rec.kind === 'video') {
+    const v = document.createElement('video');
+    v.src = src; v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true; v.preload = 'metadata';
+    return v;
+  }
+  const img = document.createElement('img');
+  img.src = src; img.alt = ''; img.draggable = false; img.decoding = 'async';
+  return img;
+}
+
+function mount(rec, { entering = false, delay = 0 } = {}){
+  const el = document.createElement('div');
+  el.className = 'item';
+  el.dataset.id = rec.id;
+  const media = mediaFor(rec);
+  el.appendChild(media);
+  const del = document.createElement('button');
+  del.className = 'del'; del.title = 'Remove'; del.textContent = '✕';
+  del.addEventListener('pointerdown', e => e.stopPropagation());
+  del.addEventListener('click', e => { e.stopPropagation(); remove(rec.id); });
+  el.appendChild(del);
+  place(el, rec);
+  if (entering) {
+    el.classList.add('entering');
+    el.style.animationDelay = delay + 'ms';
+    el.addEventListener('animationend', () => { el.classList.remove('entering'); el.style.animationDelay = ''; }, { once: true });
+  }
+  world.appendChild(el);
+  items.set(rec.id, { rec, el, media });
+  playWatcher.observe(el);
+  zTop = Math.max(zTop, rec.z);
+  updateStatus();
+  return el;
+}
+
+function remove(id){
+  const it = items.get(id); if (!it) return;
+  playWatcher.unobserve(it.el);
+  if (it.rec.blob && it.media.src.startsWith('blob:')) URL.revokeObjectURL(it.media.src);
+  it.el.remove(); items.delete(id);
+  if (selectedId === id) selectedId = null;
+  dbDel(id);
+  updateStatus();
+}
+
+function select(id){
+  if (selectedId && items.has(selectedId)) items.get(selectedId).el.classList.remove('selected');
+  selectedId = id;
+  if (id) items.get(id).el.classList.add('selected');
+}
+function bringToFront(it){
+  if (it.rec.z === zTop) return;
+  it.rec.z = ++zTop; it.el.style.zIndex = zTop; dbPut(it.rec);
+}
+
+function updateStatus(){
+  const n = items.size;
+  document.body.classList.toggle('has-items', n > 0);
+  document.getElementById('status').textContent = n ? `${n} ${n === 1 ? 'item' : 'items'}  ·  ${Math.round(view.s * 100)}%` : '';
+}
+
+// ── Layout ─────────────────────────────────────────────────────────
+// A batch fans out from the drop point along a sunflower spiral: evenly spread
+// but never grid-like. Each piece gets its own size and a few degrees of tilt,
+// then a short push-apart pass stops anything from landing fully on top of
+// something else. Existing items are never moved: only the new ones yield.
+function scatter(recs, cx, cy){
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  const base = recs.reduce((a, r) => a + r.w, 0) / recs.length;
+  const spread = base * 0.62;
+  recs.forEach((r, k) => {
+    const rad = spread * Math.sqrt(k), ang = k * golden + rnd(-0.25, 0.25);
+    r.x = cx + Math.cos(ang) * rad + rnd(-26, 26);
+    r.y = cy + Math.sin(ang) * rad + rnd(-26, 26);
+    r.rot = rnd(-7, 7);
+  });
+  relax(recs);
+}
+function relax(moving){
+  const fixed = [...items.values()].map(i => i.rec).filter(r => !moving.includes(r));
+  const all = [...moving, ...fixed], fixedSet = new Set(fixed);
+  for (let it = 0; it < 40; it++) {
+    let moved = false;
+    for (const a of moving) for (const b of all) {
+      if (a === b) continue;
+      const dx = a.x - b.x, dy = a.y - b.y, d = Math.hypot(dx, dy) || 0.01;
+      const min = (radiusOf(a) + radiusOf(b)) * 0.8;
+      if (d >= min) continue;
+      const push = (min - d), ux = dx / d, uy = dy / d;
+      if (fixedSet.has(b)) { a.x += ux * push; a.y += uy * push; }
+      else { a.x += ux * push / 2; a.y += uy * push / 2; b.x -= ux * push / 2; b.y -= uy * push / 2; }
+      moved = true;
+    }
+    if (!moved) break;
+  }
+}
+
+// ── Adding ─────────────────────────────────────────────────────────
+function kindOf(mime, name = ''){
+  if (/^video\//.test(mime) || /\.(mp4|webm|mov|m4v)(\?|$)/i.test(name)) return 'video';
+  if (/^image\//.test(mime) || /\.(png|jpe?g|gif|webp|avif|svg)(\?|$)/i.test(name)) return 'image';
+  return null;
+}
+// Read the aspect ratio up front so each piece lands at its final shape.
+function measure(kind, src){
+  return new Promise(res => {
+    if (kind === 'video') {
+      const v = document.createElement('video'); v.preload = 'metadata'; v.muted = true;
+      v.onloadedmetadata = () => res(v.videoWidth / v.videoHeight || 16 / 9);
+      v.onerror = () => res(16 / 9);
+      v.src = src;
+    } else {
+      const i = new Image();
+      i.onload = () => res(i.naturalWidth / i.naturalHeight || 4 / 3);
+      i.onerror = () => res(4 / 3);
+      i.src = src;
+    }
+  });
+}
+
+async function addFiles(files, at){
+  const list = [...files].filter(f => kindOf(f.type, f.name));
+  if (!list.length) return;
+  const recs = await Promise.all(list.map(async f => {
+    const kind = kindOf(f.type, f.name);
+    const tmp = URL.createObjectURL(f);
+    const aspect = await measure(kind, tmp);
+    URL.revokeObjectURL(tmp);
+    return { id: uid(), kind, blob: f, mime: f.type, aspect, w: (kind === 'video' ? 340 : 300) * rnd(0.82, 1.18), z: ++zTop, created: Date.now() };
+  }));
+  commit(recs, at);
+}
+async function addUrl(url, at){
+  const kind = kindOf('', url) || 'image';
+  const aspect = await measure(kind, url);
+  commit([{ id: uid(), kind, url, aspect, w: (kind === 'video' ? 340 : 300) * rnd(0.82, 1.18), z: ++zTop, created: Date.now() }], at);
+}
+function commit(recs, at){
+  const p = at || viewCentre();
+  scatter(recs, p.x, p.y);
+  recs.forEach((r, k) => { mount(r, { entering: true, delay: Math.min(k * 45, 500) }); dbPut(r); });
+  select(recs[recs.length - 1].id);
+}
+
+// What a drop or paste actually contains: files first, else a web URL.
+function extractUrl(dt){
+  const uri = dt.getData('text/uri-list') || dt.getData('text/plain');
+  if (uri && /^https?:\/\//.test(uri.trim())) return uri.trim().split('\n')[0];
+  const html = dt.getData('text/html');
+  if (html) {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const m = doc.querySelector('img[src], video[src], source[src]');
+    if (m) return m.getAttribute('src');
+  }
+  return null;
+}
+
+let dragDepth = 0;
+window.addEventListener('dragenter', e => { e.preventDefault(); if (++dragDepth === 1) document.body.classList.add('dragover'); });
+window.addEventListener('dragleave', e => { e.preventDefault(); if (--dragDepth <= 0) { dragDepth = 0; document.body.classList.remove('dragover'); } });
+window.addEventListener('dragover',  e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; });
+window.addEventListener('drop', e => {
+  e.preventDefault(); dragDepth = 0; document.body.classList.remove('dragover');
+  const at = toWorld(e.clientX, e.clientY);
+  if (e.dataTransfer.files && e.dataTransfer.files.length) addFiles(e.dataTransfer.files, at);
+  else { const u = extractUrl(e.dataTransfer); if (u) addUrl(u, at); }
+});
+document.addEventListener('paste', e => {
+  const files = e.clipboardData && e.clipboardData.files;
+  if (files && files.length) { e.preventDefault(); addFiles(files); return; }
+  const u = e.clipboardData && extractUrl(e.clipboardData);
+  if (u) { e.preventDefault(); addUrl(u); }
+});
+const fileInput = document.getElementById('fileInput');
+document.getElementById('btnAdd').addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', () => { addFiles(fileInput.files); fileInput.value = ''; });
+
+// ── Pointer: drag items, pan the canvas ────────────────────────────
+let gesture = null;   // { kind:'item'|'pan', ... }
+viewport.addEventListener('pointerdown', e => {
+  if (e.button !== 0) return;
+  const el = e.target.closest('.item');
+  if (el) {
+    const it = items.get(el.dataset.id);
+    gesture = { kind: 'item', it, sx: e.clientX, sy: e.clientY, ox: it.rec.x, oy: it.rec.y, moved: false };
+    bringToFront(it);
+  } else {
+    gesture = { kind: 'pan', sx: e.clientX, sy: e.clientY, ox: view.x, oy: view.y, moved: false };
+    viewport.classList.add('panning');
+  }
+  viewport.setPointerCapture(e.pointerId);
+});
+viewport.addEventListener('pointermove', e => {
+  if (!gesture) return;
+  const dx = e.clientX - gesture.sx, dy = e.clientY - gesture.sy;
+  if (!gesture.moved && Math.hypot(dx, dy) < 4) return;
+  gesture.moved = true;
+  if (gesture.kind === 'item') {
+    const { it } = gesture;
+    it.el.classList.add('dragging');
+    it.rec.x = gesture.ox + dx / view.s; it.rec.y = gesture.oy + dy / view.s;
+    place(it.el, it.rec);
+  } else {
+    view.x = gesture.ox + dx; view.y = gesture.oy + dy; applyView();
+  }
+});
+function endGesture(e){
+  if (!gesture) return;
+  if (gesture.kind === 'item') {
+    gesture.it.el.classList.remove('dragging');
+    if (gesture.moved) dbPut(gesture.it.rec);
+    select(gesture.it.rec.id);
+  } else {
+    viewport.classList.remove('panning');
+    if (!gesture.moved) select(null);
+  }
+  gesture = null;
+}
+viewport.addEventListener('pointerup', endGesture);
+viewport.addEventListener('pointercancel', endGesture);
+
+// Two-finger scroll pans; pinch (ctrl+wheel) zooms around the cursor.
+viewport.addEventListener('wheel', e => {
+  e.preventDefault();
+  // Pinch deltas are tiny; a mouse wheel notch is ~100, so cap the step or one click hits the limit.
+  if (e.ctrlKey || e.metaKey) zoomAt(e.clientX, e.clientY, Math.max(0.6, Math.min(1.6, Math.exp(-e.deltaY * 0.01))));
+  else { view.x -= e.deltaX; view.y -= e.deltaY; applyView(); }
+}, { passive: false });
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if ((e.key === 'Backspace' || e.key === 'Delete') && selectedId) { e.preventDefault(); remove(selectedId); }
+  if (e.key === 'Escape') select(null);
+  if (e.key === '0' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); fitAll(); }
+});
+
+// ── Tools ──────────────────────────────────────────────────────────
+function fitAll(){
+  if (!items.size) { view.x = 0; view.y = 0; view.s = 1; applyView(); return; }
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const { rec } of items.values()) {
+    const h = heightOf(rec);
+    minX = Math.min(minX, rec.x - rec.w / 2); maxX = Math.max(maxX, rec.x + rec.w / 2);
+    minY = Math.min(minY, rec.y - h / 2);     maxY = Math.max(maxY, rec.y + h / 2);
+  }
+  const pad = 90;
+  const s = Math.min((innerWidth - pad * 2) / (maxX - minX), (innerHeight - pad * 2) / (maxY - minY), 1.5);
+  view.s = Math.max(0.15, s);
+  view.x = innerWidth / 2 - ((minX + maxX) / 2) * view.s;
+  view.y = innerHeight / 2 - ((minY + maxY) / 2) * view.s;
+  applyView();
+}
+document.getElementById('btnFit').addEventListener('click', fitAll);
+
+document.getElementById('btnShuffle').addEventListener('click', () => {
+  if (!items.size) return;
+  const recs = [...items.values()].map(i => i.rec).sort(() => Math.random() - 0.5);
+  const c = viewCentre();
+  // Everything moves this time, so the spiral is the only fixed reference.
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  const base = recs.reduce((a, r) => a + r.w, 0) / recs.length;
+  recs.forEach((r, k) => {
+    const rad = base * 0.62 * Math.sqrt(k), ang = k * golden + rnd(-0.25, 0.25);
+    r.x = c.x + Math.cos(ang) * rad + rnd(-26, 26);
+    r.y = c.y + Math.sin(ang) * rad + rnd(-26, 26);
+    r.rot = rnd(-7, 7);
+  });
+  relax(recs);
+  for (const it of items.values()) {
+    it.el.classList.add('settling');
+    place(it.el, it.rec);
+    it.el.addEventListener('transitionend', () => it.el.classList.remove('settling'), { once: true });
+    dbPut(it.rec);
+  }
+  setTimeout(fitAll, 60);
+});
+
+document.getElementById('btnClear').addEventListener('click', async () => {
+  if (!items.size || !confirm(`Remove all ${items.size} items from the board?`)) return;
+  for (const id of [...items.keys()]) {
+    const it = items.get(id);
+    playWatcher.unobserve(it.el);
+    if (it.rec.blob && it.media.src.startsWith('blob:')) URL.revokeObjectURL(it.media.src);
+    it.el.remove();
+  }
+  items.clear(); selectedId = null; zTop = 0;
+  await dbClear();
+  updateStatus();
+});
+
+// ── Init ───────────────────────────────────────────────────────────
+(async () => {
+  db = await openDB();
+  const recs = (await dbAll()).sort((a, b) => a.z - b.z);
+  recs.forEach((r, k) => mount(r, { entering: true, delay: Math.min(k * 30, 600) }));
+  if (recs.length && !localStorage.getItem('inspiration.view')) fitAll();
+  applyView();
+})();
+window.addEventListener('resize', updateStatus);
+</script>
+</body>
+</html>
