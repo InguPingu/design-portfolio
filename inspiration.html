@@ -79,9 +79,10 @@
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     font: 14px/26px 'DM Sans', sans-serif; text-align: center;
     cursor: pointer; opacity: 0; transition: opacity 0.18s, transform 0.2s;
+    transform: rotate(var(--cr, 0deg));   /* stays upright on a tilted piece */
   }
   .item:hover .del { opacity: 1; }
-  .item .del:hover { transform: scale(1.1); background: #fff; }
+  .item .del:hover { transform: rotate(var(--cr, 0deg)) scale(1.1); background: #fff; }
 
   /* ── CHROME ── */
   .site-nav {
@@ -244,6 +245,7 @@ const radiusOf = rec => Math.hypot(rec.w, heightOf(rec)) / 2 * 0.72;   // circle
 
 function place(el, rec){
   el.style.setProperty('--t', `translate(${rec.x - rec.w / 2}px, ${rec.y - heightOf(rec) / 2}px) rotate(${rec.rot}deg)`);
+  el.style.setProperty('--cr', `${-rec.rot}deg`);
   el.style.width  = rec.w + 'px';
   el.style.height = heightOf(rec) + 'px';
   el.style.zIndex = rec.z;
