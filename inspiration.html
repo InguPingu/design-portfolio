@@ -133,6 +133,7 @@
   body.mode-folder #empty .only.folder,
   body.mode-viewer #empty .only.viewer,
   body.mode-pending #empty .only.pending { display: block; }
+  body.db-blocked #empty .only.blocked { display: block; }
   body.has-items #empty { opacity: 0; }
 
   #reconnect {
@@ -190,6 +191,7 @@
   <p class="only local">Images and videos land where you drop them. Scroll to pan, pinch to zoom, drag to rearrange.<br>Select a piece to resize or tilt it &nbsp;·&nbsp; <kbd>⌘V</kbd> pastes.<br><br>Right now pieces are kept in this browser only. Connect your <strong>Inspiration</strong> folder below to save the files there.</p>
   <p class="only folder">Everything you drop is saved into your <strong>Inspiration</strong> folder.<br>Scroll to pan, pinch to zoom, drag to rearrange. Select a piece to resize or tilt it &nbsp;·&nbsp; <kbd>⌘V</kbd> pastes.</p>
   <p class="only pending">Your Inspiration folder needs one click to reconnect before the board can load.</p>
+  <p class="only blocked">Another Inspiration tab is holding the board open. Close it, then reload this one.</p>
 </div>
 <button id="reconnect">
   <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M1.5 4.5h4l1.5 1.5h7.5v7h-13z"/></svg>
@@ -237,31 +239,33 @@ const FOLDER = 'Inspiration', MANIFEST = 'board.json';
 const fsSupported = 'showDirectoryPicker' in window;
 let mode = 'local', dir = null, removedFiles = [];
 
-const DB_NAME = 'inspiration';
-let db;
-function openDB(){
+// The folder handle lives in its own database so the items database never
+// needs a version bump: IndexedDB stalls an upgrade for as long as an older tab
+// holds the database open, which left the whole page blank. Databases are
+// opened at whatever version they already have, and every connection steps
+// aside for a future upgrade instead of blocking it.
+const DB_NAME = 'inspiration', META_DB = 'inspiration-meta';
+let db, metaDb;
+function openDB(name, store, keyPath){
   return new Promise((res, rej) => {
-    const r = indexedDB.open(DB_NAME, 2);
-    r.onupgradeneeded = () => {
-      const d = r.result;
-      if (!d.objectStoreNames.contains('items')) d.createObjectStore('items', { keyPath: 'id' });
-      if (!d.objectStoreNames.contains('meta'))  d.createObjectStore('meta',  { keyPath: 'key' });
-    };
-    r.onsuccess = () => res(r.result);
+    const r = indexedDB.open(name);
+    r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains(store)) r.result.createObjectStore(store, { keyPath }); };
+    r.onblocked = () => document.body.classList.add('db-blocked');
+    r.onsuccess = () => { const d = r.result; d.onversionchange = () => d.close(); res(d); };
     r.onerror   = () => rej(r.error);
   });
 }
-const tx = (store, rw, fn) => new Promise((res, rej) => {
-  const t = db.transaction(store, rw), out = fn(t.objectStore(store));
+const tx = (d, store, rw, fn) => new Promise((res, rej) => {
+  const t = d.transaction(store, rw), out = fn(t.objectStore(store));
   t.oncomplete = () => res(out && out.result);
   t.onerror    = () => rej(t.error);
 });
-const dbAll   = ()  => tx('items', 'readonly',  s => s.getAll());
-const dbPut   = rec => tx('items', 'readwrite', s => s.put(rec));
-const dbDel   = id  => tx('items', 'readwrite', s => s.delete(id));
-const dbClear = ()  => tx('items', 'readwrite', s => s.clear());
-const metaGet = key => tx('meta', 'readonly',  s => s.get(key));
-const metaPut = val => tx('meta', 'readwrite', s => s.put(val));
+const dbAll   = ()  => tx(db, 'items', 'readonly',  s => s.getAll());
+const dbPut   = rec => tx(db, 'items', 'readwrite', s => s.put(rec));
+const dbDel   = id  => tx(db, 'items', 'readwrite', s => s.delete(id));
+const dbClear = ()  => tx(db, 'items', 'readwrite', s => s.clear());
+const metaGet = key => tx(metaDb, 'meta', 'readonly',  s => s.get(key));
+const metaPut = val => tx(metaDb, 'meta', 'readwrite', s => s.put(val));
 
 // Folder backend.
 const stripRec = ({ blob, ...rest }) => rest;
@@ -833,7 +837,8 @@ async function loadFromFolder(){
 
 // ── Init ───────────────────────────────────────────────────────────
 (async () => {
-  db = await openDB();
+  refreshChrome();   // the toolbar and empty state never wait on storage
+  [db, metaDb] = await Promise.all([openDB(DB_NAME, 'items', 'id'), openDB(META_DB, 'meta', 'key')]);
   const saved = fsSupported ? await metaGet('dir') : null;
   if (saved && saved.handle) {
     dir = saved.handle;
