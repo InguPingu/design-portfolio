@@ -796,51 +796,10 @@ const cardEls = projects.map((p, i) => {
     cursorLabel.classList.remove('visible');
     if(gridMode){
       if(i === 0 || i === N - 1){ focusTarget === 1 && focusIdx === i ? clearFocus() : setFocus(i); return; }
-      target = i; setGrid(false); return;
+      openCase(i); return;
     }
     if(Math.abs(i - target) > 0.4){ goTo(i); lockSnap(); }
-    else if(i === 1){
-      const img = document.getElementById('caseImg');
-      _overlay.classList.remove('loaded');
-      img.src = '';
-      img.src = 'CaseStudy/AltekCase.jpg';
-      openOverlay();
-    }
-    else if(i === 2){
-      const img = document.getElementById('caseImg');
-      _overlay.classList.remove('loaded');
-      img.src = '';
-      img.src = 'CaseStudy/KronCase.jpg';
-      openOverlay();
-    }
-    else if(i === 3){
-      const img = document.getElementById('caseImg');
-      _overlay.classList.remove('loaded');
-      img.src = '';
-      img.src = 'CaseStudy/SkatteetatenCase.jpg';
-      openOverlay();
-    }
-    else if(i === 4){
-      const img = document.getElementById('caseImg');
-      _overlay.classList.remove('loaded');
-      img.src = '';
-      img.src = 'CaseStudy/TelenorCase.jpg';
-      openOverlay();
-    }
-    else if(i === 5){
-      const img = document.getElementById('caseImg');
-      _overlay.classList.remove('loaded');
-      img.src = '';
-      img.src = 'CaseStudy/NabostylistenCase.jpg';
-      openOverlay();
-    }
-    else if(i === 6){
-      const img = document.getElementById('caseImg');
-      _overlay.classList.remove('loaded');
-      img.src = '';
-      img.src = 'CaseStudy/DFØCase.jpg';
-      openOverlay();
-    }
+    else openCase(i);
   });
   arcTrack.insertBefore(card, snapBarWrap);
   return card;
@@ -932,7 +891,7 @@ function draw(){
   // Control video playback and overlay. Grid view plays every card at once.
   cardEls.forEach((card, i) => {
     if (card.videoElement && card.hasVideoOverlay !== undefined) {
-      if (gridMode ? focusIdx === null : i === ci) {
+      if (gridMode || i === ci) {
         // Prepare video, keep image visible until video is ready
         if (!card.hasVideoOverlay) {
           card.videoElement.currentTime = 0;
@@ -996,6 +955,23 @@ document.getElementById('btnNext').addEventListener('click', () => { if(!snapLoc
 const _overlay   = document.getElementById('caseOverlay');
 const _topBtn    = document.getElementById('caseTopBtn');
 const _closeBtn  = document.getElementById('caseClose');
+const CASE_STUDIES = {
+  1: 'AltekCase.jpg',
+  2: 'KronCase.jpg',
+  3: 'SkatteetatenCase.jpg',
+  4: 'TelenorCase.jpg',
+  5: 'NabostylistenCase.jpg',
+  6: 'DFØCase.jpg',
+};
+function openCase(i){
+  const file = CASE_STUDIES[i];
+  if(!file) return;
+  const img = document.getElementById('caseImg');
+  _overlay.classList.remove('loaded');
+  img.src = '';
+  img.src = 'CaseStudy/' + file;
+  openOverlay();
+}
 function openOverlay()  { _overlay.scrollTop = 0; _overlay.classList.add('open'); _closeBtn.style.display = 'block'; document.body.style.overflow = 'hidden'; }
 function closeOverlay() {
   _overlay.classList.add('closing');
