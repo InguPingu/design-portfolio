@@ -41,6 +41,25 @@
   }
   .item img, .item video { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
   .item.dragging { cursor: grabbing; box-shadow: 0 10px 18px rgba(26,23,20,0.10), 0 44px 90px rgba(26,23,20,0.22); }
+  .item.settling { transition: transform 0.75s cubic-bezier(0.22,1,0.36,1); }
+  .item.entering { animation: drop 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+  @keyframes drop {
+    from { opacity: 0; transform: var(--t) translateY(-22px) scale(1.06); }
+    to   { opacity: 1; transform: var(--t); }
+  }
+  .item .del {
+    position: absolute; top: 8px; right: 8px;
+    width: 26px; height: 26px; border-radius: 50%;
+    border: none; background: rgba(255,255,255,0.85); color: #2B2828;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    font: 14px/26px 'DM Sans', sans-serif; text-align: center;
+    cursor: pointer; opacity: 0; transition: opacity 0.18s, transform 0.2s;
+    transform: rotate(var(--cr, 0deg));   /* stays upright on a tilted piece */
+  }
+  .item:hover .del { opacity: 1; }
+  .item .del:hover { transform: rotate(var(--cr, 0deg)) scale(1.1); background: #fff; }
+  body.mode-viewer .item .del { display: none; }
+
   /* The selection box is a sibling in world space wearing the selected item's
      transform, because the item clips its own overflow. Everything on it is
      divided by the zoom (--zs) so it stays the same size on screen. */
@@ -66,23 +85,6 @@
   }
   .handle.rotate { left: 50%; bottom: calc(100% + 26px / var(--zs, 1)); transform: translate(-50%, 50%); cursor: grab; }
   .handle.resize { right: 0; bottom: 0; transform: translate(50%, 50%); cursor: nwse-resize; }
-  .item.settling { transition: transform 0.75s cubic-bezier(0.22,1,0.36,1); }
-  .item.entering { animation: drop 0.6s cubic-bezier(0.22,1,0.36,1) both; }
-  @keyframes drop {
-    from { opacity: 0; transform: var(--t) translateY(-22px) scale(1.06); }
-    to   { opacity: 1; transform: var(--t); }
-  }
-  .item .del {
-    position: absolute; top: 8px; right: 8px;
-    width: 26px; height: 26px; border-radius: 50%;
-    border: none; background: rgba(255,255,255,0.85); color: #2B2828;
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    font: 14px/26px 'DM Sans', sans-serif; text-align: center;
-    cursor: pointer; opacity: 0; transition: opacity 0.18s, transform 0.2s;
-    transform: rotate(var(--cr, 0deg));   /* stays upright on a tilted piece */
-  }
-  .item:hover .del { opacity: 1; }
-  .item .del:hover { transform: rotate(var(--cr, 0deg)) scale(1.1); background: #fff; }
 
   /* ── CHROME ── */
   .site-nav {
@@ -106,6 +108,11 @@
   }
   .tool:hover { color: #2B2828; transform: translateY(-1px); }
   .tool svg { display: block; }
+  /* Which tools exist depends on where the board is stored. */
+  #btnFolder { display: none; }
+  body.fs:not(.mode-folder) #btnFolder { display: inline-flex; }
+  body.mode-viewer #btnAdd, body.mode-viewer #btnClear, body.mode-viewer #btnShuffle { display: none; }
+
   .status {
     position: fixed; left: max(24px, env(safe-area-inset-left, 0px) + 16px);
     bottom: max(30px, env(safe-area-inset-bottom, 0px) + 22px);
@@ -121,7 +128,24 @@
   #empty h1 { font-weight: 400; font-size: 1.7rem; color: #2B2828; line-height: 1.2; }
   #empty p  { font-size: 0.9rem; font-weight: 300; color: #696767; line-height: 1.6; }
   #empty kbd { font: inherit; padding: 1px 6px; border-radius: 5px; background: rgba(43,40,40,0.06); }
+  #empty .only { display: none; }
+  body.mode-local  #empty .only.local,
+  body.mode-folder #empty .only.folder,
+  body.mode-viewer #empty .only.viewer,
+  body.mode-pending #empty .only.pending { display: block; }
   body.has-items #empty { opacity: 0; }
+
+  #reconnect {
+    position: fixed; left: 50%; top: calc(50% + 72px); transform: translateX(-50%);
+    display: none; align-items: center; gap: 8px;
+    font: inherit; font-size: 13px; color: #2B2828; background: rgba(255,255,255,0.85);
+    border: 1px solid rgba(0,0,0,0.08); border-radius: 100px; padding: 9px 16px; cursor: pointer;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.06); z-index: 100;
+    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), background 0.2s;
+  }
+  #reconnect:hover { transform: translateX(-50%) translateY(-1px); background: #fff; }
+  body.mode-pending #reconnect { display: inline-flex; }
 
   #dropHint {
     position: fixed; inset: 16px; border-radius: 22px;
@@ -161,20 +185,30 @@
 <div id="viewport"><div id="world"><div id="selBox"><div class="handle rotate" title="Drag to tilt · Shift snaps"></div><div class="handle resize" title="Drag to resize"></div></div></div></div>
 
 <div id="empty">
-  <h1>Drop anything that inspires you</h1>
-  <p>Images and videos land where you drop them. Scroll to pan, pinch to zoom, drag to rearrange.<br>Select a piece to resize or tilt it &nbsp;·&nbsp; <kbd>⌘V</kbd> pastes.</p>
+  <h1 class="only local folder pending">Drop anything that inspires you</h1>
+  <h1 class="only viewer">Nothing on the board yet</h1>
+  <p class="only local">Images and videos land where you drop them. Scroll to pan, pinch to zoom, drag to rearrange.<br>Select a piece to resize or tilt it &nbsp;·&nbsp; <kbd>⌘V</kbd> pastes.<br><br>Right now pieces are kept in this browser only. Connect your <strong>Inspiration</strong> folder below to save the files there.</p>
+  <p class="only folder">Everything you drop is saved into your <strong>Inspiration</strong> folder.<br>Scroll to pan, pinch to zoom, drag to rearrange. Select a piece to resize or tilt it &nbsp;·&nbsp; <kbd>⌘V</kbd> pastes.</p>
+  <p class="only pending">Your Inspiration folder needs one click to reconnect before the board can load.</p>
 </div>
+<button id="reconnect">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M1.5 4.5h4l1.5 1.5h7.5v7h-13z"/></svg>
+  Reconnect Inspiration folder
+</button>
 <div id="dropHint">Drop to add</div>
 
 <p class="status" id="status"></p>
 <div class="tools">
+  <button class="tool" id="btnFolder" title="Save pieces into a folder on disk">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M1.5 4.5h4l1.5 1.5h7.5v7h-13z"/></svg><span>Connect folder</span>
+  </button>
   <button class="tool" id="btnFit" title="Fit everything in view">
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg><span>Fit</span>
   </button>
   <button class="tool" id="btnShuffle" title="Scatter everything again">
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h3l6 8h3M14 12l-2-2M14 12l-2 2M2 12h3l1.5-2M11 4h3l-2-2M14 4l-2 2M8.5 6l-.9 1.2"/></svg><span>Shuffle</span>
   </button>
-  <button class="tool" id="btnClear" title="Remove everything">
+  <button class="tool" id="btnClear" title="Remove everything from the board">
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M6 4V2.5h4V4M4.5 4l.7 9.5h5.6L11.5 4"/></svg><span>Clear</span>
   </button>
   <button class="tool" id="btnAdd" title="Add images or videos">
@@ -186,28 +220,99 @@
 
 <script>
 // ── Storage ────────────────────────────────────────────────────────
-// Items live in IndexedDB so the board survives a reload. A record holds the
-// media itself (a Blob for dropped files, or a URL for things dragged from the
-// web) plus its layout: centre x/y in world units, width, aspect, rotation, z.
-const DB_NAME = 'inspiration', STORE = 'items';
+// Where the board lives is decided once at load:
+//   folder  – a real folder on disk, connected through the File System Access
+//             API. Dropped files are written into it, and board.json alongside
+//             them holds the layout. This is the editing mode; since the folder
+//             sits inside the repo, committing it publishes the board.
+//   viewer  – the published site. board.json and the files are fetched from
+//             Inspiration/ read-only.
+//   local   – IndexedDB fallback when no folder is connected, or the browser
+//             has no File System Access API. Private to this browser.
+//   pending – a folder was connected before but needs a click to re-grant
+//             access this session.
+// A record is the manifest entry: id, kind, file or url, aspect, and layout
+// (centre x/y in world units, width, rotation, z). Local mode adds a blob.
+const FOLDER = 'Inspiration', MANIFEST = 'board.json';
+const fsSupported = 'showDirectoryPicker' in window;
+let mode = 'local', dir = null, removedFiles = [];
+
+const DB_NAME = 'inspiration';
 let db;
 function openDB(){
   return new Promise((res, rej) => {
-    const r = indexedDB.open(DB_NAME, 1);
-    r.onupgradeneeded = () => r.result.createObjectStore(STORE, { keyPath: 'id' });
+    const r = indexedDB.open(DB_NAME, 2);
+    r.onupgradeneeded = () => {
+      const d = r.result;
+      if (!d.objectStoreNames.contains('items')) d.createObjectStore('items', { keyPath: 'id' });
+      if (!d.objectStoreNames.contains('meta'))  d.createObjectStore('meta',  { keyPath: 'key' });
+    };
     r.onsuccess = () => res(r.result);
     r.onerror   = () => rej(r.error);
   });
 }
-const tx = (mode, fn) => new Promise((res, rej) => {
-  const t = db.transaction(STORE, mode), s = t.objectStore(STORE), out = fn(s);
+const tx = (store, rw, fn) => new Promise((res, rej) => {
+  const t = db.transaction(store, rw), out = fn(t.objectStore(store));
   t.oncomplete = () => res(out && out.result);
   t.onerror    = () => rej(t.error);
 });
-const dbAll   = () => tx('readonly',  s => s.getAll());
-const dbPut   = rec => tx('readwrite', s => s.put(rec));
-const dbDel   = id  => tx('readwrite', s => s.delete(id));
-const dbClear = ()  => tx('readwrite', s => s.clear());
+const dbAll   = ()  => tx('items', 'readonly',  s => s.getAll());
+const dbPut   = rec => tx('items', 'readwrite', s => s.put(rec));
+const dbDel   = id  => tx('items', 'readwrite', s => s.delete(id));
+const dbClear = ()  => tx('items', 'readwrite', s => s.clear());
+const metaGet = key => tx('meta', 'readonly',  s => s.get(key));
+const metaPut = val => tx('meta', 'readwrite', s => s.put(val));
+
+// Folder backend.
+const stripRec = ({ blob, ...rest }) => rest;
+async function writeFile(name, blob){
+  const fh = await dir.getFileHandle(name, { create: true });
+  const w = await fh.createWritable();
+  await w.write(blob); await w.close();
+}
+async function readManifest(){
+  try { return JSON.parse(await (await (await dir.getFileHandle(MANIFEST)).getFile()).text()); }
+  catch { return { version: 1, items: [], removed: [] }; }
+}
+let manifestT;
+function scheduleManifest(){ clearTimeout(manifestT); manifestT = setTimeout(writeManifest, 300); }
+async function writeManifest(){
+  if (mode !== 'folder') return;
+  const data = { version: 1, updated: Date.now(), items: [...items.values()].map(i => stripRec(i.rec)), removed: removedFiles };
+  await writeFile(MANIFEST, new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+}
+async function folderNames(){
+  const names = new Set();
+  for await (const [name, h] of dir.entries()) if (h.kind === 'file') names.add(name);
+  return names;
+}
+function safeName(name){
+  return name.replace(/[\/\\:*?"<>|]+/g, '-').replace(/\s+/g, ' ').trim() || 'untitled';
+}
+function uniqueName(name, taken){
+  if (!taken.has(name)) { taken.add(name); return name; }
+  const dot = name.lastIndexOf('.'), stem = dot > 0 ? name.slice(0, dot) : name, ext = dot > 0 ? name.slice(dot) : '';
+  for (let n = 2; ; n++) { const c = `${stem}-${n}${ext}`; if (!taken.has(c)) { taken.add(c); return c; } }
+}
+// Pasted screenshots all arrive as "image.png"; give them a timestamp instead.
+function nameForFile(f, kind){
+  const ext = (f.name.match(/\.[a-z0-9]+$/i) || [ '.' + ((f.type.split('/')[1] || (kind === 'video' ? 'mp4' : 'png')).replace('jpeg', 'jpg').replace('quicktime', 'mov')) ])[0];
+  if (!f.name || /^image\.\w+$/i.test(f.name) || /^blob$/i.test(f.name)) {
+    const d = new Date(), p = n => String(n).padStart(2, '0');
+    return `paste-${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}${ext}`;
+  }
+  return safeName(f.name);
+}
+
+// The single write path for layout changes, whichever backend is active.
+function persist(rec){
+  if (mode === 'folder') scheduleManifest();
+  else if (mode === 'local') dbPut(rec);
+}
+function unpersist(rec){
+  if (mode === 'folder') { if (rec.file) removedFiles.push(rec.file); scheduleManifest(); }
+  else if (mode === 'local') dbDel(rec.id);
+}
 
 // ── View ───────────────────────────────────────────────────────────
 const viewport = document.getElementById('viewport');
@@ -236,7 +341,7 @@ function zoomAt(sx, sy, factor){
 }
 
 // ── Items ──────────────────────────────────────────────────────────
-const items = new Map();   // id -> { rec, el }
+const items = new Map();   // id -> { rec, el, media }
 let zTop = 0, selectedId = null;
 const rnd = (a, b) => a + Math.random() * (b - a);
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -272,8 +377,16 @@ const playWatcher = new IntersectionObserver(entries => {
   }
 }, { threshold: 0.05 });
 
-function mediaFor(rec){
-  const src = rec.blob ? URL.createObjectURL(rec.blob) : rec.url;
+// Where a record's pixels come from depends on the backend.
+async function srcFor(rec){
+  if (rec.blob) return URL.createObjectURL(rec.blob);
+  if (rec.file) {
+    if (mode === 'folder') return URL.createObjectURL(await (await dir.getFileHandle(rec.file)).getFile());
+    return `${FOLDER}/${encodeURIComponent(rec.file)}`;
+  }
+  return rec.url;
+}
+function mediaFor(rec, src){
   if (rec.kind === 'video') {
     const v = document.createElement('video');
     v.src = src; v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true; v.preload = 'metadata';
@@ -284,14 +397,14 @@ function mediaFor(rec){
   return img;
 }
 
-function mount(rec, { entering = false, delay = 0 } = {}){
+function mount(rec, src, { entering = false, delay = 0 } = {}){
   const el = document.createElement('div');
   el.className = 'item';
   el.dataset.id = rec.id;
-  const media = mediaFor(rec);
+  const media = mediaFor(rec, src);
   el.appendChild(media);
   const del = document.createElement('button');
-  del.className = 'del'; del.title = 'Remove'; del.textContent = '✕';
+  del.className = 'del'; del.title = 'Remove from board'; del.textContent = '✕';
   del.addEventListener('pointerdown', e => e.stopPropagation());
   del.addEventListener('click', e => { e.stopPropagation(); remove(rec.id); });
   el.appendChild(del);
@@ -308,14 +421,18 @@ function mount(rec, { entering = false, delay = 0 } = {}){
   updateStatus();
   return el;
 }
+function unmount(it){
+  playWatcher.unobserve(it.el);
+  if (it.media.src.startsWith('blob:')) URL.revokeObjectURL(it.media.src);
+  it.el.remove();
+  items.delete(it.rec.id);
+}
 
 function remove(id){
   const it = items.get(id); if (!it) return;
-  playWatcher.unobserve(it.el);
-  if (it.rec.blob && it.media.src.startsWith('blob:')) URL.revokeObjectURL(it.media.src);
-  it.el.remove(); items.delete(id);
+  unmount(it);
   if (selectedId === id) { selectedId = null; syncSel(); }
-  dbDel(id);
+  unpersist(it.rec);
   updateStatus();
 }
 
@@ -327,13 +444,19 @@ function select(id){
 }
 function bringToFront(it){
   if (it.rec.z === zTop) return;
-  it.rec.z = ++zTop; it.el.style.zIndex = zTop; dbPut(it.rec);
+  it.rec.z = ++zTop; it.el.style.zIndex = zTop; persist(it.rec);
 }
 
 function updateStatus(){
   const n = items.size;
   document.body.classList.toggle('has-items', n > 0);
-  document.getElementById('status').textContent = n ? `${n} ${n === 1 ? 'item' : 'items'}  ·  ${Math.round(view.s * 100)}%` : '';
+  const where = { folder: 'Inspiration folder', local: 'saved in this browser', viewer: 'read-only', pending: '' }[mode];
+  document.getElementById('status').textContent = n ? `${n} ${n === 1 ? 'item' : 'items'}  ·  ${Math.round(view.s * 100)}%${where ? '  ·  ' + where : ''}` : '';
+}
+function refreshChrome(){
+  document.body.classList.toggle('fs', fsSupported);
+  for (const m of ['local', 'folder', 'viewer', 'pending']) document.body.classList.toggle('mode-' + m, mode === m);
+  updateStatus();
 }
 
 // ── Layout ─────────────────────────────────────────────────────────
@@ -394,29 +517,51 @@ function measure(kind, src){
     }
   });
 }
+const freshRec = (kind, aspect) => ({ id: uid(), kind, aspect, w: (kind === 'video' ? 340 : 300) * rnd(0.82, 1.18), z: ++zTop, created: Date.now() });
 
 async function addFiles(files, at){
+  if (mode === 'viewer' || mode === 'pending') return;
   const list = [...files].filter(f => kindOf(f.type, f.name));
   if (!list.length) return;
-  const recs = await Promise.all(list.map(async f => {
+  const taken = mode === 'folder' ? await folderNames() : null;
+  const entries = await Promise.all(list.map(async f => {
     const kind = kindOf(f.type, f.name);
-    const tmp = URL.createObjectURL(f);
-    const aspect = await measure(kind, tmp);
-    URL.revokeObjectURL(tmp);
-    return { id: uid(), kind, blob: f, mime: f.type, aspect, w: (kind === 'video' ? 340 : 300) * rnd(0.82, 1.18), z: ++zTop, created: Date.now() };
+    const src = URL.createObjectURL(f);
+    const rec = freshRec(kind, await measure(kind, src));
+    if (mode === 'folder') {
+      rec.file = uniqueName(nameForFile(f, kind), taken);
+      await writeFile(rec.file, f);
+    } else {
+      rec.blob = f;
+    }
+    return { rec, src };
   }));
-  commit(recs, at);
+  commit(entries, at);
 }
 async function addUrl(url, at){
+  if (mode === 'viewer' || mode === 'pending') return;
   const kind = kindOf('', url) || 'image';
-  const aspect = await measure(kind, url);
-  commit([{ id: uid(), kind, url, aspect, w: (kind === 'video' ? 340 : 300) * rnd(0.82, 1.18), z: ++zTop, created: Date.now() }], at);
+  const rec = freshRec(kind, await measure(kind, url));
+  let src = url;
+  // Try to make it ours. Cross-origin servers often refuse, in which case the
+  // piece simply stays a link to where it came from.
+  if (mode === 'folder') {
+    try {
+      const blob = await (await fetch(url, { mode: 'cors' })).blob();
+      const ext = kindOf(blob.type) ? '' : '';
+      const base = safeName((url.split('/').pop().split('?')[0]) || `web-${rec.id}`);
+      rec.file = uniqueName(base, await folderNames());
+      await writeFile(rec.file, blob);
+      src = URL.createObjectURL(blob);
+    } catch { rec.url = url; }
+  } else rec.url = url;
+  commit([{ rec, src }], at);
 }
-function commit(recs, at){
+function commit(entries, at){
   const p = at || viewCentre();
-  scatter(recs, p.x, p.y);
-  recs.forEach((r, k) => { mount(r, { entering: true, delay: Math.min(k * 45, 500) }); dbPut(r); });
-  select(recs[recs.length - 1].id);
+  scatter(entries.map(e => e.rec), p.x, p.y);
+  entries.forEach(({ rec, src }, k) => { mount(rec, src, { entering: true, delay: Math.min(k * 45, 500) }); persist(rec); });
+  select(entries[entries.length - 1].rec.id);
 }
 
 // What a drop or paste actually contains: files first, else a web URL.
@@ -433,9 +578,9 @@ function extractUrl(dt){
 }
 
 let dragDepth = 0;
-window.addEventListener('dragenter', e => { e.preventDefault(); if (++dragDepth === 1) document.body.classList.add('dragover'); });
+window.addEventListener('dragenter', e => { e.preventDefault(); if (++dragDepth === 1 && mode !== 'viewer') document.body.classList.add('dragover'); });
 window.addEventListener('dragleave', e => { e.preventDefault(); if (--dragDepth <= 0) { dragDepth = 0; document.body.classList.remove('dragover'); } });
-window.addEventListener('dragover',  e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; });
+window.addEventListener('dragover',  e => { e.preventDefault(); e.dataTransfer.dropEffect = mode === 'viewer' ? 'none' : 'copy'; });
 window.addEventListener('drop', e => {
   e.preventDefault(); dragDepth = 0; document.body.classList.remove('dragover');
   const at = toWorld(e.clientX, e.clientY);
@@ -453,7 +598,7 @@ document.getElementById('btnAdd').addEventListener('click', () => fileInput.clic
 fileInput.addEventListener('change', () => { addFiles(fileInput.files); fileInput.value = ''; });
 
 // ── Pointer: drag items, pan the canvas ────────────────────────────
-let gesture = null;   // { kind:'item'|'pan', ... }
+let gesture = null;   // { kind:'item'|'pan'|'rotate'|'resize', ... }
 const clampW = w => Math.max(80, Math.min(2400, w));
 const normDeg = a => ((a % 360) + 540) % 360 - 180;
 viewport.addEventListener('pointerdown', e => {
@@ -512,13 +657,13 @@ viewport.addEventListener('pointermove', e => {
 function endGesture(e){
   if (!gesture) return;
   if (gesture.kind === 'rotate' || gesture.kind === 'resize') {
-    dbPut(gesture.it.rec);
+    persist(gesture.it.rec);
     gesture = null;
     return;
   }
   if (gesture.kind === 'item') {
     gesture.it.el.classList.remove('dragging');
-    if (gesture.moved) dbPut(gesture.it.rec);
+    if (gesture.moved) persist(gesture.it.rec);
     select(gesture.it.rec.id);
   } else {
     viewport.classList.remove('panning');
@@ -544,15 +689,15 @@ document.addEventListener('keydown', e => {
     if (e.key === '[' || e.key === ']') {
       e.preventDefault();
       sel.rec.rot = normDeg(sel.rec.rot + (e.key === ']' ? 1 : -1) * (e.shiftKey ? 15 : 3));
-      place(sel.el, sel.rec); dbPut(sel.rec); return;
+      place(sel.el, sel.rec); persist(sel.rec); return;
     }
     if (e.key === '-' || e.key === '=' || e.key === '+') {
       e.preventDefault();
       sel.rec.w = clampW(sel.rec.w * (e.key === '-' ? 0.9 : 1.1));
-      place(sel.el, sel.rec); dbPut(sel.rec); return;
+      place(sel.el, sel.rec); persist(sel.rec); return;
     }
   }
-  if ((e.key === 'Backspace' || e.key === 'Delete') && selectedId) { e.preventDefault(); remove(selectedId); }
+  if ((e.key === 'Backspace' || e.key === 'Delete') && selectedId && mode !== 'viewer') { e.preventDefault(); remove(selectedId); }
   if (e.key === 'Escape') select(null);
   if (e.key === '0' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); fitAll(); }
 });
@@ -593,30 +738,126 @@ document.getElementById('btnShuffle').addEventListener('click', () => {
     it.el.classList.add('settling');
     place(it.el, it.rec);
     it.el.addEventListener('transitionend', () => it.el.classList.remove('settling'), { once: true });
-    dbPut(it.rec);
+    persist(it.rec);
   }
   setTimeout(fitAll, 60);
 });
 
 document.getElementById('btnClear').addEventListener('click', async () => {
-  if (!items.size || !confirm(`Remove all ${items.size} items from the board?`)) return;
-  for (const id of [...items.keys()]) {
-    const it = items.get(id);
-    playWatcher.unobserve(it.el);
-    if (it.rec.blob && it.media.src.startsWith('blob:')) URL.revokeObjectURL(it.media.src);
-    it.el.remove();
-  }
-  items.clear(); selectedId = null; zTop = 0; syncSel();
-  await dbClear();
+  if (!items.size) return;
+  const note = mode === 'folder' ? ' The files stay in your Inspiration folder.' : '';
+  if (!confirm(`Remove all ${items.size} items from the board?${note}`)) return;
+  for (const it of [...items.values()]) { if (it.rec.file) removedFiles.push(it.rec.file); unmount(it); }
+  selectedId = null; zTop = 0; syncSel();
+  if (mode === 'local') await dbClear(); else await writeManifest();
   updateStatus();
 });
+
+// ── Folder connection ──────────────────────────────────────────────
+async function connectFolder(){
+  let handle;
+  try { handle = await showDirectoryPicker({ id: 'inspiration', mode: 'readwrite', startIn: 'desktop' }); }
+  catch (e) { if (e.name !== 'AbortError') console.warn(e); return; }
+  dir = handle;
+  await metaPut({ key: 'dir', handle });
+  // Anything held in this browser moves into the folder first.
+  const held = [...items.values()].filter(i => i.rec.blob);
+  if (held.length) {
+    const taken = await folderNames();
+    for (const it of held) {
+      it.rec.file = uniqueName(nameForFile(it.rec.blob, it.rec.kind), taken);
+      await writeFile(it.rec.file, it.rec.blob);
+      delete it.rec.blob;
+    }
+  }
+  const wasLocal = mode === 'local';
+  mode = 'folder';
+  const existing = await readManifest();
+  removedFiles = existing.removed || [];
+  if (wasLocal) await dbClear();
+  // A folder that already has a board: keep what is there, add what we brought.
+  if (existing.items && existing.items.length && !items.size) await loadFromFolder();
+  else { await writeManifest(); await adoptNewFiles(); }
+  refreshChrome();
+  if (items.size) fitAll();
+}
+async function reconnectFolder(){
+  const p = await dir.requestPermission({ mode: 'readwrite' });
+  if (p !== 'granted') return;
+  mode = 'folder';
+  await loadFromFolder();
+  refreshChrome();
+  if (items.size && !localStorage.getItem('inspiration.view')) fitAll();
+}
+document.getElementById('btnFolder').addEventListener('click', connectFolder);
+document.getElementById('reconnect').addEventListener('click', reconnectFolder);
+
+// Media that shows up in the folder by other means (Finder, say) joins the
+// board; anything removed from the board earlier stays off it.
+async function adoptNewFiles(){
+  const known = new Set([...items.values()].map(i => i.rec.file).filter(Boolean));
+  const skip = new Set(removedFiles);
+  const fresh = [];
+  for await (const [name, h] of dir.entries()) {
+    if (h.kind !== 'file' || name === MANIFEST || known.has(name) || skip.has(name)) continue;
+    const kind = kindOf('', name); if (!kind) continue;
+    const file = await h.getFile();
+    const src = URL.createObjectURL(file);
+    const rec = freshRec(kind, await measure(kind, src));
+    rec.file = name; rec.created = file.lastModified || Date.now();
+    fresh.push({ rec, src });
+  }
+  // Forget removals for files that are no longer in the folder at all.
+  const present = await folderNames();
+  removedFiles = removedFiles.filter(n => present.has(n));
+  if (fresh.length) {
+    fresh.sort((a, b) => a.rec.created - b.rec.created);
+    const c = viewCentre();
+    scatter(fresh.map(e => e.rec), c.x, c.y);
+    fresh.forEach(({ rec, src }, k) => mount(rec, src, { entering: true, delay: Math.min(k * 45, 500) }));
+  }
+  if (fresh.length || removedFiles.length !== (skip.size)) scheduleManifest();
+}
+async function loadFromFolder(){
+  const m = await readManifest();
+  removedFiles = m.removed || [];
+  const recs = (m.items || []).sort((a, b) => a.z - b.z);
+  let missing = false, k = 0;
+  for (const rec of recs) {
+    try { mount(rec, await srcFor(rec), { entering: true, delay: Math.min(k++ * 30, 600) }); }
+    catch { missing = true; }   // file gone from the folder: drop it from the board
+  }
+  await adoptNewFiles();
+  if (missing) scheduleManifest();
+}
 
 // ── Init ───────────────────────────────────────────────────────────
 (async () => {
   db = await openDB();
-  const recs = (await dbAll()).sort((a, b) => a.z - b.z);
-  recs.forEach((r, k) => mount(r, { entering: true, delay: Math.min(k * 30, 600) }));
-  if (recs.length && !localStorage.getItem('inspiration.view')) fitAll();
+  const saved = fsSupported ? await metaGet('dir') : null;
+  if (saved && saved.handle) {
+    dir = saved.handle;
+    mode = (await dir.queryPermission({ mode: 'readwrite' })) === 'granted' ? 'folder' : 'pending';
+  } else if (location.protocol.startsWith('http')) {
+    mode = 'viewer';
+  }
+  refreshChrome();
+
+  if (mode === 'folder') {
+    await loadFromFolder();
+  } else if (mode === 'viewer') {
+    try {
+      const m = await (await fetch(`${FOLDER}/${MANIFEST}`, { cache: 'no-cache' })).json();
+      const recs = (m.items || []).sort((a, b) => a.z - b.z);
+      let k = 0;
+      for (const rec of recs) mount(rec, await srcFor(rec), { entering: true, delay: Math.min(k++ * 30, 600) });
+    } catch { /* no board published yet */ }
+  } else if (mode === 'local') {
+    const recs = (await dbAll()).sort((a, b) => a.z - b.z);
+    let k = 0;
+    for (const rec of recs) mount(rec, await srcFor(rec), { entering: true, delay: Math.min(k++ * 30, 600) });
+  }
+  if (items.size && !localStorage.getItem('inspiration.view')) fitAll();
   applyView();
 })();
 window.addEventListener('resize', updateStatus);
