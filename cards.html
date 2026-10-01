@@ -373,12 +373,6 @@
   @keyframes hintPulse { 0%, 100% { color: #BCBAB8; } 45% { color: #6f6c6b; } }
   .scroll-hint.nudge { animation: hintPulse 1.2s ease-in-out; }
 
-  /* One blurred layer behind the hovered tile, instead of filtering each card. */
-  #hoverVeil {
-    position: fixed; inset: 0; z-index: 5;
-    pointer-events: none;
-  }
-
   #focusBackdrop {
     position: fixed; inset: 0; z-index: 500;
     background: rgba(22,20,19,0.58);
@@ -403,7 +397,6 @@
   <a href="cards.html" class="active">Projects</a>
   <a href="about.html">About</a>
 </nav>
-<div id="hoverVeil"></div>
 <div id="focusBackdrop"></div>
 <div id="gridBtnWrap">
   <button id="gridBtn" title="Grid view" aria-pressed="false" aria-label="Toggle grid view">
@@ -478,7 +471,6 @@ let gridMode=false, gridT=0, gridV=0, gridTarget=0;
 const FK=90, FD=19;
 let focusIdx=null, focusT=0, focusV=0, focusTarget=0;
 // Idle nudge on the first card: a small peek toward the next card plus a label pulse.
-let hoverIdx = null;       // the single hovered tile; targets are derived from it
 const NUDGE_FIRST = 6000, NUDGE_REPEAT = 7000, NUDGE_MAX = 3, NUDGE_PEEK = 0.09;
 let nudgeTimer = null, nudgeCount = 0;
 
@@ -490,20 +482,11 @@ function tick(ts){
   gridT += gridV*dt;
   focusV += (-FK*(focusT-focusTarget) - FD*focusV)*dt;
   focusT += focusV*dt;
-  let hoverDone = true;
-  const hoverable = gridMode && focusIdx === null;
-  for(let hi = 0; hi < cardEls.length; hi++){
-    const c = cardEls[hi], tgt = (hoverable && hi === hoverIdx) ? 1 : 0;
-    if(c.hoverT === tgt) continue;
-    c.hoverT += (tgt - c.hoverT) * Math.min(1, dt * 11);
-    if(Math.abs(tgt - c.hoverT) < 0.001) c.hoverT = tgt;
-    else hoverDone = false;
-  }
   draw();
   const posDone   = Math.abs(pos-target)<0.0008 && Math.abs(vel)<0.001;
   const gridDone  = Math.abs(gridT-gridTarget)<0.0008 && Math.abs(gridV)<0.001;
   const focusDone = Math.abs(focusT-focusTarget)<0.0008 && Math.abs(focusV)<0.001;
-  if(posDone && gridDone && focusDone && hoverDone){
+  if(posDone && gridDone && focusDone){
     pos=target; vel=0; gridT=gridTarget; gridV=0; focusT=focusTarget; focusV=0;
     if(focusTarget===0) focusIdx=null;
     draw(); raf=null; lastTs=null;
@@ -670,11 +653,9 @@ function clearFocus(){
   kick();
 }
 function setGrid(on){
-  if (on) settleArcTrack();
   gridMode = on;
   gridTarget = on ? 1 : 0;
   focusTarget = 0; focusT = 0; focusV = 0; focusIdx = null;
-  hoverIdx = null;
   // A card hovered at the moment of toggling would keep its tilt frozen in the grid.
   for (let k = 0; k < N; k++) tilts[k] = {x:0, y:0};
   document.body.classList.toggle('grid-mode', on);
@@ -864,9 +845,7 @@ const cardEls = projects.map((p, i) => {
       draw();
     });
   }
-  card.hoverT = 0;
   card.addEventListener('mouseenter', () => {
-    if (gridMode && focusIdx === null) { hoverIdx = i; kick(); }
     if (focusIdx !== null) return;
     if (gridMode) {
       cursorLabel.textContent = p.blank ? "Let's work together :)" : i === 0 ? 'Start' : p.title;
@@ -876,10 +855,7 @@ const cardEls = projects.map((p, i) => {
       cursorLabel.classList.add('visible');
     }
   });
-  card.addEventListener('mouseleave', () => {
-    if (hoverIdx === i) { hoverIdx = null; kick(); }
-    cursorLabel.classList.remove('visible');
-  });
+  card.addEventListener('mouseleave', () => cursorLabel.classList.remove('visible'));
 
   card.addEventListener('click', () => {
     cursorLabel.classList.remove('visible');
@@ -957,7 +933,6 @@ function draw(){
       x = lerp(x, f.x, k); y = lerp(y, f.y, k); rot = lerp(rot, 0, k);
       scale = lerp(scale, f.scale, k); opacity = 1; zIndex = 600;
     }
-    if (L && i === hoverIdx && i !== focusIdx) zIndex = 6;   // stay sharp above the hover veil
     const t = tilts[i]||{x:0,y:0};
     card.style.transform  = `perspective(900px) translateX(${x}px) translateY(${y}px) rotate(${rot}deg) scale(${scale}) rotateX(${t.x}deg) rotateY(${t.y}deg)`;
     card.style.opacity    = opacity;
@@ -1000,19 +975,6 @@ function draw(){
       card.style.boxShadow = `0 ${Math.round(28*k)}px ${Math.round(90*k)}px rgba(0,0,0,${(0.38*k).toFixed(3)}), inset 0 1px 0 rgba(255,255,255,${(0.55*k).toFixed(2)})${ring}`;
     }
   });
-
-  const veil = document.getElementById('hoverVeil');
-  let hoverMax = 0;
-  for (const c of cardEls) if (c.hoverT > hoverMax) hoverMax = c.hoverT;
-  const vk = hoverMax * gridT * (1 - Math.min(1, focusT));   // never stacks with the focus overlay
-  if (vk > 0.002) {
-    const b = `blur(${(vk * 9).toFixed(1)}px)`;
-    veil.style.backdropFilter = b; veil.style.webkitBackdropFilter = b;
-    veil.style.background = `rgba(240,240,240,${(0.22 * vk).toFixed(3)})`;
-  } else if (veil.style.backdropFilter !== 'none') {
-    veil.style.backdropFilter = 'none'; veil.style.webkitBackdropFilter = 'none';
-    veil.style.background = 'transparent';
-  }
 
   const fb = document.getElementById('focusBackdrop');
   fb.style.opacity = Math.max(0, Math.min(1, focusT));
