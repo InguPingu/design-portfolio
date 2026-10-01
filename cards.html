@@ -471,6 +471,7 @@ let gridMode=false, gridT=0, gridV=0, gridTarget=0;
 const FK=90, FD=19;
 let focusIdx=null, focusT=0, focusV=0, focusTarget=0;
 // Idle nudge on the first card: a small peek toward the next card plus a label pulse.
+const HOVER_ZOOM = 0.22;   // grid-view hover growth
 const NUDGE_FIRST = 6000, NUDGE_REPEAT = 7000, NUDGE_MAX = 3, NUDGE_PEEK = 0.09;
 let nudgeTimer = null, nudgeCount = 0;
 
@@ -485,7 +486,7 @@ function tick(ts){
   let hoverDone = true;
   for(const c of cardEls){
     if(c.hoverT === c.hoverTarget) continue;
-    c.hoverT += (c.hoverTarget - c.hoverT) * Math.min(1, dt * 14);
+    c.hoverT += (c.hoverTarget - c.hoverT) * Math.min(1, dt * 11);
     if(Math.abs(c.hoverTarget - c.hoverT) < 0.001) c.hoverT = c.hoverTarget;
     else hoverDone = false;
   }
@@ -582,7 +583,10 @@ function gridLayout(){
   const tw = CW * gs, th = CH * gs;
   const gridH   = rows * th + (rows - 1) * gap;
   const gridTop = topPad + (boxH - gridH) / 2;
-  return { cols, gap, gs, tw, th, gridTop, arcTop: arcTrack.offsetTop };
+  // An edge tile grows outward by half the zoom, so cap it at the slack around the grid.
+  const freeX = (vw - (cols * tw + (cols - 1) * gap)) / 2;
+  const zoom  = Math.min(HOVER_ZOOM, 2 * freeX / tw, 2 * gridTop / th);
+  return { cols, gap, gs, tw, th, gridTop, zoom, arcTop: arcTrack.offsetTop };
 }
 function gridSlotOf(i, L){
   const col = i % L.cols, row = Math.floor(i / L.cols);
@@ -944,7 +948,7 @@ function draw(){
       scale = lerp(scale, f.scale, k); opacity = 1; zIndex = 600;
     }
     const hv = card.hoverT * gridT;
-    if (hv > 0.001 && i !== focusIdx) { scale *= 1 + 0.05 * hv; zIndex = 2; }
+    if (hv > 0.001 && i !== focusIdx && L) { scale *= 1 + L.zoom * hv; zIndex = 2; }
     const t = tilts[i]||{x:0,y:0};
     card.style.transform  = `perspective(900px) translateX(${x}px) translateY(${y}px) rotate(${rot}deg) scale(${scale}) rotateX(${t.x}deg) rotateY(${t.y}deg)`;
     card.style.opacity    = opacity;
