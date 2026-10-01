@@ -482,11 +482,18 @@ function tick(ts){
   gridT += gridV*dt;
   focusV += (-FK*(focusT-focusTarget) - FD*focusV)*dt;
   focusT += focusV*dt;
+  let hoverDone = true;
+  for(const c of cardEls){
+    if(c.hoverT === c.hoverTarget) continue;
+    c.hoverT += (c.hoverTarget - c.hoverT) * Math.min(1, dt * 14);
+    if(Math.abs(c.hoverTarget - c.hoverT) < 0.001) c.hoverT = c.hoverTarget;
+    else hoverDone = false;
+  }
   draw();
   const posDone   = Math.abs(pos-target)<0.0008 && Math.abs(vel)<0.001;
   const gridDone  = Math.abs(gridT-gridTarget)<0.0008 && Math.abs(gridV)<0.001;
   const focusDone = Math.abs(focusT-focusTarget)<0.0008 && Math.abs(focusV)<0.001;
-  if(posDone && gridDone && focusDone){
+  if(posDone && gridDone && focusDone && hoverDone){
     pos=target; vel=0; gridT=gridTarget; gridV=0; focusT=focusTarget; focusV=0;
     if(focusTarget===0) focusIdx=null;
     draw(); raf=null; lastTs=null;
@@ -653,6 +660,7 @@ function setGrid(on){
   gridMode = on;
   gridTarget = on ? 1 : 0;
   focusTarget = 0; focusT = 0; focusV = 0; focusIdx = null;
+  cardEls.forEach(c => { c.hoverTarget = 0; });
   // A card hovered at the moment of toggling would keep its tilt frozen in the grid.
   for (let k = 0; k < N; k++) tilts[k] = {x:0, y:0};
   document.body.classList.toggle('grid-mode', on);
@@ -842,7 +850,9 @@ const cardEls = projects.map((p, i) => {
       draw();
     });
   }
+  card.hoverT = 0; card.hoverTarget = 0;
   card.addEventListener('mouseenter', () => {
+    if (gridMode && focusIdx === null) { card.hoverTarget = 1; kick(); }
     if (focusIdx !== null) return;
     if (gridMode) {
       cursorLabel.textContent = p.blank ? "Let's work together :)" : i === 0 ? 'Start' : p.title;
@@ -852,7 +862,10 @@ const cardEls = projects.map((p, i) => {
       cursorLabel.classList.add('visible');
     }
   });
-  card.addEventListener('mouseleave', () => cursorLabel.classList.remove('visible'));
+  card.addEventListener('mouseleave', () => {
+    if (card.hoverTarget !== 0) { card.hoverTarget = 0; kick(); }
+    cursorLabel.classList.remove('visible');
+  });
 
   card.addEventListener('click', () => {
     cursorLabel.classList.remove('visible');
@@ -930,6 +943,8 @@ function draw(){
       x = lerp(x, f.x, k); y = lerp(y, f.y, k); rot = lerp(rot, 0, k);
       scale = lerp(scale, f.scale, k); opacity = 1; zIndex = 600;
     }
+    const hv = card.hoverT * gridT;
+    if (hv > 0.001 && i !== focusIdx) { scale *= 1 + 0.05 * hv; zIndex = 2; }
     const t = tilts[i]||{x:0,y:0};
     card.style.transform  = `perspective(900px) translateX(${x}px) translateY(${y}px) rotate(${rot}deg) scale(${scale}) rotateX(${t.x}deg) rotateY(${t.y}deg)`;
     card.style.opacity    = opacity;
