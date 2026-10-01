@@ -344,18 +344,16 @@
   #gridBtnWrap.intro-done { animation: fadeUp 2.0s cubic-bezier(0.22,1,0.36,1) 1.2s forwards; }
   #gridBtn {
     position: relative;
-    width: 42px; height: 42px; border-radius: 50%;
-    border: 1px solid rgba(0,0,0,0.08);
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    color: #2B2828;
+    width: 42px; height: 42px;
+    border: none;
+    background: none;
+    color: #999999;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 2px 20px rgba(0,0,0,0.06);
-    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), background 0.2s, border-color 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), color 0.2s;
   }
-  #gridBtn:hover  { transform: scale(1.08); background: #fff; border-color: rgba(0,0,0,0.14); }
+  #gridBtn:hover  { transform: scale(1.08); color: #2B2828; }
   #gridBtn:active { transform: scale(0.94); }
   #gridBtn svg {
     position: absolute;
@@ -400,8 +398,8 @@
 <div id="focusBackdrop"></div>
 <div id="gridBtnWrap">
   <button id="gridBtn" title="Grid view" aria-pressed="false" aria-label="Toggle grid view">
-    <svg class="ic-grid" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="1.5" y="1.5" width="5" height="5" rx="1.2"/><rect x="9.5" y="1.5" width="5" height="5" rx="1.2"/><rect x="1.5" y="9.5" width="5" height="5" rx="1.2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1.2"/></svg>
-    <svg class="ic-carousel" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="4.5" y="3" width="7" height="10" rx="1.4"/><path d="M1.5 5.5v5M14.5 5.5v5"/></svg>
+    <svg class="ic-grid" width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="1.5" y="1.5" width="5" height="5" rx="1.2"/><rect x="9.5" y="1.5" width="5" height="5" rx="1.2"/><rect x="1.5" y="9.5" width="5" height="5" rx="1.2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1.2"/></svg>
+    <svg class="ic-carousel" width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="4.5" y="3" width="7" height="10" rx="1.4"/><path d="M1.5 5.5v5M14.5 5.5v5"/></svg>
   </button>
 </div>
 
