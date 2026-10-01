@@ -430,6 +430,7 @@ const projects = [
 ];
 
 const N = projects.length;
+const tilts = Array.from({length:N}, ()=>({x:0,y:0}));
 
 // Computed card dimensions — set once then updated on resize
 let CW, CH, S;
@@ -704,6 +705,25 @@ const cardEls = projects.map((p, i) => {
   }
 
 
+  // 3D tilt on hover — first and last card
+  if (i === 0 || i === N - 1) {
+    let tiltRaf = false;
+    card.addEventListener('mousemove', e => {
+      if (tiltRaf) return; tiltRaf = true;
+      requestAnimationFrame(() => {
+        const r = card.getBoundingClientRect();
+        const mx = (e.clientX - r.left) / r.width  - 0.5;
+        const my = (e.clientY - r.top)  / r.height - 0.5;
+        tilts[i] = { x: -my * 10, y: mx * 14 };
+        draw();
+        tiltRaf = false;
+      });
+    });
+    card.addEventListener('mouseleave', () => {
+      tilts[i] = {x:0, y:0};
+      draw();
+    });
+  }
   card.addEventListener('mouseenter', () => {
     if (gridMode) {
       cursorLabel.textContent = p.blank ? "Let's work together :)" : i === 0 ? 'Start' : p.title;
@@ -824,7 +844,8 @@ function draw(){
       scale = lerp(scale, g.scale, k); opacity = lerp(opacity, 1, k);
       if (k > 0.5) zIndex = 1;
     }
-    card.style.transform  = `perspective(900px) translateX(${x}px) translateY(${y}px) rotate(${rot}deg) scale(${scale})`;
+    const t = tilts[i]||{x:0,y:0};
+    card.style.transform  = `perspective(900px) translateX(${x}px) translateY(${y}px) rotate(${rot}deg) scale(${scale}) rotateX(${t.x}deg) rotateY(${t.y}deg)`;
     card.style.opacity    = opacity;
     card.style.zIndex     = zIndex;
     const d = Math.abs(i - pos);
