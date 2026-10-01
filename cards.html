@@ -550,6 +550,8 @@ function gridSlotOf(i, L){
 function setGrid(on){
   gridMode = on;
   gridTarget = on ? 1 : 0;
+  // A card hovered at the moment of toggling would keep its tilt frozen in the grid.
+  for (let k = 0; k < N; k++) tilts[k] = {x:0, y:0};
   document.body.classList.toggle('grid-mode', on);
   const b = document.getElementById('gridBtn');
   b.setAttribute('aria-pressed', on);
@@ -709,7 +711,7 @@ const cardEls = projects.map((p, i) => {
   if (i === 0 || i === N - 1) {
     let tiltRaf = false;
     card.addEventListener('mousemove', e => {
-      if (tiltRaf) return; tiltRaf = true;
+      if (gridMode || tiltRaf) return; tiltRaf = true;
       requestAnimationFrame(() => {
         const r = card.getBoundingClientRect();
         const mx = (e.clientX - r.left) / r.width  - 0.5;
