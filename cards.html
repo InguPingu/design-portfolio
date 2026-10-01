@@ -1025,7 +1025,12 @@ function draw(){
 function goTo(i){ target = Math.max(0, Math.min(N-1, i)); stopNudging(); kick(); }
 
 // ── Input ─────────────────────────────────────────────────────────
-window.addEventListener('wheel', e => { if(_overlay.classList.contains('open')) return; e.preventDefault(); handleDelta(e.deltaY); }, { passive:false });
+window.addEventListener('wheel', e => {
+  if(_overlay.classList.contains('open')) return;
+  e.preventDefault();   // also stops a trackpad side-swipe becoming browser back/forward
+  // Whichever axis dominates, so a sideways trackpad swipe moves the carousel too.
+  handleDelta(Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY);
+}, { passive:false });
 
 let lastTx = 0, lastTy = 0;
 window.addEventListener('touchstart', e => {
