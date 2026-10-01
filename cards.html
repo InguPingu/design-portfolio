@@ -527,22 +527,29 @@ function slotOf(offset){
 const lerp = (a, b, t) => a + (b - a) * t;
 function gridLayout(){
   const vw = window.innerWidth, vh = window.innerHeight;
-  const cols   = vw >= 1100 ? 4 : vw >= 720 ? 3 : 2;
-  const rows   = Math.ceil(N / cols);
-  const gap    = Math.max(12, Math.round(vw * 0.012));
-  const topPad = 96, botPad = 84;
-  const availW = vw * 0.9 - (cols - 1) * gap;
-  const availH = (vh - topPad - botPad) - (rows - 1) * gap;
-  const gs     = Math.min(availW / (cols * CW), availH / (rows * CH), 1);
+  const gap    = Math.max(10, Math.round(vw * 0.008));
+  const topPad = 76, botPad = 72;
+  const side   = Math.max(16, Math.round(vw * 0.02));
+  const boxW = vw - 2 * side, boxH = vh - topPad - botPad;
+  // The best column count depends on viewport aspect, not width alone: pick
+  // whichever fits the whole set on screen at the largest tile size.
+  let cols = 2, gs = 0;
+  for (let c = 2; c <= Math.min(5, N); c++) {
+    const r = Math.ceil(N / c);
+    const s = Math.min((boxW - (c-1)*gap) / (c*CW), (boxH - (r-1)*gap) / (r*CH), 1);
+    if (s > gs) { gs = s; cols = c; }
+  }
+  const rows = Math.ceil(N / cols);
   const tw = CW * gs, th = CH * gs;
   const gridH   = rows * th + (rows - 1) * gap;
-  const gridTop = topPad + ((vh - topPad - botPad) - gridH) / 2;
+  const gridTop = topPad + (boxH - gridH) / 2;
   return { cols, gap, gs, tw, th, gridTop, arcTop: arcTrack.offsetTop };
 }
 function gridSlotOf(i, L){
   const col = i % L.cols, row = Math.floor(i / L.cols);
+  const inRow = Math.min(L.cols, N - row * L.cols);   // centre a short last row
   return {
-    x: (col - (L.cols - 1) / 2) * (L.tw + L.gap),
+    x: (col - (inRow - 1) / 2) * (L.tw + L.gap),
     y: L.gridTop + row * (L.th + L.gap) + L.th / 2 - L.arcTop - CH / 2,
     scale: L.gs,
   };
@@ -862,20 +869,20 @@ function draw(){
   document.getElementById('btnPrev').disabled = target <= 0;
   document.getElementById('btnNext').disabled = target >= N-1;
 
-  // Control video playback and overlay based on active card
+  // Control video playback and overlay. Grid view plays every card at once.
   cardEls.forEach((card, i) => {
     if (card.videoElement && card.hasVideoOverlay !== undefined) {
-      if (i === ci) {
+      if (gridMode || i === ci) {
         // Prepare video, keep image visible until video is ready
         if (!card.hasVideoOverlay) {
           card.videoElement.currentTime = 0;
           card.videoElement.style.display = 'block';
           card.hasVideoOverlay = true;
-          const onCanPlay = () => {
+          card.onCanPlay = () => {
             card.querySelector('.card-swatch').style.backgroundImage = 'none';
-            card.videoElement.removeEventListener('canplay', onCanPlay);
+            card.onCanPlay = null;
           };
-          card.videoElement.addEventListener('canplay', onCanPlay, { once: true });
+          card.videoElement.addEventListener('canplay', card.onCanPlay, { once: true });
           card.videoElement.play().catch(() => {
             card.videoElement.style.display = 'none';
             card.hasVideoOverlay = false;
@@ -884,6 +891,11 @@ function draw(){
       } else {
         // Hide video, show image
         if (card.hasVideoOverlay) {
+          // Drop a canplay still pending, or it would wipe the cover we just restored.
+          if (card.onCanPlay) {
+            card.videoElement.removeEventListener('canplay', card.onCanPlay);
+            card.onCanPlay = null;
+          }
           card.videoElement.style.display = 'none';
           card.querySelector('.card-swatch').style.backgroundImage = `url('${card.dataset.coverImage}')`;
           card.hasVideoOverlay = false;
