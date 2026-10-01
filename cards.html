@@ -563,9 +563,8 @@ function gridLayout(){
 }
 function gridSlotOf(i, L){
   const col = i % L.cols, row = Math.floor(i / L.cols);
-  const inRow = Math.min(L.cols, N - row * L.cols);   // centre a short last row
   return {
-    x: (col - (inRow - 1) / 2) * (L.tw + L.gap),
+    x: (col - (L.cols - 1) / 2) * (L.tw + L.gap),
     y: L.gridTop + row * (L.th + L.gap) + L.th / 2 - L.arcTop - CH / 2,
     scale: L.gs,
   };
