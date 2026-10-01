@@ -543,6 +543,17 @@ function slotOf(offset){
   };
 }
 
+// Attaches the frosted-glass + glare machinery to a card. `base` is how the card
+// already looks outside the focus overlay, so every value lerps back to it at k=0.
+function addGlass(card, swatch, base){
+  const glare = document.createElement('div');
+  glare.style.cssText = 'position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity 0.35s ease; will-change:opacity;';
+  card.glareEl = glare;
+  card.swatchEl = swatch;
+  card.glassBase = base;
+  card.userDriving = false;
+}
+
 // Grid geometry. Cards keep their carousel box (left:50%, top:0 in the arc
 // track); the grid is reached purely through translate/scale, so no layout changes.
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -587,10 +598,13 @@ function focusSlot(){
 // tilt rock, then the sheen drifts slowly until the pointer actually moves over it.
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const easeInOut = x => x < 0.5 ? 2*x*x : 1 - Math.pow(-2*x + 2, 2) / 2;
-let glareRaf = null, glareT0 = 0;
+let glareRaf = null, glareT0 = 0, glareCard = null;
 function glareLoop(ts){
-  const card = cardEls[0];
-  if (!(focusIdx === 0 && focusTarget === 1)) { card.glareAuto = null; glareRaf = null; return; }
+  const card = glareCard;
+  if (!card || focusTarget !== 1 || focusIdx === null || cardEls[focusIdx] !== card) {
+    if (card) card.glareAuto = null;
+    glareCard = null; glareRaf = null; return;
+  }
   if (!card.userDriving) {
     const t = (ts - glareT0) / 1000;
     const S0 = 0.3, SD = 1.4;                       // sweep starts after the lift, lasts 1.4s
@@ -608,7 +622,7 @@ function glareLoop(ts){
       rock = lerp(0.6, 0.35, w);
     }
     card.glareAuto = { mx, my, strength };
-    tilts[0] = { x: -my * 10 * rock, y: mx * 14 * rock };
+    tilts[focusIdx] = { x: -my * 10 * rock, y: mx * 14 * rock };
     draw();
   }
   glareRaf = requestAnimationFrame(glareLoop);
@@ -622,8 +636,9 @@ function setFocus(i){
   arcTrack.style.transform = 'none';
   focusIdx = i; focusTarget = 1;
   cursorLabel.classList.remove('visible');
-  if (i === 0 && !reducedMotion) {
-    cardEls[0].userDriving = false;
+  if (!reducedMotion && cardEls[i].glareEl) {
+    glareCard = cardEls[i];
+    glareCard.userDriving = false;
     glareT0 = performance.now();
     if (!glareRaf) glareRaf = requestAnimationFrame(glareLoop);
   }
@@ -672,6 +687,9 @@ const cardEls = projects.map((p, i) => {
     swatch.style.backgroundColor = '#f0f0f0';
     swatch.style.backgroundSize = 'cover';
     swatch.style.backgroundPosition = 'center';
+    // No border here: adding one would inset the swatch by 1px in the carousel.
+    // Its glass edge comes from an inset ring in the focus shadow instead.
+    addGlass(card, swatch, { blur: 0, bg: 0, bd: 0, hasBorder: false });
   } else if (i === 0) {
     swatch.style.backgroundImage = `url('${p.image}')`;
     swatch.style.backgroundSize = 'cover';
@@ -683,11 +701,7 @@ const cardEls = projects.map((p, i) => {
     card.style.boxShadow = '0 4px 30px rgba(0,0,0,0.01)';
     card.style.borderRadius = '16px';
     // Glass treatment while focused in grid view: a glare layer that follows the tilt.
-    const glare = document.createElement('div');
-    glare.style.cssText = 'position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity 0.35s ease; will-change:opacity;';
-    card.glareEl = glare;
-    card.swatchEl = swatch;
-    card.userDriving = false;
+    addGlass(card, swatch, { blur: 5, bg: 0.05, bd: 0.3, hasBorder: true });
   } else if (p.video && p.image) {
     // Show image by default, create video for later
     swatch.style.backgroundImage = `url('${p.image}')`;
@@ -926,11 +940,13 @@ function draw(){
 
     if (card.glareEl) {
       const k = i === focusIdx ? Math.min(1, Math.max(0, focusT)) : 0;
+      const b = card.glassBase;
       card.swatchEl.style.opacity = lerp(1, 0.78, k);
-      const blur = `blur(${lerp(5, 22, k).toFixed(1)}px)`;
+      const bl = lerp(b.blur, 22, k);
+      const blur = bl < 0.05 ? 'none' : `blur(${bl.toFixed(1)}px)`;
       card.style.backdropFilter = blur; card.style.webkitBackdropFilter = blur;
-      card.style.background = `rgba(255,255,255,${lerp(0.05, 0.16, k).toFixed(3)})`;
-      card.style.border = `1px solid rgba(255,255,255,${lerp(0.3, 0.6, k).toFixed(2)})`;
+      card.style.background = `rgba(255,255,255,${lerp(b.bg, 0.16, k).toFixed(3)})`;
+      if (b.hasBorder) card.style.border = `1px solid rgba(255,255,255,${lerp(b.bd, 0.6, k).toFixed(2)})`;
       let mx, my, strength;
       if (!card.userDriving && card.glareAuto) {
         ({ mx, my, strength } = card.glareAuto);
@@ -951,7 +967,9 @@ function draw(){
     }
     if (i === focusIdx && focusT > 0.0005) {
       const k = Math.min(1, focusT);
-      card.style.boxShadow = `0 ${Math.round(28*k)}px ${Math.round(90*k)}px rgba(0,0,0,${(0.38*k).toFixed(3)}), inset 0 1px 0 rgba(255,255,255,${(0.55*k).toFixed(2)})`;
+      const ring = (card.glassBase && !card.glassBase.hasBorder)
+        ? `, inset 0 0 0 1px rgba(255,255,255,${(0.5*k).toFixed(2)})` : '';
+      card.style.boxShadow = `0 ${Math.round(28*k)}px ${Math.round(90*k)}px rgba(0,0,0,${(0.38*k).toFixed(3)}), inset 0 1px 0 rgba(255,255,255,${(0.55*k).toFixed(2)})${ring}`;
     }
   });
 
