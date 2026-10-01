@@ -373,6 +373,12 @@
   @keyframes hintPulse { 0%, 100% { color: #BCBAB8; } 45% { color: #6f6c6b; } }
   .scroll-hint.nudge { animation: hintPulse 1.2s ease-in-out; }
 
+  /* One blurred layer behind the hovered tile, instead of filtering each card. */
+  #hoverVeil {
+    position: fixed; inset: 0; z-index: 5;
+    pointer-events: none;
+  }
+
   #focusBackdrop {
     position: fixed; inset: 0; z-index: 500;
     background: rgba(22,20,19,0.58);
@@ -397,6 +403,7 @@
   <a href="cards.html" class="active">Projects</a>
   <a href="about.html">About</a>
 </nav>
+<div id="hoverVeil"></div>
 <div id="focusBackdrop"></div>
 <div id="gridBtnWrap">
   <button id="gridBtn" title="Grid view" aria-pressed="false" aria-label="Toggle grid view">
@@ -641,13 +648,16 @@ function glareLoop(ts){
   }
   glareRaf = requestAnimationFrame(glareLoop);
 }
-function setFocus(i){
-  // The intro animation's forwards fill leaves a transform on #arcTrack, which makes
-  // it a stacking context and traps every card's z-index below the backdrop. Settling
-  // it to the identity it already ended on lets the focused card rise above.
+// The intro animation's forwards fill leaves a transform on #arcTrack, making it a
+// stacking context that traps every card's z-index inside it. Settling it to the
+// identity it already ended on lets cards layer against the veil and the backdrop.
+function settleArcTrack(){
   arcTrack.style.animation = 'none';
   arcTrack.style.opacity   = '1';
   arcTrack.style.transform = 'none';
+}
+function setFocus(i){
+  settleArcTrack();
   focusIdx = i; focusTarget = 1;
   cursorLabel.classList.remove('visible');
   if (!reducedMotion && cardEls[i].glareEl) {
@@ -664,6 +674,7 @@ function clearFocus(){
   kick();
 }
 function setGrid(on){
+  if (on) settleArcTrack();
   gridMode = on;
   gridTarget = on ? 1 : 0;
   focusTarget = 0; focusT = 0; focusV = 0; focusIdx = null;
@@ -951,7 +962,7 @@ function draw(){
       scale = lerp(scale, f.scale, k); opacity = 1; zIndex = 600;
     }
     const hv = card.hoverT * gridT;
-    if (hv > 0.001 && i !== focusIdx && L) { scale *= 1 + L.zoom * hv; zIndex = i === hoverIdx ? 3 : 2; }
+    if (hv > 0.001 && i !== focusIdx && L) { scale *= 1 + L.zoom * hv; zIndex = i === hoverIdx ? 6 : 2; }
     const t = tilts[i]||{x:0,y:0};
     card.style.transform  = `perspective(900px) translateX(${x}px) translateY(${y}px) rotate(${rot}deg) scale(${scale}) rotateX(${t.x}deg) rotateY(${t.y}deg)`;
     card.style.opacity    = opacity;
@@ -994,6 +1005,19 @@ function draw(){
       card.style.boxShadow = `0 ${Math.round(28*k)}px ${Math.round(90*k)}px rgba(0,0,0,${(0.38*k).toFixed(3)}), inset 0 1px 0 rgba(255,255,255,${(0.55*k).toFixed(2)})${ring}`;
     }
   });
+
+  const veil = document.getElementById('hoverVeil');
+  let hoverMax = 0;
+  for (const c of cardEls) if (c.hoverT > hoverMax) hoverMax = c.hoverT;
+  const vk = hoverMax * gridT * (1 - Math.min(1, focusT));   // never stacks with the focus overlay
+  if (vk > 0.002) {
+    const b = `blur(${(vk * 9).toFixed(1)}px)`;
+    veil.style.backdropFilter = b; veil.style.webkitBackdropFilter = b;
+    veil.style.background = `rgba(240,240,240,${(0.22 * vk).toFixed(3)})`;
+  } else if (veil.style.backdropFilter !== 'none') {
+    veil.style.backdropFilter = 'none'; veil.style.webkitBackdropFilter = 'none';
+    veil.style.background = 'transparent';
+  }
 
   const fb = document.getElementById('focusBackdrop');
   fb.style.opacity = Math.max(0, Math.min(1, focusT));
