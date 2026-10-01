@@ -372,6 +372,15 @@
   body.grid-mode .watermark { opacity: 0 !important; pointer-events: none; }
 
   @media (max-height: 500px) and (orientation: landscape) { #gridBtnWrap { display: none; } }
+
+  #focusBackdrop {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(22,20,19,0.58);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0; pointer-events: none;
+    cursor: zoom-out;
+  }
 </style>
 </head>
 <body>
@@ -388,6 +397,7 @@
   <a href="cards.html" class="active">Projects</a>
   <a href="about.html">About</a>
 </nav>
+<div id="focusBackdrop"></div>
 <div id="gridBtnWrap">
   <button id="gridBtn" title="Grid view" aria-pressed="false" aria-label="Toggle grid view">
     <svg class="ic-grid" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="1.5" y="1.5" width="5" height="5" rx="1.2"/><rect x="9.5" y="1.5" width="5" height="5" rx="1.2"/><rect x="1.5" y="9.5" width="5" height="5" rx="1.2"/><rect x="9.5" y="9.5" width="5" height="5" rx="1.2"/></svg>
@@ -457,6 +467,9 @@ function springStep(x,v,t,dt){
 // Grid view morph: 0 = carousel, 1 = grid. Slightly under-damped for a soft settle.
 const GK=70, GD=16;
 let gridMode=false, gridT=0, gridV=0, gridTarget=0;
+// Focus overlay: the intro and contact cards lift out of the grid to centre.
+const FK=90, FD=19;
+let focusIdx=null, focusT=0, focusV=0, focusTarget=0;
 
 function tick(ts){
   if(!lastTs) lastTs=ts;
@@ -464,11 +477,16 @@ function tick(ts){
   [pos,vel]=springStep(pos,vel,target,dt);
   gridV += (-GK*(gridT-gridTarget) - GD*gridV)*dt;
   gridT += gridV*dt;
+  focusV += (-FK*(focusT-focusTarget) - FD*focusV)*dt;
+  focusT += focusV*dt;
   draw();
-  const posDone  = Math.abs(pos-target)<0.0008 && Math.abs(vel)<0.001;
-  const gridDone = Math.abs(gridT-gridTarget)<0.0008 && Math.abs(gridV)<0.001;
-  if(posDone && gridDone){
-    pos=target; vel=0; gridT=gridTarget; gridV=0; draw(); raf=null; lastTs=null;
+  const posDone   = Math.abs(pos-target)<0.0008 && Math.abs(vel)<0.001;
+  const gridDone  = Math.abs(gridT-gridTarget)<0.0008 && Math.abs(gridV)<0.001;
+  const focusDone = Math.abs(focusT-focusTarget)<0.0008 && Math.abs(focusV)<0.001;
+  if(posDone && gridDone && focusDone){
+    pos=target; vel=0; gridT=gridTarget; gridV=0; focusT=focusTarget; focusV=0;
+    if(focusTarget===0) focusIdx=null;
+    draw(); raf=null; lastTs=null;
   } else {
     raf=requestAnimationFrame(tick);
   }
@@ -554,9 +572,35 @@ function gridSlotOf(i, L){
     scale: L.gs,
   };
 }
+function focusSlot(){
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const pad = Math.max(24, Math.round(Math.min(vw, vh) * 0.07));
+  return {
+    x: 0,
+    y: vh / 2 - arcTrack.offsetTop - CH / 2,
+    scale: Math.min((vw - 2*pad) / CW, (vh - 2*pad) / CH, 1),
+  };
+}
+function setFocus(i){
+  // The intro animation's forwards fill leaves a transform on #arcTrack, which makes
+  // it a stacking context and traps every card's z-index below the backdrop. Settling
+  // it to the identity it already ended on lets the focused card rise above.
+  arcTrack.style.animation = 'none';
+  arcTrack.style.opacity   = '1';
+  arcTrack.style.transform = 'none';
+  focusIdx = i; focusTarget = 1;
+  cursorLabel.classList.remove('visible');
+  kick();
+}
+function clearFocus(){
+  if (focusIdx !== null) tilts[focusIdx] = {x:0, y:0};
+  focusTarget = 0;
+  kick();
+}
 function setGrid(on){
   gridMode = on;
   gridTarget = on ? 1 : 0;
+  focusTarget = 0; focusT = 0; focusV = 0; focusIdx = null;
   // A card hovered at the moment of toggling would keep its tilt frozen in the grid.
   for (let k = 0; k < N; k++) tilts[k] = {x:0, y:0};
   document.body.classList.toggle('grid-mode', on);
@@ -586,6 +630,9 @@ const cardEls = projects.map((p, i) => {
   const swatch = document.createElement('div'); swatch.className = 'card-swatch';
   if (p.blank) {
     swatch.style.backgroundImage = `url('CardCover/Contact.png')`;
+    // The artwork is RGBA; back it with the page colour it already composites
+    // against, so it stays opaque over the focus backdrop.
+    swatch.style.backgroundColor = '#f0f0f0';
     swatch.style.backgroundSize = 'cover';
     swatch.style.backgroundPosition = 'center';
   } else if (i === 0) {
@@ -718,7 +765,7 @@ const cardEls = projects.map((p, i) => {
   if (i === 0 || i === N - 1) {
     let tiltRaf = false;
     card.addEventListener('mousemove', e => {
-      if (gridMode || tiltRaf) return; tiltRaf = true;
+      if ((gridMode && focusIdx !== i) || tiltRaf) return; tiltRaf = true;
       requestAnimationFrame(() => {
         const r = card.getBoundingClientRect();
         const mx = (e.clientX - r.left) / r.width  - 0.5;
@@ -734,6 +781,7 @@ const cardEls = projects.map((p, i) => {
     });
   }
   card.addEventListener('mouseenter', () => {
+    if (focusIdx !== null) return;
     if (gridMode) {
       cursorLabel.textContent = p.blank ? "Let's work together :)" : i === 0 ? 'Start' : p.title;
       cursorLabel.classList.add('visible');
@@ -746,7 +794,10 @@ const cardEls = projects.map((p, i) => {
 
   card.addEventListener('click', () => {
     cursorLabel.classList.remove('visible');
-    if(gridMode){ target = i; setGrid(false); return; }
+    if(gridMode){
+      if(i === 0 || i === N - 1){ focusTarget === 1 && focusIdx === i ? clearFocus() : setFocus(i); return; }
+      target = i; setGrid(false); return;
+    }
     if(Math.abs(i - target) > 0.4){ goTo(i); lockSnap(); }
     else if(i === 1){
       const img = document.getElementById('caseImg');
@@ -853,6 +904,11 @@ function draw(){
       scale = lerp(scale, g.scale, k); opacity = lerp(opacity, 1, k);
       if (k > 0.5) zIndex = 1;
     }
+    if (focusT > 0.0005 && i === focusIdx) {
+      const f = focusSlot(), k = Math.min(1, focusT);
+      x = lerp(x, f.x, k); y = lerp(y, f.y, k); rot = lerp(rot, 0, k);
+      scale = lerp(scale, f.scale, k); opacity = 1; zIndex = 600;
+    }
     const t = tilts[i]||{x:0,y:0};
     card.style.transform  = `perspective(900px) translateX(${x}px) translateY(${y}px) rotate(${rot}deg) scale(${scale}) rotateX(${t.x}deg) rotateY(${t.y}deg)`;
     card.style.opacity    = opacity;
@@ -861,6 +917,10 @@ function draw(){
     card.style.boxShadow  = (L && gridT > 0.5) ? 'none'
                           : d < 0.7 ? `0 20px 60px rgba(26,23,20,${(0.015*(1-d*1.3)).toFixed(3)})` : 'none';
   });
+
+  const fb = document.getElementById('focusBackdrop');
+  fb.style.opacity = Math.max(0, Math.min(1, focusT));
+  fb.style.pointerEvents = focusT > 0.02 ? 'auto' : 'none';
 
   updateInfo(Math.max(0, Math.min(N-1, Math.round(pos))));
 
@@ -872,7 +932,7 @@ function draw(){
   // Control video playback and overlay. Grid view plays every card at once.
   cardEls.forEach((card, i) => {
     if (card.videoElement && card.hasVideoOverlay !== undefined) {
-      if (gridMode || i === ci) {
+      if (gridMode ? focusIdx === null : i === ci) {
         // Prepare video, keep image visible until video is ready
         if (!card.hasVideoOverlay) {
           card.videoElement.currentTime = 0;
@@ -954,6 +1014,7 @@ _overlay.addEventListener('click', e => { if(e.target === _overlay) closeOverlay
 document.addEventListener('keydown', e => {
   if(e.key !== 'Escape') return;
   if(_overlay.classList.contains('open')) closeOverlay();
+  else if(focusIdx !== null && focusTarget === 1) clearFocus();
   else if(gridMode) setGrid(false);
 });
 
@@ -1117,6 +1178,7 @@ document.querySelector('.nav-dots').classList.add('intro-done');
 document.getElementById('infoPanel').classList.add('intro-done');
 document.getElementById('gridBtnWrap').classList.add('intro-done');
 document.getElementById('gridBtn').addEventListener('click', () => setGrid(!gridMode));
+document.getElementById('focusBackdrop').addEventListener('click', clearFocus);
 document.querySelector('.nav-dots').addEventListener('animationend', function(){
   this.style.animation = 'none'; this.style.opacity = '1';
 }, { once: true });
