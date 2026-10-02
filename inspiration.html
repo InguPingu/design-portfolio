@@ -1001,6 +1001,15 @@ document.addEventListener('keydown', e => {
 });
 
 // ── Tools ──────────────────────────────────────────────────────────
+// Measured from the records, not the DOM, so the drop-in animation cannot skew it.
+function anyVisible(){
+  for (const { rec } of items.values()) {
+    const half = Math.max(rec.w, heightOf(rec)) / 2 * view.s;   // generous: ignores rotation
+    const cx = view.x + rec.x * view.s, cy = view.y + rec.y * view.s;
+    if (cx + half > 0 && cx - half < innerWidth && cy + half > 0 && cy - half < innerHeight) return true;
+  }
+  return false;
+}
 function fitAll(){
   if (!items.size) { view.x = 0; view.y = 0; view.s = 1; applyView(); return; }
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -1085,7 +1094,7 @@ async function reconnectFolder(){
   mode = 'folder';
   await loadFromFolder();
   refreshChrome();
-  if (items.size && !localStorage.getItem('inspiration.view')) fitAll();
+  if (items.size && (!localStorage.getItem('inspiration.view') || !anyVisible())) fitAll();
 }
 document.getElementById('btnFolder').addEventListener('click', connectFolder);
 document.getElementById('reconnect').addEventListener('click', reconnectFolder);
@@ -1156,8 +1165,10 @@ async function loadFromFolder(){
     let k = 0;
     for (const rec of recs) mount(rec, await srcFor(rec), { entering: true, delay: Math.min(k++ * 30, 600) });
   }
-  if (items.size && !localStorage.getItem('inspiration.view')) fitAll();
   applyView();
+  // A view remembered from an earlier visit can point at empty space once the
+  // board gains or moves pieces, which looks exactly like an empty board.
+  if (items.size && (!localStorage.getItem('inspiration.view') || !anyVisible())) fitAll();
   // Web fonts arrive late and change text heights; measure the cards again once they are in.
   document.fonts.ready.then(() => { for (const it of items.values()) if (isText(it.rec)) fitHeight(it); });
 })();
