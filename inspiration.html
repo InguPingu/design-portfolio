@@ -39,7 +39,7 @@
     cursor: grab;
     will-change: transform;
   }
-  .item img, .item video { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+  .item img.media, .item video { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
   .item.dragging { cursor: grabbing; box-shadow: 0 10px 18px rgba(26,23,20,0.10), 0 44px 90px rgba(26,23,20,0.22); }
   .item.settling { transition: transform 0.75s cubic-bezier(0.22,1,0.36,1); }
   .item.entering { animation: drop 0.6s cubic-bezier(0.22,1,0.36,1) both; }
@@ -55,10 +55,57 @@
     font: 14px/26px 'DM Sans', sans-serif; text-align: center;
     cursor: pointer; opacity: 0; transition: opacity 0.18s, transform 0.2s;
     transform: rotate(var(--cr, 0deg));   /* stays upright on a tilted piece */
+    z-index: 2;
   }
   .item:hover .del { opacity: 1; }
   .item .del:hover { transform: rotate(var(--cr, 0deg)) scale(1.1); background: #fff; }
   body.mode-viewer .item .del { display: none; }
+
+  /* ── TEXT CARDS: notes, to-dos, links ── */
+  .item.text { background: #fff; }
+  .item.text .card { position: relative; padding: 16px 18px 16px; min-height: 60px; }
+  .item.text .grip {
+    display: block; height: 14px; margin: -4px -6px 4px; cursor: grab;
+    background: radial-gradient(rgba(43,40,40,0.22) 1px, transparent 1.2px) 0 0 / 6px 6px;
+    width: 30px; opacity: 0; transition: opacity 0.18s;
+  }
+  .item.text:hover .grip, .item.text.selected .grip { opacity: 1; }
+  .item.text [contenteditable] {
+    -webkit-user-select: text; user-select: text; cursor: text; outline: none;
+    white-space: pre-wrap; overflow-wrap: anywhere;
+  }
+  .item.text [data-ph]:empty::before { content: attr(data-ph); color: #b7b4b0; pointer-events: none; }
+  body.mode-viewer .item.text [contenteditable] { cursor: default; }
+
+  .item.note { background: #fffcf3; }
+  .item.note .body { font-size: 14px; line-height: 1.55; font-weight: 300; color: #2B2828; }
+  .item.note .body::first-line { font-weight: 400; }
+
+  .item.todo .title { font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+  .item.todo .rows { list-style: none; }
+  .item.todo .row { display: flex; align-items: flex-start; gap: 10px; padding: 4px 0; }
+  .item.todo .row input { flex: none; width: 15px; height: 15px; margin-top: 3px; accent-color: #2B2828; cursor: pointer; }
+  .item.todo .row .txt { flex: 1; font-size: 13.5px; line-height: 1.5; font-weight: 300; min-height: 20px; }
+  .item.todo .row.done .txt { color: #a3a09c; text-decoration: line-through; }
+  .item.todo .count { position: absolute; top: 14px; right: 44px; font-size: 11px; color: #a3a09c; letter-spacing: 0.02em; }
+
+  /* Links wear a tint and a dark edge so they read at a glance among photos. */
+  .item.link { background: #f3f5fa; border-left: 3px solid #2B2828; }
+  .item.link .card { display: grid; grid-template-columns: 36px 1fr 24px; gap: 12px; align-items: center; padding: 14px 14px 14px 16px; }
+  .item.link .grip { position: absolute; top: 6px; left: 16px; margin: 0; }
+  .item.link .fav {
+    width: 36px; height: 36px; border-radius: 9px; background: #fff; display: grid; place-items: center; overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: #696767;
+  }
+  .item.link .fav img { width: 20px; height: 20px; display: block; }
+  .item.link .meta { min-width: 0; }
+  .item.link .title { font-size: 14px; font-weight: 500; line-height: 1.35; }
+  .item.link .url  { font-size: 12px; color: #8a8785; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item.link .open {
+    width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+    color: #2B2828; text-decoration: none; background: transparent; transition: background 0.15s, transform 0.2s;
+  }
+  .item.link .open:hover { background: rgba(43,40,40,0.08); transform: translate(1px, -1px); }
 
   /* The selection box is a sibling in world space wearing the selected item's
      transform, because the item clips its own overflow. Everything on it is
@@ -108,10 +155,29 @@
   }
   .tool:hover { color: #2B2828; transform: translateY(-1px); }
   .tool svg { display: block; }
-  /* Which tools exist depends on where the board is stored. */
   #btnFolder { display: none; }
   body.fs:not(.mode-folder) #btnFolder { display: inline-flex; }
   body.mode-viewer #btnAdd, body.mode-viewer #btnClear, body.mode-viewer #btnShuffle { display: none; }
+
+  #addMenu {
+    position: fixed; right: max(24px, env(safe-area-inset-right, 0px) + 16px);
+    bottom: max(64px, env(safe-area-inset-bottom, 0px) + 56px);
+    display: none; flex-direction: column; min-width: 150px; padding: 6px;
+    background: rgba(255,255,255,0.92); border: 1px solid rgba(0,0,0,0.08); border-radius: 14px;
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.10); z-index: 110;
+    transform-origin: 100% 100%;
+    animation: pop 0.22s cubic-bezier(0.22,1,0.36,1);
+  }
+  #addMenu.open { display: flex; }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px) scale(0.96); } }
+  #addMenu button {
+    border: none; background: none; font: inherit; font-size: 13.5px; color: #2B2828; text-align: left;
+    padding: 9px 12px; border-radius: 9px; cursor: pointer; display: flex; align-items: center; gap: 10px;
+  }
+  #addMenu button:hover { background: rgba(43,40,40,0.06); }
+  #addMenu button kbd { margin-left: auto; font: inherit; font-size: 11px; color: #a3a09c; }
+  #addMenu svg { color: #696767; }
 
   .status {
     position: fixed; left: max(24px, env(safe-area-inset-left, 0px) + 16px);
@@ -173,6 +239,7 @@
   @media (prefers-reduced-motion: reduce) {
     .item.entering { animation: none; }
     .item.settling { transition: none; }
+    #addMenu { animation: none; }
   }
 </style>
 </head>
@@ -188,8 +255,8 @@
 <div id="empty">
   <h1 class="only local folder pending">Drop anything that inspires you</h1>
   <h1 class="only viewer">Nothing on the board yet</h1>
-  <p class="only local">Images and videos land where you drop them. Scroll to pan, pinch to zoom, drag to rearrange.<br>Select a piece to resize or tilt it &nbsp;·&nbsp; <kbd>⌘V</kbd> pastes.<br><br>Right now pieces are kept in this browser only. Connect your <strong>Inspiration</strong> folder below to save the files there.</p>
-  <p class="only folder">Everything you drop is saved into your <strong>Inspiration</strong> folder.<br>Scroll to pan, pinch to zoom, drag to rearrange. Select a piece to resize or tilt it &nbsp;·&nbsp; <kbd>⌘V</kbd> pastes.</p>
+  <p class="only local">Images, videos and links land where you drop them. Double-click for a note.<br>Scroll to pan, pinch to zoom, drag to rearrange. Select a piece to resize or tilt it &nbsp;·&nbsp; <kbd>⌘V</kbd> pastes.<br><br>Right now pieces are kept in this browser only. Connect your <strong>Inspiration</strong> folder below to save the files there.</p>
+  <p class="only folder">Everything you drop is saved into your <strong>Inspiration</strong> folder. Double-click for a note.<br>Scroll to pan, pinch to zoom, drag to rearrange. Select a piece to resize or tilt it &nbsp;·&nbsp; <kbd>⌘V</kbd> pastes.</p>
   <p class="only pending">Your Inspiration folder needs one click to reconnect before the board can load.</p>
   <p class="only blocked">Another Inspiration tab is holding the board open. Close it, then reload this one.</p>
 </div>
@@ -200,6 +267,12 @@
 <div id="dropHint">Drop to add</div>
 
 <p class="status" id="status"></p>
+<div id="addMenu" role="menu">
+  <button data-add="files"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 10.5l3.5-3 3 2.5 2-1.5L14 11"/><circle cx="10.5" cy="6" r="1"/></svg>Files…</button>
+  <button data-add="note"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M3 2.5h10v8l-3 3H3z"/><path d="M10 13.5v-3h3"/></svg>Note <kbd>double-click</kbd></button>
+  <button data-add="todo"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5l1.5 1.5 2.5-3M8 5h6M2.5 10.5l1.5 1.5 2.5-3M8 11h6"/></svg>To-do</button>
+  <button data-add="link"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5l3-3M7 4.5l1-1a2.5 2.5 0 013.5 3.5l-1 1M9 11.5l-1 1A2.5 2.5 0 014.5 9l1-1"/></svg>Link <kbd>paste a URL</kbd></button>
+</div>
 <div class="tools">
   <button class="tool" id="btnFolder" title="Save pieces into a folder on disk">
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M1.5 4.5h4l1.5 1.5h7.5v7h-13z"/></svg><span>Connect folder</span>
@@ -213,7 +286,7 @@
   <button class="tool" id="btnClear" title="Remove everything from the board">
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M6 4V2.5h4V4M4.5 4l.7 9.5h5.6L11.5 4"/></svg><span>Clear</span>
   </button>
-  <button class="tool" id="btnAdd" title="Add images or videos">
+  <button class="tool" id="btnAdd" title="Add files, a note, a to-do list or a link" aria-haspopup="menu">
     <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg><span>Add</span>
   </button>
 </div>
@@ -226,18 +299,22 @@
 //   folder  – a real folder on disk, connected through the File System Access
 //             API. Dropped files are written into it, and board.json alongside
 //             them holds the layout. This is the editing mode; since the folder
-//             sits inside the repo, committing it publishes the board.
+//             sits inside the repo, committing it publishes the board. Notes and
+//             to-dos are personal, so they go to notes.json, which git ignores.
 //   viewer  – the published site. board.json and the files are fetched from
-//             Inspiration/ read-only.
+//             Inspiration/ read-only. notes.json is never published.
 //   local   – IndexedDB fallback when no folder is connected, or the browser
 //             has no File System Access API. Private to this browser.
 //   pending – a folder was connected before but needs a click to re-grant
 //             access this session.
-// A record is the manifest entry: id, kind, file or url, aspect, and layout
-// (centre x/y in world units, width, rotation, z). Local mode adds a blob.
-const FOLDER = 'Inspiration', MANIFEST = 'board.json';
+// A record is the manifest entry: id, kind, media (file or url) or text
+// (text, items, url/title), aspect, and layout (centre x/y in world units,
+// width, rotation, z). Local mode adds a blob for media.
+const FOLDER = 'Inspiration', MANIFEST = 'board.json', NOTES = 'notes.json';
 const fsSupported = 'showDirectoryPicker' in window;
 let mode = 'local', dir = null, removedFiles = [];
+const isText    = rec => rec.kind === 'note' || rec.kind === 'todo' || rec.kind === 'link';
+const isPrivate = rec => rec.kind === 'note' || rec.kind === 'todo';
 
 // The folder handle lives in its own database so the items database never
 // needs a version bump: IndexedDB stalls an upgrade for as long as an older tab
@@ -274,16 +351,23 @@ async function writeFile(name, blob){
   const w = await fh.createWritable();
   await w.write(blob); await w.close();
 }
+async function readJson(name, fallback){
+  try { return JSON.parse(await (await (await dir.getFileHandle(name)).getFile()).text()); }
+  catch { return fallback; }
+}
 async function readManifest(){
-  try { return JSON.parse(await (await (await dir.getFileHandle(MANIFEST)).getFile()).text()); }
-  catch { return { version: 1, items: [], removed: [] }; }
+  const board = await readJson(MANIFEST, { version: 1, items: [], removed: [] });
+  const notes = await readJson(NOTES, { items: [] });
+  return { ...board, items: [...(board.items || []), ...(notes.items || [])] };
 }
 let manifestT;
 function scheduleManifest(){ clearTimeout(manifestT); manifestT = setTimeout(writeManifest, 300); }
 async function writeManifest(){
   if (mode !== 'folder') return;
-  const data = { version: 1, updated: Date.now(), items: [...items.values()].map(i => stripRec(i.rec)), removed: removedFiles };
-  await writeFile(MANIFEST, new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+  const all = [...items.values()].map(i => stripRec(i.rec)), updated = Date.now();
+  const json = o => new Blob([JSON.stringify(o, null, 2)], { type: 'application/json' });
+  await writeFile(MANIFEST, json({ version: 1, updated, items: all.filter(r => !isPrivate(r)), removed: removedFiles }));
+  await writeFile(NOTES,    json({ version: 1, updated, items: all.filter(isPrivate) }));
 }
 async function folderNames(){
   const names = new Set();
@@ -308,7 +392,7 @@ function nameForFile(f, kind){
   return safeName(f.name);
 }
 
-// The single write path for layout changes, whichever backend is active.
+// The single write path for layout and content changes, whichever backend is active.
 function persist(rec){
   if (mode === 'folder') scheduleManifest();
   else if (mode === 'local') dbPut(rec);
@@ -317,6 +401,7 @@ function unpersist(rec){
   if (mode === 'folder') { if (rec.file) removedFiles.push(rec.file); scheduleManifest(); }
   else if (mode === 'local') dbDel(rec.id);
 }
+const canEdit = () => mode === 'folder' || mode === 'local';
 
 // ── View ───────────────────────────────────────────────────────────
 const viewport = document.getElementById('viewport');
@@ -351,6 +436,8 @@ const rnd = (a, b) => a + Math.random() * (b - a);
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const heightOf = rec => rec.w / rec.aspect;
 const radiusOf = rec => Math.hypot(rec.w, heightOf(rec)) / 2 * 0.72;   // circles overlap a little: that is the mess
+// Pictures can lean; lists and links are meant to be read.
+const maxTilt = rec => rec.kind === 'note' ? 4 : isText(rec) ? 1.5 : 7;
 
 function place(el, rec){
   el.style.setProperty('--t', `translate(${rec.x - rec.w / 2}px, ${rec.y - heightOf(rec) / 2}px) rotate(${rec.rot}deg)`);
@@ -359,6 +446,16 @@ function place(el, rec){
   el.style.height = heightOf(rec) + 'px';
   el.style.zIndex = rec.z;
   if (rec.id === selectedId) syncSel();
+}
+// Text cards are as tall as their content; the measured height is kept as an
+// aspect ratio so layout, fit and the selection box need no special case.
+function fitHeight(it){
+  const { el, rec } = it;
+  el.style.height = 'auto';
+  const h = Math.max(56, el.offsetHeight);
+  el.style.height = '';
+  rec.aspect = rec.w / h;
+  place(el, rec);
 }
 const selBox = document.getElementById('selBox');
 function syncSel(){
@@ -383,6 +480,7 @@ const playWatcher = new IntersectionObserver(entries => {
 
 // Where a record's pixels come from depends on the backend.
 async function srcFor(rec){
+  if (isText(rec)) return null;
   if (rec.blob) return URL.createObjectURL(rec.blob);
   if (rec.file) {
     if (mode === 'folder') return URL.createObjectURL(await (await dir.getFileHandle(rec.file)).getFile());
@@ -397,16 +495,117 @@ function mediaFor(rec, src){
     return v;
   }
   const img = document.createElement('img');
+  img.className = 'media';
   img.src = src; img.alt = ''; img.draggable = false; img.decoding = 'async';
   return img;
 }
 
+// ── Text cards ─────────────────────────────────────────────────────
+const h = (tag, cls, props = {}) => Object.assign(Object.assign(document.createElement(tag), props), cls ? { className: cls } : {});
+function editable(cls, ph, text, it){
+  const el = h('div', cls, { contentEditable: canEdit() ? 'plaintext-only' : 'false', spellcheck: false });
+  el.dataset.ph = ph;
+  if (text) el.textContent = text;
+  el.addEventListener('input', () => { if (!el.innerText.trim()) el.textContent = ''; onEdited(it); });
+  el.addEventListener('focus', () => select(it.rec.id));
+  return el;
+}
+let saveTimers = new Map();
+function onEdited(it){
+  readBack(it);
+  fitHeight(it);
+  clearTimeout(saveTimers.get(it.rec.id));
+  saveTimers.set(it.rec.id, setTimeout(() => persist(it.rec), 400));
+}
+function readBack(it){
+  const { rec, el } = it;
+  if (rec.kind === 'note') rec.text = el.querySelector('.body').innerText.replace(/\n$/, '');
+  else if (rec.kind === 'todo') {
+    rec.title = el.querySelector('.title').innerText.trim();
+    rec.items = [...el.querySelectorAll('.row')].map(r => ({ text: r.querySelector('.txt').innerText.replace(/\n$/, ''), done: r.querySelector('input').checked }));
+    const done = rec.items.filter(i => i.done).length;
+    el.querySelector('.count').textContent = rec.items.length > 1 || done ? `${done}/${rec.items.length}` : '';
+  } else if (rec.kind === 'link') {
+    rec.title = el.querySelector('.title').innerText.trim();
+    rec.url = el.querySelector('.url').innerText.trim();
+  }
+}
+const hostOf = url => { try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return ''; } };
+function faviconFor(url){ const host = hostOf(url); return host ? `https://icons.duckduckgo.com/ip3/${host}.ico` : ''; }
+function normUrl(u){ u = (u || '').trim(); return u && !/^[a-z][a-z0-9+.-]*:/i.test(u) ? 'https://' + u : u; }
+
+function cardFor(rec, it){
+  const card = h('div', 'card');
+  card.appendChild(h('span', 'grip'));
+  if (rec.kind === 'note') {
+    card.appendChild(editable('body', 'Write a note…', rec.text, it));
+  } else if (rec.kind === 'todo') {
+    card.appendChild(editable('title', 'To-do', rec.title, it));
+    const rows = h('ul', 'rows');
+    for (const row of (rec.items && rec.items.length ? rec.items : [{ text: '', done: false }])) rows.appendChild(todoRow(row, it));
+    card.appendChild(rows);
+    card.appendChild(h('span', 'count'));
+  } else if (rec.kind === 'link') {
+    const fav = h('span', 'fav');
+    const meta = h('div', 'meta');
+    meta.appendChild(editable('title', 'Title', rec.title, it));
+    meta.appendChild(editable('url', 'Paste a link…', rec.url, it));
+    const open = h('a', 'open', { target: '_blank', rel: 'noopener', title: 'Open link' });
+    open.innerHTML = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l6-6M6 5h5v5"/></svg>';
+    card.append(fav, meta, open);
+    const url = meta.querySelector('.url');
+    const settle = () => {
+      rec.url = normUrl(url.innerText);
+      if (rec.url !== url.innerText.trim()) url.textContent = rec.url;
+      if (!rec.title && hostOf(rec.url)) { rec.title = hostOf(rec.url); meta.querySelector('.title').textContent = rec.title; }
+      refreshLink(it); onEdited(it);
+    };
+    url.addEventListener('blur', settle);
+    url.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); url.blur(); } });
+    meta.querySelector('.title').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); url.focus(); } });
+  }
+  return card;
+}
+function refreshLink(it){
+  const { rec, el } = it;
+  const fav = el.querySelector('.fav'), open = el.querySelector('.open');
+  const src = faviconFor(rec.url);
+  fav.innerHTML = src ? `<img src="${src}" alt="" onerror="this.remove()">` : '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5l3-3M7 4.5l1-1a2.5 2.5 0 013.5 3.5l-1 1M9 11.5l-1 1A2.5 2.5 0 014.5 9l1-1"/></svg>';
+  open.href = rec.url || '#';
+  open.style.visibility = rec.url ? 'visible' : 'hidden';
+}
+function todoRow(row, it){
+  const li = h('li', 'row' + (row.done ? ' done' : ''));
+  const box = h('input', '', { type: 'checkbox', checked: !!row.done, disabled: !canEdit() });
+  box.addEventListener('change', () => { li.classList.toggle('done', box.checked); onEdited(it); });
+  const txt = editable('txt', 'Add an item', row.text, it);
+  txt.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const next = todoRow({ text: '', done: false }, it);
+      li.after(next); next.querySelector('.txt').focus(); onEdited(it);
+    } else if (e.key === 'Backspace' && !txt.innerText.trim() && li.parentElement.children.length > 1) {
+      e.preventDefault();
+      const prev = li.previousElementSibling || li.nextElementSibling;
+      li.remove(); focusEnd(prev.querySelector('.txt')); onEdited(it);
+    }
+  });
+  li.append(box, txt);
+  return li;
+}
+function focusEnd(el){
+  el.focus();
+  const r = document.createRange(); r.selectNodeContents(el); r.collapse(false);
+  const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+}
+
 function mount(rec, src, { entering = false, delay = 0 } = {}){
   const el = document.createElement('div');
-  el.className = 'item';
+  el.className = 'item' + (isText(rec) ? ` text ${rec.kind}` : '');
   el.dataset.id = rec.id;
-  const media = mediaFor(rec, src);
-  el.appendChild(media);
+  const it = { rec, el, media: null };
+  if (isText(rec)) { el.appendChild(cardFor(rec, it)); }
+  else { it.media = mediaFor(rec, src); el.appendChild(it.media); }
   const del = document.createElement('button');
   del.className = 'del'; del.title = 'Remove from board'; del.textContent = '✕';
   del.addEventListener('pointerdown', e => e.stopPropagation());
@@ -419,15 +618,16 @@ function mount(rec, src, { entering = false, delay = 0 } = {}){
     el.addEventListener('animationend', () => { el.classList.remove('entering'); el.style.animationDelay = ''; }, { once: true });
   }
   world.appendChild(el);
-  items.set(rec.id, { rec, el, media });
+  items.set(rec.id, it);
+  if (isText(rec)) { if (rec.kind === 'link') refreshLink(it); readBack(it); fitHeight(it); }
   playWatcher.observe(el);
   zTop = Math.max(zTop, rec.z);
   updateStatus();
-  return el;
+  return it;
 }
 function unmount(it){
   playWatcher.unobserve(it.el);
-  if (it.media.src.startsWith('blob:')) URL.revokeObjectURL(it.media.src);
+  if (it.media && it.media.src.startsWith('blob:')) URL.revokeObjectURL(it.media.src);
   it.el.remove();
   items.delete(it.rec.id);
 }
@@ -441,6 +641,7 @@ function remove(id){
 }
 
 function select(id){
+  if (selectedId === id) return;
   if (selectedId && items.has(selectedId)) items.get(selectedId).el.classList.remove('selected');
   selectedId = id;
   if (id) items.get(id).el.classList.add('selected');
@@ -476,7 +677,7 @@ function scatter(recs, cx, cy){
     const rad = spread * Math.sqrt(k), ang = k * golden + rnd(-0.25, 0.25);
     r.x = cx + Math.cos(ang) * rad + rnd(-26, 26);
     r.y = cy + Math.sin(ang) * rad + rnd(-26, 26);
-    r.rot = rnd(-7, 7);
+    r.rot = rnd(-maxTilt(r), maxTilt(r));
   });
   relax(recs);
 }
@@ -521,10 +722,11 @@ function measure(kind, src){
     }
   });
 }
-const freshRec = (kind, aspect) => ({ id: uid(), kind, aspect, w: (kind === 'video' ? 340 : 300) * rnd(0.82, 1.18), z: ++zTop, created: Date.now() });
+const BASE_W = { video: 340, image: 300, note: 250, todo: 270, link: 320 };
+const freshRec = (kind, aspect) => ({ id: uid(), kind, aspect, w: BASE_W[kind] * (isText({ kind }) ? rnd(0.95, 1.05) : rnd(0.82, 1.18)), z: ++zTop, created: Date.now() });
 
 async function addFiles(files, at){
-  if (mode === 'viewer' || mode === 'pending') return;
+  if (!canEdit()) return;
   const list = [...files].filter(f => kindOf(f.type, f.name));
   if (!list.length) return;
   const taken = mode === 'folder' ? await folderNames() : null;
@@ -542,9 +744,12 @@ async function addFiles(files, at){
   }));
   commit(entries, at);
 }
+// A URL that points straight at a picture or a video becomes that media;
+// anything else becomes a link card.
 async function addUrl(url, at){
-  if (mode === 'viewer' || mode === 'pending') return;
-  const kind = kindOf('', url) || 'image';
+  if (!canEdit()) return;
+  const kind = kindOf('', url);
+  if (!kind) return addText('link', at, { url, title: hostOf(url) });
   const rec = freshRec(kind, await measure(kind, url));
   let src = url;
   // Try to make it ours. Cross-origin servers often refuse, in which case the
@@ -552,7 +757,6 @@ async function addUrl(url, at){
   if (mode === 'folder') {
     try {
       const blob = await (await fetch(url, { mode: 'cors' })).blob();
-      const ext = kindOf(blob.type) ? '' : '';
       const base = safeName((url.split('/').pop().split('?')[0]) || `web-${rec.id}`);
       rec.file = uniqueName(base, await folderNames());
       await writeFile(rec.file, blob);
@@ -561,6 +765,16 @@ async function addUrl(url, at){
   } else rec.url = url;
   commit([{ rec, src }], at);
 }
+function addText(kind, at, data = {}){
+  if (!canEdit()) return;
+  const rec = Object.assign(freshRec(kind, 1.6), data);   // provisional aspect; measured on mount
+  commit([{ rec, src: null }], at);
+  const it = items.get(rec.id);
+  const focusTarget = kind === 'note' ? '.body' : kind === 'todo' ? '.title' : (rec.url ? '.title' : '.url');
+  const field = it.el.querySelector(focusTarget);
+  if (field) requestAnimationFrame(() => focusEnd(field));
+  return it;
+}
 function commit(entries, at){
   const p = at || viewCentre();
   scatter(entries.map(e => e.rec), p.x, p.y);
@@ -568,38 +782,58 @@ function commit(entries, at){
   select(entries[entries.length - 1].rec.id);
 }
 
-// What a drop or paste actually contains: files first, else a web URL.
+// What a drop or paste actually contains: files first, then a web URL, else text.
 function extractUrl(dt){
   const uri = dt.getData('text/uri-list') || dt.getData('text/plain');
-  if (uri && /^https?:\/\//.test(uri.trim())) return uri.trim().split('\n')[0];
+  if (uri && /^https?:\/\/\S+$/.test(uri.trim())) return uri.trim().split('\n')[0];
   const html = dt.getData('text/html');
   if (html) {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     const m = doc.querySelector('img[src], video[src], source[src]');
     if (m) return m.getAttribute('src');
+    const a = doc.querySelector('a[href^="http"]');
+    if (a && doc.body.innerText.trim() === a.innerText.trim()) return a.getAttribute('href');
   }
   return null;
 }
+function takeTransfer(dt, at){
+  if (dt.files && dt.files.length) { addFiles(dt.files, at); return true; }
+  const u = extractUrl(dt);
+  if (u) { addUrl(u, at); return true; }
+  const text = (dt.getData('text/plain') || '').trim();
+  if (text) { addText('note', at, { text }); return true; }
+  return false;
+}
 
 let dragDepth = 0;
-window.addEventListener('dragenter', e => { e.preventDefault(); if (++dragDepth === 1 && mode !== 'viewer') document.body.classList.add('dragover'); });
+window.addEventListener('dragenter', e => { e.preventDefault(); if (++dragDepth === 1 && canEdit()) document.body.classList.add('dragover'); });
 window.addEventListener('dragleave', e => { e.preventDefault(); if (--dragDepth <= 0) { dragDepth = 0; document.body.classList.remove('dragover'); } });
-window.addEventListener('dragover',  e => { e.preventDefault(); e.dataTransfer.dropEffect = mode === 'viewer' ? 'none' : 'copy'; });
+window.addEventListener('dragover',  e => { e.preventDefault(); e.dataTransfer.dropEffect = canEdit() ? 'copy' : 'none'; });
 window.addEventListener('drop', e => {
   e.preventDefault(); dragDepth = 0; document.body.classList.remove('dragover');
-  const at = toWorld(e.clientX, e.clientY);
-  if (e.dataTransfer.files && e.dataTransfer.files.length) addFiles(e.dataTransfer.files, at);
-  else { const u = extractUrl(e.dataTransfer); if (u) addUrl(u, at); }
+  if (e.target.isContentEditable) return;   // text dragged within a card is the browser's business
+  takeTransfer(e.dataTransfer, toWorld(e.clientX, e.clientY));
 });
 document.addEventListener('paste', e => {
-  const files = e.clipboardData && e.clipboardData.files;
-  if (files && files.length) { e.preventDefault(); addFiles(files); return; }
-  const u = e.clipboardData && extractUrl(e.clipboardData);
-  if (u) { e.preventDefault(); addUrl(u); }
+  if (e.target.isContentEditable || e.target.tagName === 'INPUT') return;   // pasting inside a card edits the card
+  if (e.clipboardData && takeTransfer(e.clipboardData)) e.preventDefault();
 });
 const fileInput = document.getElementById('fileInput');
-document.getElementById('btnAdd').addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', () => { addFiles(fileInput.files); fileInput.value = ''; });
+
+// The Add button opens a small menu; a double-click on empty canvas is the shortcut for a note.
+const addMenu = document.getElementById('addMenu');
+document.getElementById('btnAdd').addEventListener('click', e => { e.stopPropagation(); addMenu.classList.toggle('open'); });
+addMenu.addEventListener('click', e => {
+  const b = e.target.closest('button[data-add]'); if (!b) return;
+  addMenu.classList.remove('open');
+  if (b.dataset.add === 'files') fileInput.click(); else addText(b.dataset.add);
+});
+document.addEventListener('pointerdown', e => { if (!e.target.closest('#addMenu, #btnAdd')) addMenu.classList.remove('open'); });
+viewport.addEventListener('dblclick', e => {
+  if (e.target !== viewport && e.target !== world) return;
+  addText('note', toWorld(e.clientX, e.clientY));
+});
 
 // ── Pointer: drag items, pan the canvas ────────────────────────────
 let gesture = null;   // { kind:'item'|'pan'|'rotate'|'resize', ... }
@@ -619,8 +853,11 @@ viewport.addEventListener('pointerdown', e => {
   const el = e.target.closest('.item');
   if (el) {
     const it = items.get(el.dataset.id);
-    gesture = { kind: 'item', it, sx: e.clientX, sy: e.clientY, ox: it.rec.x, oy: it.rec.y, moved: false };
     bringToFront(it);
+    // Inside a text card, editable fields, checkboxes and the open-link arrow keep
+    // their native behaviour; the card is dragged by its grip, padding and edges.
+    if (e.target.closest('[contenteditable], input, a')) { select(it.rec.id); return; }
+    gesture = { kind: 'item', it, sx: e.clientX, sy: e.clientY, ox: it.rec.x, oy: it.rec.y, moved: false };
   } else {
     gesture = { kind: 'pan', sx: e.clientX, sy: e.clientY, ox: view.x, oy: view.y, moved: false };
     viewport.classList.add('panning');
@@ -646,7 +883,7 @@ viewport.addEventListener('pointermove', e => {
     // Grows in place: the corner handle's distance from the centre sets the scale.
     const c = centreOnScreen(gesture.it.rec);
     gesture.it.rec.w = clampW(gesture.w0 * Math.hypot(e.clientX - c.x, e.clientY - c.y) / gesture.d0);
-    place(gesture.it.el, gesture.it.rec);
+    if (isText(gesture.it.rec)) fitHeight(gesture.it); else place(gesture.it.el, gesture.it.rec);
     return;
   }
   if (gesture.kind === 'item') {
@@ -671,7 +908,7 @@ function endGesture(e){
     select(gesture.it.rec.id);
   } else {
     viewport.classList.remove('panning');
-    if (!gesture.moved) select(null);
+    if (!gesture.moved) { select(null); if (document.activeElement && document.activeElement.isContentEditable) document.activeElement.blur(); }
   }
   gesture = null;
 }
@@ -687,7 +924,13 @@ viewport.addEventListener('wheel', e => {
 }, { passive: false });
 
 document.addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'Escape') {
+    if (addMenu.classList.contains('open')) { addMenu.classList.remove('open'); return; }
+    if (e.target.isContentEditable) { e.target.blur(); return; }
+    select(null); return;
+  }
+  // Typing inside a card is typing, not shortcuts.
+  if (e.target.isContentEditable || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   const sel = selectedId && items.get(selectedId);
   if (sel && !e.metaKey && !e.ctrlKey) {
     if (e.key === '[' || e.key === ']') {
@@ -698,11 +941,11 @@ document.addEventListener('keydown', e => {
     if (e.key === '-' || e.key === '=' || e.key === '+') {
       e.preventDefault();
       sel.rec.w = clampW(sel.rec.w * (e.key === '-' ? 0.9 : 1.1));
-      place(sel.el, sel.rec); persist(sel.rec); return;
+      if (isText(sel.rec)) fitHeight(sel); else place(sel.el, sel.rec);
+      persist(sel.rec); return;
     }
   }
-  if ((e.key === 'Backspace' || e.key === 'Delete') && selectedId && mode !== 'viewer') { e.preventDefault(); remove(selectedId); }
-  if (e.key === 'Escape') select(null);
+  if ((e.key === 'Backspace' || e.key === 'Delete') && selectedId && canEdit()) { e.preventDefault(); remove(selectedId); }
   if (e.key === '0' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); fitAll(); }
 });
 
@@ -735,7 +978,7 @@ document.getElementById('btnShuffle').addEventListener('click', () => {
     const rad = base * 0.62 * Math.sqrt(k), ang = k * golden + rnd(-0.25, 0.25);
     r.x = c.x + Math.cos(ang) * rad + rnd(-26, 26);
     r.y = c.y + Math.sin(ang) * rad + rnd(-26, 26);
-    r.rot = rnd(-7, 7);
+    r.rot = rnd(-maxTilt(r), maxTilt(r));
   });
   relax(recs);
   for (const it of items.values()) {
@@ -803,7 +1046,7 @@ async function adoptNewFiles(){
   const skip = new Set(removedFiles);
   const fresh = [];
   for await (const [name, h] of dir.entries()) {
-    if (h.kind !== 'file' || name === MANIFEST || known.has(name) || skip.has(name)) continue;
+    if (h.kind !== 'file' || name === MANIFEST || name === NOTES || known.has(name) || skip.has(name)) continue;
     const kind = kindOf('', name); if (!kind) continue;
     const file = await h.getFile();
     const src = URL.createObjectURL(file);
@@ -820,7 +1063,7 @@ async function adoptNewFiles(){
     scatter(fresh.map(e => e.rec), c.x, c.y);
     fresh.forEach(({ rec, src }, k) => mount(rec, src, { entering: true, delay: Math.min(k * 45, 500) }));
   }
-  if (fresh.length || removedFiles.length !== (skip.size)) scheduleManifest();
+  if (fresh.length || removedFiles.length !== skip.size) scheduleManifest();
 }
 async function loadFromFolder(){
   const m = await readManifest();
@@ -853,7 +1096,7 @@ async function loadFromFolder(){
   } else if (mode === 'viewer') {
     try {
       const m = await (await fetch(`${FOLDER}/${MANIFEST}`, { cache: 'no-cache' })).json();
-      const recs = (m.items || []).sort((a, b) => a.z - b.z);
+      const recs = (m.items || []).filter(r => !isPrivate(r)).sort((a, b) => a.z - b.z);
       let k = 0;
       for (const rec of recs) mount(rec, await srcFor(rec), { entering: true, delay: Math.min(k++ * 30, 600) });
     } catch { /* no board published yet */ }
@@ -864,6 +1107,8 @@ async function loadFromFolder(){
   }
   if (items.size && !localStorage.getItem('inspiration.view')) fitAll();
   applyView();
+  // Web fonts arrive late and change text heights; measure the cards again once they are in.
+  document.fonts.ready.then(() => { for (const it of items.values()) if (isText(it.rec)) fitHeight(it); });
 })();
 window.addEventListener('resize', updateStatus);
 </script>
