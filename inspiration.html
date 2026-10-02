@@ -61,6 +61,28 @@
   .item .del:hover { transform: rotate(var(--cr, 0deg)) scale(1.1); background: #fff; }
   body.mode-viewer .item .del { display: none; }
 
+  /* A link attached to a picture or video: a level badge in its corner. */
+  .item .linkBadge {
+    position: absolute; left: 8px; bottom: 8px; z-index: 2;
+    display: inline-flex; align-items: center; gap: 6px; max-width: calc(100% - 16px);
+    padding: 4px 8px 4px 5px; border-radius: 100px;
+    background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    color: #2B2828; font-size: 11.5px; line-height: 1; text-decoration: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    transform: rotate(var(--cr, 0deg)); transform-origin: 0 100%;
+    transition: background 0.15s;
+  }
+  .item .linkBadge:hover { background: #fff; }
+  .item .linkBadge img { width: 14px; height: 14px; border-radius: 4px; display: block; }
+  .item .linkBadge .glyph { width: 14px; height: 14px; color: #696767; }
+  .item .linkBadge span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item .linkBadge .unlink {
+    border: none; background: none; font: inherit; font-size: 11px; color: #8a8785;
+    cursor: pointer; padding: 0 0 0 2px; line-height: 1; display: none;
+  }
+  .item .linkBadge:hover .unlink { display: inline; }
+  body.mode-viewer .item .linkBadge .unlink { display: none; }
+
   /* ── TEXT CARDS: notes, to-dos, links ── */
   .item.text { background: #fff; }
   .item.text .card { position: relative; padding: 16px 18px 16px; min-height: 60px; }
@@ -255,8 +277,8 @@
 <div id="empty">
   <h1 class="only local folder pending">Drop anything that inspires you</h1>
   <h1 class="only viewer">Nothing on the board yet</h1>
-  <p class="only local">Images, videos and links land where you drop them. Double-click for a note.<br>Scroll to pan, pinch to zoom, drag to rearrange. Select a piece to resize or tilt it &nbsp;·&nbsp; <kbd>⌘V</kbd> pastes.<br><br>Right now pieces are kept in this browser only. Connect your <strong>Inspiration</strong> folder below to save the files there.</p>
-  <p class="only folder">Everything you drop is saved into your <strong>Inspiration</strong> folder. Double-click for a note.<br>Scroll to pan, pinch to zoom, drag to rearrange. Select a piece to resize or tilt it &nbsp;·&nbsp; <kbd>⌘V</kbd> pastes.</p>
+  <p class="only local">Images, videos and links land where you drop them. Double-click for a note.<br>Scroll to pan, pinch to zoom, drag to rearrange. Select a piece to resize or tilt it &nbsp;·&nbsp; <kbd>⌘V</kbd> pastes.<br>Select a picture or video and paste a link to attach it.<br><br>Right now pieces are kept in this browser only. Connect your <strong>Inspiration</strong> folder below to save the files there.</p>
+  <p class="only folder">Everything you drop is saved into your <strong>Inspiration</strong> folder. Double-click for a note.<br>Scroll to pan, pinch to zoom, drag to rearrange. Select a piece to resize or tilt it &nbsp;·&nbsp; <kbd>⌘V</kbd> pastes.<br>Select a picture or video and paste a link to attach it.</p>
   <p class="only pending">Your Inspiration folder needs one click to reconnect before the board can load.</p>
   <p class="only blocked">Another Inspiration tab is holding the board open. Close it, then reload this one.</p>
 </div>
@@ -574,6 +596,31 @@ function refreshLink(it){
   open.href = rec.url || '#';
   open.style.visibility = rec.url ? 'visible' : 'hidden';
 }
+// Media can carry the link it came from, shown as a badge in its corner.
+function renderBadge(it){
+  const old = it.el.querySelector('.linkBadge'); if (old) old.remove();
+  const url = it.rec.link; if (!url) return;
+  const a = h('a', 'linkBadge', { href: url, target: '_blank', rel: 'noopener', title: url });
+  const fav = faviconFor(url);
+  a.innerHTML = (fav ? `<img src="${fav}" alt="" onerror="this.outerHTML='<svg class=glyph viewBox=&quot;0 0 16 16&quot; fill=none stroke=currentColor stroke-width=1.4><path d=&quot;M6.5 9.5l3-3M7 4.5l1-1a2.5 2.5 0 013.5 3.5l-1 1M9 11.5l-1 1A2.5 2.5 0 014.5 9l1-1&quot;/></svg>'">` : '')
+    + `<span>${hostOf(url) || url}</span>`
+    + (canEdit() ? '<button class="unlink" title="Detach link">✕</button>' : '');
+  const x = a.querySelector('.unlink');
+  if (x) {
+    x.addEventListener('pointerdown', e => e.stopPropagation());
+    x.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); detachLink(it); });
+  }
+  it.el.appendChild(a);
+}
+function attachLink(it, url){
+  it.rec.link = normUrl(url);
+  renderBadge(it); persist(it.rec); select(it.rec.id);
+}
+function detachLink(it){
+  delete it.rec.link;
+  renderBadge(it); persist(it.rec);
+}
+
 function todoRow(row, it){
   const li = h('li', 'row' + (row.done ? ' done' : ''));
   const box = h('input', '', { type: 'checkbox', checked: !!row.done, disabled: !canEdit() });
@@ -605,7 +652,7 @@ function mount(rec, src, { entering = false, delay = 0 } = {}){
   el.dataset.id = rec.id;
   const it = { rec, el, media: null };
   if (isText(rec)) { el.appendChild(cardFor(rec, it)); }
-  else { it.media = mediaFor(rec, src); el.appendChild(it.media); }
+  else { it.media = mediaFor(rec, src); el.appendChild(it.media); if (rec.link) renderBadge(it); }
   const del = document.createElement('button');
   del.className = 'del'; del.title = 'Remove from board'; del.textContent = '✕';
   del.addEventListener('pointerdown', e => e.stopPropagation());
@@ -796,9 +843,11 @@ function extractUrl(dt){
   }
   return null;
 }
-function takeTransfer(dt, at){
+function takeTransfer(dt, at, onto){
+  if (!canEdit()) return false;
   if (dt.files && dt.files.length) { addFiles(dt.files, at); return true; }
   const u = extractUrl(dt);
+  if (u && onto && !isText(onto.rec)) { attachLink(onto, u); return true; }
   if (u) { addUrl(u, at); return true; }
   const text = (dt.getData('text/plain') || '').trim();
   if (text) { addText('note', at, { text }); return true; }
@@ -811,12 +860,15 @@ window.addEventListener('dragleave', e => { e.preventDefault(); if (--dragDepth 
 window.addEventListener('dragover',  e => { e.preventDefault(); e.dataTransfer.dropEffect = canEdit() ? 'copy' : 'none'; });
 window.addEventListener('drop', e => {
   e.preventDefault(); dragDepth = 0; document.body.classList.remove('dragover');
-  if (e.target.isContentEditable) return;   // text dragged within a card is the browser's business
-  takeTransfer(e.dataTransfer, toWorld(e.clientX, e.clientY));
+  const tgt = e.target instanceof Element ? e.target : null;
+  if (tgt && tgt.isContentEditable) return;   // text dragged within a card is the browser's business
+  const onEl = tgt && tgt.closest('.item');
+  takeTransfer(e.dataTransfer, toWorld(e.clientX, e.clientY), onEl && items.get(onEl.dataset.id));
 });
 document.addEventListener('paste', e => {
   if (e.target.isContentEditable || e.target.tagName === 'INPUT') return;   // pasting inside a card edits the card
-  if (e.clipboardData && takeTransfer(e.clipboardData)) e.preventDefault();
+  const sel = selectedId && items.get(selectedId);
+  if (e.clipboardData && takeTransfer(e.clipboardData, null, sel)) e.preventDefault();
 });
 const fileInput = document.getElementById('fileInput');
 fileInput.addEventListener('change', () => { addFiles(fileInput.files); fileInput.value = ''; });
