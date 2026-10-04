@@ -485,7 +485,9 @@ function unpersist(rec){
   deletedIds.add(rec.id); touchedIds.delete(rec.id);
   scheduleCommit(`remove ${labelOf(rec)}`, 1200);
 }
-const labelOf = rec => rec.file || rec.title || (rec.text || '').slice(0, 24) || rec.kind;
+// Commit messages are public: name files and link hosts, never what a note or
+// to-do says.
+const labelOf = rec => rec.file || (rec.kind === 'link' && hostOf(rec.url)) || rec.kind;
 
 let takenNames = new Set();
 function safeName(name){
