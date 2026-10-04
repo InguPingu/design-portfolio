@@ -23,9 +23,32 @@
   #viewport {
     position: fixed; inset: 0;
     cursor: grab;
-    background-image: radial-gradient(rgba(43,40,40,0.11) 1px, transparent 1.3px);
+    background-image: radial-gradient(var(--dot, rgba(43,40,40,0.11)) 1px, transparent 1.3px);
     background-size: 28px 28px;
   }
+  /* ── WALLPAPER ── any picture or video on the board, filling the page behind the canvas */
+  #wallpaper { position: fixed; inset: 0; overflow: hidden; pointer-events: none; display: none; background: #f0f0f0; }
+  #wallpaper img, #wallpaper video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  body.has-wallpaper #wallpaper { display: block; }
+  /* Text over a wallpaper sits on a soft frosted backing and flips to light
+     where the picture underneath is dark (set per element by sampling). */
+  body.has-wallpaper .site-nav, body.has-wallpaper .tools, body.has-wallpaper .status {
+    padding: 7px 14px; border-radius: 100px; background: rgba(255,255,255,0.5);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    transition: background 0.4s, color 0.4s;
+  }
+  body.has-wallpaper .site-nav.on-dark, body.has-wallpaper .tools.on-dark, body.has-wallpaper .status.on-dark { background: rgba(20,18,18,0.42); }
+  .site-nav.on-dark a { color: rgba(255,255,255,0.72); }
+  .site-nav.on-dark a.active { color: #fff; }
+  .tools.on-dark .tool { color: rgba(255,255,255,0.74); }
+  .tools.on-dark .tool:hover { color: #fff; }
+  .status.on-dark { color: rgba(255,255,255,0.78); }
+  .watermark.on-dark { color: rgba(255,255,255,0.55); }
+  #empty.on-dark h1 { color: #fff; }
+  #empty.on-dark p { color: rgba(255,255,255,0.78); }
+  #pubState.on-dark { background: rgba(30,28,28,0.72); color: #fff; border-color: rgba(255,255,255,0.14); }
+  body.has-wallpaper .tool { padding: 6px 4px; }
+  body.has-wallpaper .status { bottom: max(24px, env(safe-area-inset-bottom, 0px) + 16px); }
   #viewport.panning { cursor: grabbing; }
   #world { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
 
@@ -77,9 +100,9 @@
   .chip.primary { background: #2B2828; color: #fff; border-color: #2B2828; }
   .chip:hover { filter: brightness(1.04); }
   /* a Crop chip rides on the selection box for pictures and videos */
-  #selBox .cropChip { position: absolute; right: 0; bottom: calc(100% + 12px / var(--zs, 1)); transform: scale(calc(1 / var(--zs, 1))); transform-origin: 100% 100%; display: none; }
-  #selBox.media.on .cropChip { display: inline-block; }
-  body.mode-viewer #selBox .cropChip { display: none !important; }
+  #selBox .selChips { position: absolute; right: 0; bottom: calc(100% + 12px / var(--zs, 1)); transform: scale(calc(1 / var(--zs, 1))); transform-origin: 100% 100%; display: none; gap: 6px; white-space: nowrap; }
+  #selBox.media.on .selChips { display: flex; }
+  body.mode-viewer #selBox .selChips { display: none !important; }
   .item.dragging { cursor: grabbing; box-shadow: 0 10px 18px rgba(26,23,20,0.10), 0 44px 90px rgba(26,23,20,0.22); }
   .item.settling { transition: transform 0.75s cubic-bezier(0.22,1,0.36,1); }
   .item.entering { animation: drop 0.6s cubic-bezier(0.22,1,0.36,1) both; }
@@ -218,6 +241,8 @@
   .tool svg { display: block; }
   /* Which tools exist depends on whether this browser can publish. */
   body.mode-viewer #btnAdd, body.mode-viewer #btnClear, body.mode-viewer #btnShuffle, body.mode-viewer #btnFolder { display: none; }
+  #btnWall { display: none; }
+  body.mode-editor.has-wallpaper #btnWall { display: inline-flex; }
   #btnFolder { display: none; }
   body.mode-editor.fs:not(.mirror-on) #btnFolder { display: inline-flex; }
   body.mirror-pending #btnFolder { color: #2B2828; }
@@ -361,7 +386,8 @@
   <a href="inspiration.html" class="active">Inspiration</a>
 </nav>
 
-<div id="viewport"><div id="world"><div id="selBox"><div class="handle rotate" title="Drag to tilt · Shift snaps"></div><div class="handle resize" title="Drag to resize"></div><button class="chip cropChip" title="Crop · or double-click the piece">Crop</button></div></div></div>
+<div id="wallpaper" aria-hidden="true"></div>
+<div id="viewport"><div id="world"><div id="selBox"><div class="handle rotate" title="Drag to tilt · Shift snaps"></div><div class="handle resize" title="Drag to resize"></div><div class="selChips"><button class="chip wallChip" title="Fill the page behind the board with this">Wallpaper</button><button class="chip cropChip" title="Crop · or double-click the piece">Crop</button></div></div></div></div>
 
 <div id="empty">
   <h1 class="only editor">Drop anything that inspires you</h1>
@@ -395,6 +421,9 @@
 <div class="tools">
   <button class="tool" id="btnFolder" title="Also keep a copy of every file in a folder on this computer">
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M1.5 4.5h4l1.5 1.5h7.5v7h-13z"/></svg><span>Connect folder</span>
+  </button>
+  <button class="tool" id="btnWall" title="Back to the plain background">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5.5 6.5l5 3M10.5 6.5l-5 3"/></svg><span>Remove wallpaper</span>
   </button>
   <button class="tool" id="btnFit" title="Fit everything in view">
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg><span>Fit</span>
@@ -484,8 +513,66 @@ function scheduleCommit(msg, delay){
 }
 function stripRec({ blob, ...rest }){ return rest; }
 function manifestJson(){
-  return JSON.stringify({ version: 1, updated: Date.now(), items: [...items.values()].map(i => stripRec(i.rec)) }, null, 2);
+  return JSON.stringify({ version: 1, updated: Date.now(), wallpaper: wallpaper || undefined, items: [...items.values()].map(i => stripRec(i.rec)) }, null, 2);
 }
+
+// ── Wallpaper ──────────────────────────────────────────────────────
+// A board-level choice: one of the board's own files fills the page behind
+// the canvas. It publishes with the board, so every device and visitor sees it.
+let wallpaper = null, wallTouched = false, wallVersion = 0;
+const wallEl = document.getElementById('wallpaper');
+let wallMedia = null, wallSampleT = null;
+const chromeEls = () => [document.querySelector('.site-nav'), document.getElementById('pubState'), document.getElementById('status'), document.querySelector('.tools'), document.querySelector('.watermark'), document.getElementById('empty')].filter(Boolean);
+const sampleCanvas = document.createElement('canvas'); sampleCanvas.width = 64; sampleCanvas.height = 36;
+function sampleWallpaper(){
+  if (!wallMedia) return;
+  const W = innerWidth, H = innerHeight, c = sampleCanvas, g = c.getContext('2d', { willReadFrequently: true });
+  const mw = wallMedia.videoWidth || wallMedia.naturalWidth, mh = wallMedia.videoHeight || wallMedia.naturalHeight;
+  if (!mw || !mh) return;
+  // the part of the picture that object-fit: cover actually shows
+  const sc = Math.max(W / mw, H / mh), sw = W / sc, sh = H / sc;
+  let data;
+  try { g.drawImage(wallMedia, (mw - sw) / 2, (mh - sh) / 2, sw, sh, 0, 0, c.width, c.height); data = g.getImageData(0, 0, c.width, c.height).data; }
+  catch { return; }   // a cross-origin file without CORS headers: keep the defaults
+  const lum = (x0, y0, x1, y1) => {
+    let sum = 0, n = 0;
+    for (let y = Math.floor(y0 * c.height); y < Math.ceil(y1 * c.height); y++)
+      for (let x = Math.floor(x0 * c.width); x < Math.ceil(x1 * c.width); x++) { const i = (y * c.width + x) * 4; sum += 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]; n++; }
+    return n ? sum / n / 255 : 0.5;
+  };
+  for (const el of chromeEls()) {
+    const r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
+    el.classList.toggle('on-dark', lum(Math.max(0, r.left / W), Math.max(0, r.top / H), Math.min(1, r.right / W), Math.min(1, r.bottom / H)) < 0.45);
+  }
+  document.documentElement.style.setProperty('--dot', lum(0, 0, 1, 1) < 0.45 ? 'rgba(255,255,255,0.22)' : 'rgba(43,40,40,0.14)');
+}
+async function applyWallpaper(){
+  wallEl.replaceChildren(); wallMedia = null; clearInterval(wallSampleT); wallSampleT = null;
+  document.body.classList.toggle('has-wallpaper', !!wallpaper);
+  for (const el of chromeEls()) el.classList.remove('on-dark');
+  document.documentElement.style.removeProperty('--dot');
+  if (!wallpaper) return;
+  const owner = [...items.values()].find(i => i.rec.file === wallpaper.file);
+  const src = await srcFor({ kind: wallpaper.kind, file: wallpaper.file, blob: pendingFiles.get(wallpaper.file) || (owner && owner.rec.blob) });
+  let m;
+  if (wallpaper.kind === 'video') {
+    m = document.createElement('video');
+    m.muted = true; m.loop = true; m.autoplay = true; m.playsInline = true; m.crossOrigin = 'anonymous'; m.src = src;
+    m.addEventListener('loadeddata', () => { sampleWallpaper(); clearInterval(wallSampleT); wallSampleT = setInterval(sampleWallpaper, 1500); });
+    m.play().catch(() => {});
+  } else {
+    m = new Image(); m.crossOrigin = 'anonymous'; m.src = src;
+    m.addEventListener('load', sampleWallpaper);
+  }
+  wallMedia = m; wallEl.appendChild(m);
+}
+function setWallpaper(w, fromRemote){
+  wallpaper = w && w.file ? { file: w.file, kind: w.kind } : null;
+  applyWallpaper();
+  if (!fromRemote) { wallTouched = true; wallVersion++; scheduleCommit(w ? `wallpaper ${w.file}` : 'remove wallpaper'); }
+  refreshChrome(); syncSel();
+}
+window.addEventListener('resize', () => { if (wallMedia) sampleWallpaper(); });
 // ── Publish state ──────────────────────────────────────────────────
 // The pill in the corner answers one question at all times: is what I see
 // on GitHub? Green: yes. Amber: not yet (waiting, or on its way). Red: it
@@ -532,13 +619,13 @@ async function saveDraft(){
   for (const [n, b] of inflightFiles) files[n] = b;
   for (const [n, b] of pendingFiles) files[n] = b;
   try {
-    if (!recs.length && !deletedIds.size && !Object.keys(files).length) await metaTx('readwrite', s => s.delete('draft'));
-    else await metaPut({ key: 'draft', items: recs, deleted: [...deletedIds], msgs: [...pendingMsgs], files, saved: Date.now() });
+    if (!recs.length && !deletedIds.size && !Object.keys(files).length && !wallTouched) await metaTx('readwrite', s => s.delete('draft'));
+    else await metaPut({ key: 'draft', items: recs, deleted: [...deletedIds], msgs: [...pendingMsgs], files, wallpaper: wallTouched ? { set: wallpaper } : null, saved: Date.now() });
   } catch (e) { console.warn('draft not saved', e); }
 }
 async function restoreDraft(){
   const d = await metaGet('draft').catch(() => null);
-  if (!d || !((d.items && d.items.length) || (d.deleted && d.deleted.length))) return false;
+  if (!d || !((d.items && d.items.length) || (d.deleted && d.deleted.length) || d.wallpaper)) return false;
   for (const id of d.deleted || []) { const it = items.get(id); if (it) unmount(it); deletedIds.add(id); }
   for (const rec of d.items || []) {
     const blob = rec.file && d.files && d.files[rec.file];
@@ -549,6 +636,7 @@ async function restoreDraft(){
     touchedIds.add(rec.id);
   }
   (d.msgs || []).forEach(m => pendingMsgs.add(m));
+  if (d.wallpaper) { setWallpaper(d.wallpaper.set, true); wallTouched = true; wallVersion++; }
   scheduleCommit(null, 1200);
   return true;
 }
@@ -577,7 +665,7 @@ async function runCommit(){
   const msgs = [...pendingMsgs]; pendingMsgs.clear();
   manifestDirty = false;
   renderPub();
-  let carriedT = new Set(), carriedD = new Set();   // what the committed manifest actually contained
+  let carriedT = new Set(), carriedD = new Set(), carriedW = -1;   // what the committed manifest actually contained
   try {
     // Blobs first: they do not depend on the branch head, so a retry reuses them.
     const blobs = [];
@@ -599,7 +687,7 @@ async function runCommit(){
       const head = (await api(repoPath(`/git/ref/heads/${GH.branch}`))).object.sha;
       const base = await api(repoPath(`/git/commits/${head}`));
       await mergeRemote(await fetchManifest(head));
-      carriedT = new Set(touchedIds); carriedD = new Set(deletedIds);
+      carriedT = new Set(touchedIds); carriedD = new Set(deletedIds); carriedW = wallVersion;
       const tree = await api(repoPath('/git/trees'), { method: 'POST', body: JSON.stringify({ base_tree: base.tree.sha,
         tree: [...blobs, { path: `${GH.dir}/${GH.manifest}`, mode: '100644', type: 'blob', content: manifestJson() }] }) });
       const c = await api(repoPath('/git/commits'), { method: 'POST', body: JSON.stringify({ message, tree: tree.sha, parents: [head] }) });
@@ -609,6 +697,7 @@ async function runCommit(){
     // Only what this commit carried is now safe; anything touched since stays queued.
     for (const id of carriedT) touchedIds.delete(id);
     for (const id of carriedD) deletedIds.delete(id);
+    if (carriedW === wallVersion) wallTouched = false;
     inflightFiles = new Map();
     lastErrText = '';
     mirrorWrite(files);
@@ -644,6 +733,7 @@ async function runCommit(){
 // appear, pieces we have not touched follow their remote state, pieces gone
 // remotely leave here too. Our own uncommitted work always wins.
 async function mergeRemote(remote){
+  if (!wallTouched && JSON.stringify(remote.wallpaper || null) !== JSON.stringify(wallpaper)) setWallpaper(remote.wallpaper || null, true);
   const seen = new Set();
   for (const rrec of remote.items || []) {
     seen.add(rrec.id);
@@ -873,7 +963,8 @@ const selBox = document.getElementById('selBox');
 function syncSel(){
   const it = selectedId && items.get(selectedId);
   selBox.classList.toggle('on', !!it && !cropping);
-  selBox.classList.toggle('media', !!it && !isText(it.rec));
+  selBox.classList.toggle('media', !!it && !isText(it.rec) && !!it.rec.file);
+  if (it && it.rec.file) document.querySelector('#selBox .wallChip').textContent = wallpaper && wallpaper.file === it.rec.file ? 'Remove wallpaper' : 'Wallpaper';
   if (!it) return;
   selBox.style.setProperty('--t', it.el.style.getPropertyValue('--t'));
   selBox.style.setProperty('--zs', view.s);
@@ -1462,6 +1553,12 @@ function exitCrop(apply){
   place(it.el, rec); applyCrop(it); syncSel();
   if (apply) persist(rec, `crop ${labelOf(rec)}`);
 }
+document.querySelector('#selBox .wallChip').addEventListener('pointerdown', e => e.stopPropagation());
+document.querySelector('#selBox .wallChip').addEventListener('click', e => {
+  e.stopPropagation(); const it = selectedId && items.get(selectedId); if (!it || !it.rec.file) return;
+  setWallpaper(wallpaper && wallpaper.file === it.rec.file ? null : it.rec);
+});
+document.getElementById('btnWall').addEventListener('click', () => setWallpaper(null));
 document.querySelector('#selBox .cropChip').addEventListener('pointerdown', e => e.stopPropagation());
 document.querySelector('#selBox .cropChip').addEventListener('click', e => { e.stopPropagation(); const it = selectedId && items.get(selectedId); if (it) enterCrop(it); });
 
@@ -1729,21 +1826,23 @@ async function becomeEditor(){
   }
 }
 async function loadBoard(){
-  let recs = [];
+  let recs = [], wall = null;
   try {
     if (canEdit()) {
       const [m, names] = await Promise.all([fetchManifest(), fetchDirNames()]);
-      recs = m.items || [];
+      recs = m.items || []; wall = m.wallpaper || null;
       takenNames = new Set([...names, ...recs.map(r => r.file).filter(Boolean)]);
     } else if (onSite) {
       // A changing query string sidesteps the CDN's ten-minute cache, so visitors
       // see a publish about as soon as Pages has built it.
-      recs = ((await (await fetch(`${GH.dir}/${GH.manifest}?v=${Date.now()}`, { cache: 'no-cache' })).json()).items) || [];
+      const m = await (await fetch(`${GH.dir}/${GH.manifest}?v=${Date.now()}`, { cache: 'no-cache' })).json();
+      recs = m.items || []; wall = m.wallpaper || null;
     }
   } catch (e) { console.warn('could not load the board', e); }
   recs.sort((a, b) => a.z - b.z);
   let k = 0;
   for (const rec of recs) mount(rec, await srcFor(rec), { entering: true, delay: Math.min(k++ * 30, 600) });
+  setWallpaper(wall, true);
   applyView();
   // A view remembered from an earlier visit can point at empty space once the
   // board gains or moves pieces, which looks exactly like an empty board.
@@ -1767,7 +1866,7 @@ async function loadBoard(){
   else {
     refreshChrome(); await loadBoard();
     const d = await metaGet('draft').catch(() => null);
-    draftWaiting = !!(d && ((d.items && d.items.length) || (d.deleted && d.deleted.length)));
+    draftWaiting = !!(d && ((d.items && d.items.length) || (d.deleted && d.deleted.length) || d.wallpaper));
     renderPub();
   }
 })();
