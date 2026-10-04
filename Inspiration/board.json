@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791123959642,
+  "updated": 1791124068465,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video"
@@ -263,20 +263,6 @@
       "link": "https://www.cindyly.design/?tama"
     },
     {
-      "id": "mutwgrpowx244",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 542.2152339740364,
-      "z": 112,
-      "created": 1791123129420,
-      "file": "Screen Recording 2026-10-04 at 16.11.32.mp4",
-      "x": 2567.235251329419,
-      "y": 1289.50938978322,
-      "rot": 0,
-      "link": "https://www.marvinschwaibold.com/"
-    },
-    {
       "id": "mutug907fnkat",
       "kind": "video",
       "aspect": 1.7660044150110374,
@@ -331,6 +317,33 @@
       "y": 1214.04373560957,
       "rot": 0,
       "link": "https://supdima.com/tt-app"
+    },
+    {
+      "id": "mutwgrpowx244",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 542.2152339740364,
+      "z": 112,
+      "created": 1791123129420,
+      "file": "Screen Recording 2026-10-04 at 16.11.32.mp4",
+      "x": 2567.235251329419,
+      "y": 1289.50938978322,
+      "rot": 0,
+      "link": "https://www.marvinschwaibold.com/"
+    },
+    {
+      "id": "mutx0u9ltbysr",
+      "kind": "image",
+      "aspect": 0.8015267175572519,
+      "natural": 0.8015267175572519,
+      "w": 279.5287211631967,
+      "z": 113,
+      "created": 1791124065849,
+      "file": "paste-20261004-162745.png",
+      "x": 2329.0337173234802,
+      "y": 98.89416177910834,
+      "rot": 0
     }
   ]
 }
