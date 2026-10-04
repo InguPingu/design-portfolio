@@ -1219,14 +1219,14 @@ function measure(kind, src){
 }
 const BASE_W = { video: 340, image: 300, note: 250, todo: 270, link: 320 };
 const freshRec = (kind, aspect) => ({ id: uid(), kind, aspect, ...(isText({ kind }) ? {} : { natural: aspect }), w: BASE_W[kind] * (isText({ kind }) ? rnd(0.95, 1.05) : rnd(0.82, 1.18)), z: ++zTop, created: Date.now() });
-const MAX_FILE = 95 * 1024 * 1024;   // GitHub refuses blobs over 100MB
+const MAX_FILE = 40 * 1024 * 1024;   // GitHub's API refuses blobs over about 40MB ("your input was too large to process")
 
 async function addFiles(files, at){
   if (!canEdit()) return;
   const list = [...files].filter(f => kindOf(f.type, f.name));
   if (!list.length) return;
   const tooBig = list.filter(f => f.size > MAX_FILE);
-  if (tooBig.length) { setSaving(`${tooBig.map(f => f.name).join(', ')}: over 95MB, GitHub will not take it`, true); setTimeout(() => setSaving(''), 6000); }
+  if (tooBig.length) { setSaving(`${tooBig.map(f => f.name).join(', ')}: over 40MB, GitHub's API will not take it – compress the video first`, true); setTimeout(() => setSaving(''), 6000); }
   const ok = list.filter(f => f.size <= MAX_FILE);
   if (!ok.length) return;
   const entries = await Promise.all(ok.map(async f => {
