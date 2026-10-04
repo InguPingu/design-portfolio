@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791126997067,
+  "updated": 1791127197267,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video"
@@ -65,7 +65,7 @@
       "aspect": 1.797752808988764,
       "natural": 1.797752808988764,
       "w": 308.9963111722113,
-      "z": 77,
+      "z": 181,
       "created": 1791120670591,
       "file": "Screen Recording 2026-10-04 at 15.30.27.mp4",
       "x": 2069.8805750476977,
@@ -166,26 +166,6 @@
       "x": 1634.6483057896469,
       "y": 122.84695602929239,
       "rot": 0
-    },
-    {
-      "id": "mutug907fnkat",
-      "kind": "video",
-      "aspect": 1.6741594187307822,
-      "natural": 1.7660044150110374,
-      "w": 358.7435846639177,
-      "z": 180,
-      "created": 1791119745943,
-      "file": "Screen Recording 2026-10-04 at 13.45.32.mp4",
-      "x": 2228.3960502977707,
-      "y": 775.7105049439073,
-      "rot": 0,
-      "link": "https://claude.ai/artifact/RiTbBMEqgfNwgMHMTAhf5P",
-      "crop": {
-        "x": 0,
-        "y": 0,
-        "w": 0.9479927708563055,
-        "h": 1
-      }
     },
     {
       "id": "mutxajjiz6dpp",
@@ -481,6 +461,26 @@
       "x": 1452.9771776029945,
       "y": 949.6516014907068,
       "rot": 0
+    },
+    {
+      "id": "mutug907fnkat",
+      "kind": "video",
+      "aspect": 1.6741594187307822,
+      "natural": 1.7660044150110374,
+      "w": 358.7435846639177,
+      "z": 182,
+      "created": 1791119745943,
+      "file": "Screen Recording 2026-10-04 at 13.45.32.mp4",
+      "x": 2228.3960502977707,
+      "y": 775.7105049439073,
+      "rot": 0,
+      "link": "https://claude.ai/artifact/RiTbBMEqgfNwgMHMTAhf5P",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "w": 0.9479927708563055,
+        "h": 1
+      }
     }
   ]
 }
