@@ -491,7 +491,7 @@ function manifestJson(){
 // on GitHub? Green: yes. Amber: not yet (waiting, or on its way). Red: it
 // failed, and why.
 const pubState = document.getElementById('pubState');
-let pubNote = '', lastErrText = '', upload = null, draftWaiting = false;   // upload: { k, n } while files go up
+let pubNote = '', lastErrText = '', upload = null, draftWaiting = false, workNote = '';   // upload: { k, n } while files go up
 function renderPub(){
   let cls = 'ok', text = 'Published', title = 'Everything on this board is on GitHub';
   if (!canEdit()) {
@@ -499,6 +499,7 @@ function renderPub(){
     cls = 'error'; text = 'Unpublished changes on this device'; title = 'Sign in under Publishing to send them to GitHub';
   }
   else if (pubNote) { cls = 'error'; text = pubNote; title = ''; }
+  else if (workNote) { cls = 'busy'; text = workNote; title = 'Shrinking the file so GitHub will take it'; }
   else if (tokenDead) { cls = 'error'; text = lastErrText; title = 'Open the publishing settings'; }
   else if (committing) { cls = 'busy'; text = upload ? `Uploading ${upload.k} of ${upload.n}…` : 'Publishing…'; title = 'Sending your changes to GitHub – keep the page open'; }
   else if (manifestDirty) {
@@ -552,7 +553,7 @@ async function restoreDraft(){
   return true;
 }
 window.addEventListener('beforeunload', e => {
-  if (canEdit() && (committing || manifestDirty || pendingFiles.size)) { e.preventDefault(); e.returnValue = ''; }
+  if (canEdit() && (committing || manifestDirty || pendingFiles.size || workNote)) { e.preventDefault(); e.returnValue = ''; }
 });
 // A file GitHub itself refuses (too large, malformed) would otherwise be retried
 // forever now that drafts survive reloads; after two refusals it leaves the board.
@@ -1219,15 +1220,89 @@ function measure(kind, src){
 }
 const BASE_W = { video: 340, image: 300, note: 250, todo: 270, link: 320 };
 const freshRec = (kind, aspect) => ({ id: uid(), kind, aspect, ...(isText({ kind }) ? {} : { natural: aspect }), w: BASE_W[kind] * (isText({ kind }) ? rnd(0.95, 1.05) : rnd(0.82, 1.18)), z: ++zTop, created: Date.now() });
-const MAX_FILE = 40 * 1024 * 1024;   // GitHub's API refuses blobs over about 40MB ("your input was too large to process")
+let MAX_FILE = 40 * 1024 * 1024;   // GitHub's API refuses blobs over about 40MB ("your input was too large to process")
+const mb = n => (n / 1048576).toFixed(n < 10 * 1048576 ? 1 : 0);
+const warn = (text, ms = 8000) => { setSaving(text, true); setTimeout(() => { if (pubNote === text) setSaving(''); }, ms); };
+
+// ── Shrinking files that GitHub would refuse ───────────────────────
+// Videos are re-encoded by the browser's own encoder, in real time, to a
+// bitrate that lands under the cap; audio is dropped because the board
+// plays everything muted. Images are downscaled and re-encoded as JPEG.
+async function compressVideo(file, onProgress){
+  const url = URL.createObjectURL(file);
+  try {
+    const v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
+    await new Promise((res, rej) => { v.onloadedmetadata = res; v.onerror = () => rej(new Error('cannot decode')); });
+    const dur = v.duration;
+    if (!isFinite(dur) || dur <= 0) throw new Error('no duration');
+    const bps = Math.min(8e6, Math.max(5e5, Math.floor(MAX_FILE * 0.8 * 8 / dur)));
+    const maxSide = bps < 2e6 ? 1280 : 1600;
+    const scale = Math.min(1, maxSide / Math.max(v.videoWidth, v.videoHeight));
+    const c = document.createElement('canvas');
+    c.width = Math.max(2, Math.round(v.videoWidth * scale / 2) * 2); c.height = Math.max(2, Math.round(v.videoHeight * scale / 2) * 2);
+    const g = c.getContext('2d');
+    const mime = ['video/mp4;codecs=avc1.42E01E', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'].find(t => window.MediaRecorder && MediaRecorder.isTypeSupported(t));
+    if (!mime) throw new Error('no encoder');
+    const rec = new MediaRecorder(c.captureStream(30), { mimeType: mime, videoBitsPerSecond: bps });
+    const chunks = []; rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    const stopped = new Promise(res => rec.onstop = res);
+    let alive = true;
+    const paint = () => { g.drawImage(v, 0, 0, c.width, c.height); onProgress(Math.min(1, v.currentTime / dur)); };
+    const tick = () => { if (!alive) return; paint(); if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(tick); else requestAnimationFrame(tick); };
+    rec.start(1000);
+    await v.play(); tick();
+    await new Promise((res, rej) => { v.onended = res; v.onerror = () => rej(new Error('playback failed')); });
+    alive = false; paint();
+    rec.stop(); await stopped;
+    const ext = mime.startsWith('video/mp4') ? 'mp4' : 'webm';
+    return new File(chunks, file.name.replace(/\.[^.]+$/, '') + '.' + ext, { type: mime.split(';')[0] });
+  } finally { URL.revokeObjectURL(url); }
+}
+async function compressImage(file){
+  const bmp = await createImageBitmap(file);
+  let scale = Math.min(1, 4096 / Math.max(bmp.width, bmp.height)), q = 0.85;
+  for (;;) {
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(bmp.width * scale)); c.height = Math.max(1, Math.round(bmp.height * scale));
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', q));
+    if (blob.size <= MAX_FILE || (q <= 0.5 && scale < 0.2)) return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+    if (q > 0.55) q -= 0.1; else scale *= 0.7;
+  }
+}
+let compressing = false;
+async function shrinkIfNeeded(f){
+  if (f.size <= MAX_FILE) return f;
+  const kind = kindOf(f.type, f.name);
+  const label = `Compressing ${f.name} (${mb(f.size)}MB)…`;
+  try {
+    workNote = label + (kind === 'video' ? ' keep this tab in front' : ''); renderPub();
+    const out = kind === 'video'
+      ? await compressVideo(f, p => { workNote = `${label} ${Math.round(p * 100)}% – keep this tab in front`; renderPub(); })
+      : await compressImage(f);
+    if (out.size > MAX_FILE) { warn(`${f.name} is still ${mb(out.size)}MB after compressing – GitHub's API takes at most 40MB`); return null; }
+    return out;
+  } catch (e) {
+    console.warn('compress failed', e);
+    warn(`${f.name} (${mb(f.size)}MB) could not be compressed in this browser – export it under 40MB and drop it again`);
+    return null;
+  } finally { workNote = ''; renderPub(); }
+}
 
 async function addFiles(files, at){
   if (!canEdit()) return;
   const list = [...files].filter(f => kindOf(f.type, f.name));
   if (!list.length) return;
-  const tooBig = list.filter(f => f.size > MAX_FILE);
-  if (tooBig.length) { setSaving(`${tooBig.map(f => f.name).join(', ')}: over 40MB, GitHub's API will not take it – compress the video first`, true); setTimeout(() => setSaving(''), 6000); }
-  const ok = list.filter(f => f.size <= MAX_FILE);
+  // Oversized files are shrunk one at a time before anything is placed, so a
+  // long re-encode never blocks the smaller files dropped with it.
+  const ok = [];
+  for (const f of list) {
+    if (f.size <= MAX_FILE) { ok.push(f); continue; }
+    if (f.size > 100 * 1024 * 1024 && !confirm(`${f.name} is ${mb(f.size)}MB. GitHub takes at most 40MB, so it will be compressed in your browser first, which takes about as long as the video lasts. Go ahead?`)) continue;
+    const out = await shrinkIfNeeded(f);
+    if (out) ok.push(out);
+  }
   if (!ok.length) return;
   const entries = await Promise.all(ok.map(async f => {
     const kind = kindOf(f.type, f.name);
