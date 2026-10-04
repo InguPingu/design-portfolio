@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791124589000,
+  "updated": 1791124854289,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video"
@@ -428,18 +428,6 @@
       "y": 389.16119940416337,
       "rot": 0,
       "link": "https://jennywen.ca/"
-    },
-    {
-      "id": "mutxaoizaeh3f",
-      "kind": "note",
-      "aspect": 3.522802166875053,
-      "w": 239.5505473475036,
-      "z": 137,
-      "created": 1791124524971,
-      "x": 2027.8670972027626,
-      "y": 753.9786975193032,
-      "rot": 0,
-      "text": ""
     }
   ]
 }
