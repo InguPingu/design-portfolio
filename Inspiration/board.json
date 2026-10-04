@@ -1,9 +1,14 @@
 {
   "version": 1,
-  "updated": 1791127437730,
+  "updated": 1791133483105,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
-    "kind": "video"
+    "kind": "video",
+    "theme": [
+      127,
+      145,
+      166
+    ]
   },
   "items": [
     {
@@ -72,6 +77,20 @@
       "y": 187.93078243369575,
       "rot": 0,
       "link": "https://nicoletells.com/"
+    },
+    {
+      "id": "mutug90ce9jmb",
+      "kind": "video",
+      "aspect": 1.8018018018018018,
+      "natural": 1.8018018018018018,
+      "w": 368.7076422946241,
+      "z": 88,
+      "created": 1791119745948,
+      "file": "Screen Recording 2026-10-04 at 13.25.56 (1).mp4",
+      "x": 1749.6428252098174,
+      "y": 372.9357124999236,
+      "rot": 0,
+      "link": "https://alvinn.design/"
     },
     {
       "id": "mutw9lffjhygn",
@@ -422,33 +441,6 @@
       "rot": 0
     },
     {
-      "id": "mutv8rzh53bzn",
-      "kind": "image",
-      "aspect": 0.6666666666666666,
-      "natural": 0.6666666666666666,
-      "w": 212.94158984421492,
-      "z": 183,
-      "created": 1791121076910,
-      "file": "paste-20261004-153756.png",
-      "x": 2102.5943650964596,
-      "y": 292.1977230894612,
-      "rot": 0
-    },
-    {
-      "id": "mutug90ce9jmb",
-      "kind": "video",
-      "aspect": 1.8018018018018018,
-      "natural": 1.8018018018018018,
-      "w": 368.7076422946241,
-      "z": 88,
-      "created": 1791119745948,
-      "file": "Screen Recording 2026-10-04 at 13.25.56 (1).mp4",
-      "x": 1749.6428252098174,
-      "y": 372.9357124999236,
-      "rot": 0,
-      "link": "https://alvinn.design/"
-    },
-    {
       "id": "mutv02gvi8yev",
       "kind": "video",
       "aspect": 1.797752808988764,
@@ -461,6 +453,19 @@
       "y": 575.6462634301482,
       "rot": 0,
       "link": "https://www.maretto.is/"
+    },
+    {
+      "id": "mutv8rzh53bzn",
+      "kind": "image",
+      "aspect": 0.6666666666666666,
+      "natural": 0.6666666666666666,
+      "w": 212.94158984421492,
+      "z": 183,
+      "created": 1791121076910,
+      "file": "paste-20261004-153756.png",
+      "x": 2102.5943650964596,
+      "y": 292.1977230894612,
+      "rot": 0
     },
     {
       "id": "mutug907fnkat",
