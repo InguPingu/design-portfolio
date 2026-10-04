@@ -40,7 +40,46 @@
     will-change: transform;
     -webkit-touch-callout: none;
   }
-  .item img.media, .item video { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+  /* Media is sized to its source and offset so the cropped part fills the frame;
+     uncropped that is simply 100% at 0,0. */
+  .item img.media, .item video { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
+
+  /* ── CROP MODE ── the frame stays clipped to the piece; the rest of the source
+     shows through, dimmed, and the frame's edges become handles. */
+  .item.cropping { overflow: visible; box-shadow: none; }
+  .item.cropping .del, .item.cropping .linkBadge { display: none; }
+  .item.cropping .cropDim { position: absolute; background: rgba(240,240,240,0.74); pointer-events: none; }
+  .item.cropping .cropEdge { position: absolute; inset: 0; border: calc(1.5px / var(--zs, 1)) solid #2B2828; pointer-events: none; }
+  .ch {
+    position: absolute; width: calc(11px / var(--zs, 1)); height: calc(11px / var(--zs, 1));
+    background: #fff; border: calc(1.5px / var(--zs, 1)) solid #2B2828; transform: translate(-50%, -50%);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15); z-index: 3;
+  }
+  .ch[data-dir=n]  { left: 50%;  top: 0;    cursor: ns-resize; }
+  .ch[data-dir=s]  { left: 50%;  top: 100%; cursor: ns-resize; }
+  .ch[data-dir=w]  { left: 0;    top: 50%;  cursor: ew-resize; }
+  .ch[data-dir=e]  { left: 100%; top: 50%;  cursor: ew-resize; }
+  .ch[data-dir=nw] { left: 0;    top: 0;    cursor: nwse-resize; }
+  .ch[data-dir=se] { left: 100%; top: 100%; cursor: nwse-resize; }
+  .ch[data-dir=ne] { left: 100%; top: 0;    cursor: nesw-resize; }
+  .ch[data-dir=sw] { left: 0;    top: 100%; cursor: nesw-resize; }
+  .cropBar {
+    position: absolute; left: 50%; bottom: calc(100% + 12px / var(--zs, 1));
+    transform: translateX(-50%) scale(calc(1 / var(--zs, 1))); transform-origin: 50% 100%;
+    display: flex; gap: 6px; z-index: 3; white-space: nowrap;
+  }
+  .chip {
+    font: inherit; font-size: 12px; padding: 5px 11px; border-radius: 100px; cursor: pointer;
+    border: 1px solid rgba(0,0,0,0.08); background: rgba(255,255,255,0.9); color: #2B2828;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    pointer-events: auto; line-height: 1.2;
+  }
+  .chip.primary { background: #2B2828; color: #fff; border-color: #2B2828; }
+  .chip:hover { filter: brightness(1.04); }
+  /* a Crop chip rides on the selection box for pictures and videos */
+  #selBox .cropChip { position: absolute; right: 0; bottom: calc(100% + 12px / var(--zs, 1)); transform: scale(calc(1 / var(--zs, 1))); transform-origin: 100% 100%; display: none; }
+  #selBox.media.on .cropChip { display: inline-block; }
+  body.mode-viewer #selBox .cropChip { display: none !important; }
   .item.dragging { cursor: grabbing; box-shadow: 0 10px 18px rgba(26,23,20,0.10), 0 44px 90px rgba(26,23,20,0.22); }
   .item.settling { transition: transform 0.75s cubic-bezier(0.22,1,0.36,1); }
   .item.entering { animation: drop 0.6s cubic-bezier(0.22,1,0.36,1) both; }
@@ -285,7 +324,7 @@
   <a href="inspiration.html" class="active">Inspiration</a>
 </nav>
 
-<div id="viewport"><div id="world"><div id="selBox"><div class="handle rotate" title="Drag to tilt · Shift snaps"></div><div class="handle resize" title="Drag to resize"></div></div></div></div>
+<div id="viewport"><div id="world"><div id="selBox"><div class="handle rotate" title="Drag to tilt · Shift snaps"></div><div class="handle resize" title="Drag to resize"></div><button class="chip cropChip" title="Crop · or double-click the piece">Crop</button></div></div></div>
 
 <div id="empty">
   <h1 class="only editor">Drop anything that inspires you</h1>
@@ -631,6 +670,7 @@ function applyView(){
   viewport.style.backgroundPosition = `${view.x}px ${view.y}px`;
   clearTimeout(saveViewT);
   saveViewT = setTimeout(() => localStorage.setItem('inspiration.view', JSON.stringify(view)), 250);
+  if (cropping) cropping.it.el.style.setProperty('--zs', view.s);
   syncSel();
   updateStatus();
 }
@@ -652,8 +692,6 @@ const rnd = (a, b) => a + Math.random() * (b - a);
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const heightOf = rec => rec.w / rec.aspect;
 const radiusOf = rec => Math.hypot(rec.w, heightOf(rec)) / 2 * 0.72;   // circles overlap a little: that is the mess
-// Pictures can lean; lists and links are meant to be read.
-const maxTilt = rec => rec.kind === 'note' ? 4 : isText(rec) ? 1.5 : 7;
 
 function place(el, rec){
   el.style.setProperty('--t', `translate(${rec.x - rec.w / 2}px, ${rec.y - heightOf(rec) / 2}px) rotate(${rec.rot}deg)`);
@@ -676,7 +714,8 @@ function fitHeight(it){
 const selBox = document.getElementById('selBox');
 function syncSel(){
   const it = selectedId && items.get(selectedId);
-  selBox.classList.toggle('on', !!it);
+  selBox.classList.toggle('on', !!it && !cropping);
+  selBox.classList.toggle('media', !!it && !isText(it.rec));
   if (!it) return;
   selBox.style.setProperty('--t', it.el.style.getPropertyValue('--t'));
   selBox.style.setProperty('--zs', view.s);
@@ -702,6 +741,26 @@ async function srcFor(rec){
   if (rec.blob) return URL.createObjectURL(rec.blob);
   if (rec.file) return canEdit() || !onSite ? rawUrl(rec.file) : `${GH.dir}/${encodeURIComponent(rec.file)}`;
   return rec.url;
+}
+// A crop is a window onto the source in fractions (x, y, w, h of the full
+// picture). The piece's aspect is the window's aspect; `natural` remembers the
+// source's own so the window can be changed later.
+const cropOf = rec => rec.crop || { x: 0, y: 0, w: 1, h: 1 };
+const naturalOf = rec => rec.natural || rec.aspect;
+function applyCrop(it){
+  if (!it.media) return;
+  const c = cropOf(it.rec), m = it.media.style;
+  m.left = `${-c.x / c.w * 100}%`; m.top = `${-c.y / c.h * 100}%`;
+  m.width = `${100 / c.w}%`; m.height = `${100 / c.h}%`;
+  if (cropping && cropping.it === it) {
+    // dim the parts of the source outside the frame
+    const ml = -c.x / c.w * 100, mt = -c.y / c.h * 100, mw = 100 / c.w, mh = 100 / c.h;
+    const [top, bottom, left, right] = it.el.querySelectorAll('.cropDim');
+    Object.assign(top.style,    { left: ml + '%', top: mt + '%', width: mw + '%', height: -mt + '%' });
+    Object.assign(bottom.style, { left: ml + '%', top: '100%',   width: mw + '%', height: (mt + mh - 100) + '%' });
+    Object.assign(left.style,   { left: ml + '%', top: 0,        width: -ml + '%', height: '100%' });
+    Object.assign(right.style,  { left: '100%',   top: 0,        width: (ml + mw - 100) + '%', height: '100%' });
+  }
 }
 function mediaFor(rec, src){
   if (rec.kind === 'video') {
@@ -845,7 +904,7 @@ function mount(rec, src, { entering = false, delay = 0 } = {}){
   el.dataset.id = rec.id;
   const it = { rec, el, media: null };
   if (isText(rec)) { el.appendChild(cardFor(rec, it)); }
-  else { it.media = mediaFor(rec, src); el.appendChild(it.media); if (rec.link) renderBadge(it); }
+  else { it.media = mediaFor(rec, src); el.appendChild(it.media); applyCrop(it); if (rec.link) renderBadge(it); }
   const del = document.createElement('button');
   del.className = 'del'; del.title = 'Remove from board'; del.textContent = '✕';
   del.addEventListener('pointerdown', e => e.stopPropagation());
@@ -866,6 +925,7 @@ function mount(rec, src, { entering = false, delay = 0 } = {}){
   return it;
 }
 function unmount(it){
+  if (cropping && cropping.it === it) cropping = null;
   playWatcher.unobserve(it.el);
   if (it.media && it.media.src.startsWith('blob:')) URL.revokeObjectURL(it.media.src);
   it.el.remove();
@@ -920,7 +980,7 @@ function scatter(recs, cx, cy){
     const rad = spread * Math.sqrt(k), ang = k * golden + rnd(-0.25, 0.25);
     r.x = cx + Math.cos(ang) * rad + rnd(-26, 26);
     r.y = cy + Math.sin(ang) * rad + rnd(-26, 26);
-    r.rot = rnd(-maxTilt(r), maxTilt(r));
+    r.rot = 0;   // pieces land flat; tilting is a choice made by hand
   });
   relax(recs);
 }
@@ -966,7 +1026,7 @@ function measure(kind, src){
   });
 }
 const BASE_W = { video: 340, image: 300, note: 250, todo: 270, link: 320 };
-const freshRec = (kind, aspect) => ({ id: uid(), kind, aspect, w: BASE_W[kind] * (isText({ kind }) ? rnd(0.95, 1.05) : rnd(0.82, 1.18)), z: ++zTop, created: Date.now() });
+const freshRec = (kind, aspect) => ({ id: uid(), kind, aspect, ...(isText({ kind }) ? {} : { natural: aspect }), w: BASE_W[kind] * (isText({ kind }) ? rnd(0.95, 1.05) : rnd(0.82, 1.18)), z: ++zTop, created: Date.now() });
 const MAX_FILE = 95 * 1024 * 1024;   // GitHub refuses blobs over 100MB
 
 async function addFiles(files, at){
@@ -1081,9 +1141,69 @@ document.addEventListener('pointerdown', e => {
   if (!e.target.closest('#tokenPanel, #btnPublish')) tokenPanel.classList.remove('open');
 });
 viewport.addEventListener('dblclick', e => {
-  if (e.target !== viewport && e.target !== world) return;
+  // the drag gesture captures the pointer on the viewport, which retargets the
+  // click events there – so look at what is actually under the pointer
+  const hit = document.elementFromPoint(e.clientX, e.clientY);
+  const el = hit && hit.closest('.item');
+  if (el) { const it = items.get(el.dataset.id); if (it && !isText(it.rec) && canEdit() && !cropping) enterCrop(it); return; }
+  if (hit !== viewport && hit !== world) return;
   addText('note', toWorld(e.clientX, e.clientY));
 });
+
+// ── Crop mode ──────────────────────────────────────────────────────
+// While cropping, the source's scale and position on the canvas are held
+// fixed (S = source width in world units, mx0/my0 = its top-left); the frame
+// is what moves. Dragging the picture itself moves the source under the frame.
+let cropping = null;   // { it, S, nat, mx0, my0, prev }
+function frameOf(rec){ return { l: rec.x - rec.w / 2, t: rec.y - heightOf(rec) / 2, w: rec.w, h: heightOf(rec) }; }
+function enterCrop(it){
+  if (!canEdit() || isText(it.rec)) return;
+  if (cropping && cropping.it === it) return;
+  if (cropping) exitCrop(true);
+  const rec = it.rec, c = cropOf(rec), nat = naturalOf(rec), f = frameOf(rec);
+  const S = rec.w / c.w;
+  cropping = { it, S, nat, mx0: f.l - c.x * S, my0: f.t - c.y * (S / nat),
+    prev: { crop: rec.crop && { ...rec.crop }, w: rec.w, aspect: rec.aspect, x: rec.x, y: rec.y, rot: rec.rot, z: rec.z } };
+  rec.rot = 0; rec.z = 2147482000;
+  it.el.classList.add('cropping');
+  it.el.style.setProperty('--zs', view.s);
+  for (let k = 0; k < 4; k++) it.el.appendChild(h('div', 'cropDim'));
+  it.el.appendChild(h('div', 'cropEdge'));
+  for (const dir of ['n', 's', 'e', 'w', 'nw', 'ne', 'sw', 'se']) { const d = h('div', 'ch'); d.dataset.dir = dir; it.el.appendChild(d); }
+  const bar = h('div', 'cropBar');
+  const reset = h('button', 'chip', { textContent: 'Reset', title: 'Show the whole picture again' });
+  const done  = h('button', 'chip primary', { textContent: 'Done', title: 'Keep this crop (Enter)' });
+  reset.addEventListener('pointerdown', e => e.stopPropagation()); done.addEventListener('pointerdown', e => e.stopPropagation());
+  reset.addEventListener('click', e => { e.stopPropagation(); setFrame(cropping.mx0, cropping.my0, cropping.S, cropping.S / cropping.nat); });
+  done.addEventListener('click', e => { e.stopPropagation(); exitCrop(true); });
+  bar.append(reset, done); it.el.appendChild(bar);
+  select(rec.id); syncSel();
+  place(it.el, rec); applyCrop(it);
+}
+function setFrame(l, t, w, h){
+  const { it, S, nat, mx0, my0 } = cropping, rec = it.rec;
+  rec.crop = { x: (l - mx0) / S, y: (t - my0) / (S / nat), w: w / S, h: h / (S / nat) };
+  rec.w = w; rec.aspect = nat * rec.crop.w / rec.crop.h; rec.x = l + w / 2; rec.y = t + h / 2;
+  place(it.el, rec); applyCrop(it);
+}
+function exitCrop(apply){
+  if (!cropping) return;
+  const { it, nat, prev } = cropping, rec = it.rec;
+  if (!apply) { rec.crop = prev.crop; rec.w = prev.w; rec.aspect = prev.aspect; rec.x = prev.x; rec.y = prev.y; }
+  else {
+    const c = cropOf(rec);
+    if (c.x < 0.002 && c.y < 0.002 && c.w > 0.998 && c.h > 0.998) delete rec.crop;   // back to the whole picture
+    rec.natural = nat;
+  }
+  rec.rot = prev.rot; rec.z = prev.z;
+  it.el.classList.remove('cropping');
+  it.el.querySelectorAll('.cropDim, .cropEdge, .ch, .cropBar').forEach(n => n.remove());
+  cropping = null;
+  place(it.el, rec); applyCrop(it); syncSel();
+  if (apply) persist(rec, `crop ${labelOf(rec)}`);
+}
+document.querySelector('#selBox .cropChip').addEventListener('pointerdown', e => e.stopPropagation());
+document.querySelector('#selBox .cropChip').addEventListener('click', e => { e.stopPropagation(); const it = selectedId && items.get(selectedId); if (it) enterCrop(it); });
 
 // ── Pointer: drag items, pan the canvas ────────────────────────────
 let gesture = null;   // { kind:'item'|'pan'|'rotate'|'resize'|'pinch', ... }
@@ -1107,6 +1227,20 @@ viewport.addEventListener('pointerdown', e => {
     if (touches.size > 2) { viewport.setPointerCapture(e.pointerId); return; }
   }
   if (e.button !== 0) return;
+  if (cropping) {
+    const ch = e.target.closest('.ch');
+    const inside = e.target.closest('.item') === cropping.it.el;
+    if (ch) {
+      gesture = { kind: 'crop', dir: ch.dataset.dir, sx: e.clientX, sy: e.clientY, f0: frameOf(cropping.it.rec), moved: true };
+      viewport.setPointerCapture(e.pointerId); return;
+    }
+    if (inside) {
+      gesture = { kind: 'cropPan', sx: e.clientX, sy: e.clientY, mx0: cropping.mx0, my0: cropping.my0, f0: frameOf(cropping.it.rec), moved: true };
+      viewport.setPointerCapture(e.pointerId); return;
+    }
+    exitCrop(true);   // clicking anywhere else keeps the crop and leaves crop mode
+    return;
+  }
   const handle = e.target.closest('.handle');
   if (handle && selectedId && items.has(selectedId)) {
     const it = items.get(selectedId), c = centreOnScreen(it.rec);
@@ -1145,6 +1279,25 @@ viewport.addEventListener('pointermove', e => {
   const dx = e.clientX - gesture.sx, dy = e.clientY - gesture.sy;
   if (!gesture.moved && Math.hypot(dx, dy) < 4) return;
   gesture.moved = true;
+  if (gesture.kind === 'crop') {
+    const { S, nat, mx0, my0 } = cropping, f = gesture.f0, ddx = dx / view.s, ddy = dy / view.s;
+    const minW = S * 0.05, minH = (S / nat) * 0.05, R = mx0 + S, B = my0 + S / nat;
+    let { l, t, w, h: fh } = f;
+    if (gesture.dir.includes('e')) w = Math.max(minW, Math.min(R - l, f.w + ddx));
+    if (gesture.dir.includes('w')) { const nl = Math.max(mx0, Math.min(f.l + f.w - minW, f.l + ddx)); w = f.l + f.w - nl; l = nl; }
+    if (gesture.dir.includes('s')) fh = Math.max(minH, Math.min(B - t, f.h + ddy));
+    if (gesture.dir.includes('n')) { const nt = Math.max(my0, Math.min(f.t + f.h - minH, f.t + ddy)); fh = f.t + f.h - nt; t = nt; }
+    setFrame(l, t, w, fh);
+    return;
+  }
+  if (gesture.kind === 'cropPan') {
+    // the frame stays; the source slides under it, never past its own edges
+    const { S, nat } = cropping, f = gesture.f0;
+    cropping.mx0 = Math.max(f.l + f.w - S, Math.min(f.l, gesture.mx0 + dx / view.s));
+    cropping.my0 = Math.max(f.t + f.h - S / nat, Math.min(f.t, gesture.my0 + dy / view.s));
+    setFrame(f.l, f.t, f.w, f.h);
+    return;
+  }
   if (gesture.kind === 'rotate') {
     // Rotation follows the pointer's angle around the centre; Shift snaps to 15°,
     // and anything within 2° of flat snaps to exactly flat.
@@ -1174,6 +1327,7 @@ viewport.addEventListener('pointermove', e => {
 function endGesture(e){
   if (e && e.pointerType === 'touch') touches.delete(e.pointerId);
   if (!gesture) return;
+  if (gesture.kind === 'crop' || gesture.kind === 'cropPan') { gesture = null; return; }   // applied on Done / click-away
   if (gesture.kind === 'pinch') { if (touches.size < 2) gesture = null; return; }   // lifting one finger ends the pinch; the next touch starts fresh
   if (gesture.kind === 'rotate' || gesture.kind === 'resize') {
     persist(gesture.it.rec, `${gesture.kind} ${labelOf(gesture.it.rec)}`);
@@ -1202,6 +1356,11 @@ viewport.addEventListener('wheel', e => {
 }, { passive: false });
 
 document.addEventListener('keydown', e => {
+  if (cropping && !e.target.isContentEditable) {
+    if (e.key === 'Enter') { e.preventDefault(); exitCrop(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); exitCrop(false); }
+    return;
+  }
   if (e.key === 'Escape') {
     if (addMenu.classList.contains('open')) { addMenu.classList.remove('open'); return; }
     if (tokenPanel.classList.contains('open')) { tokenPanel.classList.remove('open'); return; }
@@ -1265,8 +1424,7 @@ document.getElementById('btnShuffle').addEventListener('click', () => {
   recs.forEach((r, k) => {
     const rad = base * 0.62 * Math.sqrt(k), ang = k * golden + rnd(-0.25, 0.25);
     r.x = c.x + Math.cos(ang) * rad + rnd(-26, 26);
-    r.y = c.y + Math.sin(ang) * rad + rnd(-26, 26);
-    r.rot = rnd(-maxTilt(r), maxTilt(r));
+    r.y = c.y + Math.sin(ang) * rad + rnd(-26, 26);   // angles are left as they were set
   });
   relax(recs);
   for (const it of items.values()) {
