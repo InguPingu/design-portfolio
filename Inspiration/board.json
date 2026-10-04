@@ -1,7 +1,20 @@
 {
   "version": 1,
-  "updated": 1791120669371,
+  "updated": 1791120744932,
   "items": [
+    {
+      "id": "mutv02gvi8yev",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 308.9963111722113,
+      "z": 61,
+      "created": 1791120670591,
+      "file": "Screen Recording 2026-10-04 at 15.30.27.mp4",
+      "x": 2035.8638827838172,
+      "y": 629.0460520406173,
+      "rot": 0
+    },
     {
       "id": "mutsea6hg9doj",
       "kind": "image",
