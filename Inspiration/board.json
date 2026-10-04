@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791124854289,
+  "updated": 1791124928196,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video"
@@ -196,34 +196,6 @@
       "link": "https://www.madhurima.me/home#work"
     },
     {
-      "id": "mutwcv8wt9o22",
-      "kind": "video",
-      "aspect": 1.7989473684210526,
-      "natural": 1.7989473684210526,
-      "w": 378.3001354553009,
-      "z": 140,
-      "created": 1791122947376,
-      "file": "Screen Recording 2026-10-04 at 16.08.47.mov",
-      "x": 2892.5544166411532,
-      "y": 1022.123084485,
-      "rot": 0,
-      "link": "https://www.cindyly.design/?tama"
-    },
-    {
-      "id": "mutwvmqbpxxjg",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 280.04055873026454,
-      "z": 139,
-      "created": 1791123822803,
-      "file": "Screen Recording 2026-10-04 at 16.23.16.mp4",
-      "x": 3011.5897435848174,
-      "y": 1237.0820736554124,
-      "rot": 0,
-      "link": "https://supdima.com/tt-app"
-    },
-    {
       "id": "mutwgrpowx244",
       "kind": "video",
       "aspect": 1.797752808988764,
@@ -279,19 +251,6 @@
       "link": "https://www.ascii-magic.com/app"
     },
     {
-      "id": "mutx2dceiwrel",
-      "kind": "image",
-      "aspect": 0.749531542785759,
-      "natural": 0.749531542785759,
-      "w": 178.2538844138528,
-      "z": 141,
-      "created": 1791124137230,
-      "file": "paste-20261004-162857.png",
-      "x": 1529.4322863298403,
-      "y": 1552.2193308554347,
-      "rot": 0
-    },
-    {
       "id": "mutx487f2v8b1",
       "kind": "image",
       "aspect": 1,
@@ -305,32 +264,30 @@
       "rot": 0
     },
     {
-      "id": "mutv70jxf54g1",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 644.4057375021454,
-      "z": 133,
-      "created": 1791120994701,
-      "file": "Screen Recording 2026-10-04 at 15.35.19.mp4",
-      "x": 2111.618658035443,
-      "y": 1066.8311490270983,
-      "rot": 0,
-      "link": "https://www.calebwu.ca/"
+      "id": "mutx3eowlml1v",
+      "kind": "image",
+      "aspect": 0.7568,
+      "natural": 0.7568,
+      "w": 190.90741804435868,
+      "z": 126,
+      "created": 1791124185632,
+      "file": "paste-20261004-162945.png",
+      "x": 2464.675562348696,
+      "y": 1578.7736973178403,
+      "rot": 0
     },
     {
-      "id": "mutug90acci7v",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 473.74024016367525,
-      "z": 130,
-      "created": 1791119745946,
-      "file": "Screen Recording 2026-10-04 at 15.04.52.mp4",
-      "x": 1197.611393858944,
-      "y": -11.410317987029174,
-      "rot": 0,
-      "link": "https://www.lucascrespo.com/"
+      "id": "mutx1a1nswlg5",
+      "kind": "image",
+      "aspect": 0.7502548419979612,
+      "natural": 0.7502548419979612,
+      "w": 216.23733759427242,
+      "z": 127,
+      "created": 1791124086300,
+      "file": "paste-20261004-162806.png",
+      "x": 2145.511335489071,
+      "y": 1465.325865430631,
+      "rot": 0
     },
     {
       "id": "mutt43hmf3itn",
@@ -346,16 +303,18 @@
       "rot": 0
     },
     {
-      "id": "mupzx2u57ahj8",
-      "kind": "image",
-      "aspect": 1,
-      "w": 225.44150572777102,
-      "z": 142,
-      "created": 1790887064477,
-      "file": "Pingu.svg",
-      "x": 1405.1668807378687,
-      "y": 998.9854250502591,
-      "rot": 0
+      "id": "mutug90acci7v",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 473.74024016367525,
+      "z": 143,
+      "created": 1791119745946,
+      "file": "Screen Recording 2026-10-04 at 15.04.52.mp4",
+      "x": 3297.860911276855,
+      "y": 879.578750575064,
+      "rot": 0,
+      "link": "https://www.lucascrespo.com/"
     },
     {
       "id": "mutug907fnkat",
@@ -378,42 +337,18 @@
       }
     },
     {
-      "id": "mutx1a1nswlg5",
-      "kind": "image",
-      "aspect": 0.7502548419979612,
-      "natural": 0.7502548419979612,
-      "w": 216.23733759427242,
-      "z": 127,
-      "created": 1791124086300,
-      "file": "paste-20261004-162806.png",
-      "x": 2145.511335489071,
-      "y": 1465.325865430631,
-      "rot": 0
-    },
-    {
-      "id": "mutx3eowlml1v",
-      "kind": "image",
-      "aspect": 0.7568,
-      "natural": 0.7568,
-      "w": 190.90741804435868,
-      "z": 126,
-      "created": 1791124185632,
-      "file": "paste-20261004-162945.png",
-      "x": 2464.675562348696,
-      "y": 1578.7736973178403,
-      "rot": 0
-    },
-    {
-      "id": "mutx97luw4twu",
-      "kind": "note",
-      "aspect": 3.7686260830529212,
-      "w": 256.26657364759865,
-      "z": 138,
-      "created": 1791124456386,
-      "x": 3163.5496629537324,
-      "y": 571.9063857646829,
+      "id": "mutv70jxf54g1",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 644.4057375021454,
+      "z": 133,
+      "created": 1791120994701,
+      "file": "Screen Recording 2026-10-04 at 15.35.19.mp4",
+      "x": 2111.618658035443,
+      "y": 1066.8311490270983,
       "rot": 0,
-      "text": "Designer in Claude"
+      "link": "https://www.calebwu.ca/"
     },
     {
       "id": "mutxajjiz6dpp",
@@ -428,6 +363,59 @@
       "y": 389.16119940416337,
       "rot": 0,
       "link": "https://jennywen.ca/"
+    },
+    {
+      "id": "mutwvmqbpxxjg",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 280.04055873026454,
+      "z": 139,
+      "created": 1791123822803,
+      "file": "Screen Recording 2026-10-04 at 16.23.16.mp4",
+      "x": 3011.5897435848174,
+      "y": 1237.0820736554124,
+      "rot": 0,
+      "link": "https://supdima.com/tt-app"
+    },
+    {
+      "id": "mutwcv8wt9o22",
+      "kind": "video",
+      "aspect": 1.7989473684210526,
+      "natural": 1.7989473684210526,
+      "w": 378.3001354553009,
+      "z": 140,
+      "created": 1791122947376,
+      "file": "Screen Recording 2026-10-04 at 16.08.47.mov",
+      "x": 2892.5544166411532,
+      "y": 1022.123084485,
+      "rot": 0,
+      "link": "https://www.cindyly.design/?tama"
+    },
+    {
+      "id": "mutx2dceiwrel",
+      "kind": "image",
+      "aspect": 0.749531542785759,
+      "natural": 0.749531542785759,
+      "w": 178.2538844138528,
+      "z": 141,
+      "created": 1791124137230,
+      "file": "paste-20261004-162857.png",
+      "x": 1529.4322863298403,
+      "y": 1552.2193308554347,
+      "rot": 0
+    },
+    {
+      "id": "mupzx2u57ahj8",
+      "kind": "image",
+      "aspect": 1,
+      "w": 225.44150572777102,
+      "z": 142,
+      "created": 1790887064477,
+      "file": "Pingu.svg",
+      "x": 1405.1668807378687,
+      "y": 998.9854250502591,
+      "rot": 0
     }
   ]
 }
