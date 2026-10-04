@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791125597701,
+  "updated": 1791125602691,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video"
@@ -186,11 +186,11 @@
       "aspect": 1.5,
       "natural": 1.5,
       "w": 380.00488714827367,
-      "z": 117,
+      "z": 165,
       "created": 1791122340839,
       "file": "ascii-animation.mp4",
-      "x": 1574.5251032337496,
-      "y": 1318.2132572046883,
+      "x": 1579.6946611374133,
+      "y": 1229.37038386297,
       "rot": 0,
       "link": "https://www.ascii-magic.com/app"
     },
