@@ -272,9 +272,44 @@
     font-size: 12px; color: rgba(43,40,40,0.45); letter-spacing: 0.02em;
     z-index: 100; pointer-events: none; transition: opacity 0.4s;
   }
-  body.saving .status .save { color: #2B2828; }
-  body.save-error .status .save { color: #b3261e; }
-  body:not(.has-items):not(.saving):not(.save-error) .status { opacity: 0; }
+  body:not(.has-items) .status { opacity: 0; }
+
+  /* ── PUBLISH STATE ── one pill that always says whether the board is on GitHub */
+  #pubState {
+    position: fixed; top: max(22px, env(safe-area-inset-top, 0px) + 12px);
+    right: max(24px, env(safe-area-inset-right, 0px) + 16px);
+    display: none; align-items: center; gap: 8px; padding: 7px 13px 7px 11px; border-radius: 100px;
+    border: 1px solid rgba(0,0,0,0.06); background: rgba(255,255,255,0.8); color: #2B2828;
+    font: inherit; font-size: 12.5px; line-height: 1.3; text-align: left; letter-spacing: 0.01em;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    z-index: 150; cursor: default; max-width: min(70vw, 440px); -webkit-tap-highlight-color: transparent;
+    transition: color 0.3s, background 0.3s;
+  }
+  body.mode-editor #pubState, #pubState.show { display: inline-flex; }
+  #pubState .dot { width: 8px; height: 8px; border-radius: 50%; background: #3d9a5b; flex: none; transition: background 0.3s; }
+  #pubState.pending .dot, #pubState.busy .dot { background: #e2a33a; }
+  #pubState.busy .dot { animation: pubPulse 1.1s ease-in-out infinite; }
+  #pubState.error { color: #8f2a22; background: rgba(255,246,245,0.92); cursor: pointer; }
+  #pubState.error .dot { background: #d3483b; }
+  #pubState.pending, #pubState.busy { cursor: pointer; }
+  @keyframes pubPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  /* removing is instant, so it is also reversible for a moment */
+  #undoBar {
+    position: fixed; top: max(64px, env(safe-area-inset-top, 0px) + 54px);
+    right: max(24px, env(safe-area-inset-right, 0px) + 16px);
+    display: none; align-items: center; gap: 12px; padding: 8px 10px 8px 14px; border-radius: 100px;
+    border: 1px solid rgba(0,0,0,0.06); background: rgba(43,40,40,0.92); color: #fff;
+    font-size: 12.5px; line-height: 1.3; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12); z-index: 150; max-width: min(70vw, 440px);
+    animation: pop 0.25s cubic-bezier(0.22,1,0.36,1);
+  }
+  #undoBar.show { display: inline-flex; }
+  #undoBar .txt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #undoBar button {
+    font: inherit; font-size: 12.5px; font-weight: 500; color: #2B2828; background: #fff; border: none;
+    border-radius: 100px; padding: 5px 12px; cursor: pointer; flex: none;
+  }
+  #undoBar button:hover { background: #f1efec; }
 
   #empty {
     position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -309,6 +344,8 @@
     .tool span { display: none; }
     .tools { gap: 14px; }
     .status, .watermark { display: none; }   /* both share the toolbar's row on a phone */
+    #pubState { top: max(58px, env(safe-area-inset-top, 0px) + 48px); right: 16px; font-size: 12px; }   /* under the centred nav */
+    #undoBar { top: max(100px, env(safe-area-inset-top, 0px) + 90px); right: 16px; }
   }
   @media (prefers-reduced-motion: reduce) {
     .item.entering { animation: none; }
@@ -334,7 +371,9 @@
 </div>
 <div id="dropHint">Drop to add</div>
 
-<p class="status" id="status"><span class="count"></span><span class="save"></span></p>
+<p class="status" id="status"><span class="count"></span></p>
+<button id="pubState" type="button" title="Everything on this board is on GitHub"><span class="dot"></span><span class="txt">Published</span></button>
+<div id="undoBar" role="status"><span class="txt"></span><button type="button" id="undoBtn">Undo</button></div>
 
 <div class="panel" id="tokenPanel">
   <h2 class="only viewer">Publish from this browser</h2>
@@ -428,6 +467,7 @@ const touchedIds = new Set(), deletedIds = new Set();   // for merging other dev
 function scheduleCommit(msg, delay){
   if (msg) pendingMsgs.add(msg);
   manifestDirty = true;
+  saveDraftSoon(); renderPub();
   if (tokenDead) return;   // queued work waits for a working token; saving one flushes it
   clearTimeout(commitT);
   commitT = setTimeout(() => { commitT = null; runCommit(); }, delay ?? (pendingFiles.size ? 400 : 2500));
@@ -436,30 +476,98 @@ function stripRec({ blob, ...rest }){ return rest; }
 function manifestJson(){
   return JSON.stringify({ version: 1, updated: Date.now(), items: [...items.values()].map(i => stripRec(i.rec)) }, null, 2);
 }
-function setSaving(text, error = false){
-  document.body.classList.toggle('saving', !!text && !error);
-  document.body.classList.toggle('save-error', error);
-  document.getElementById('status').querySelector('.save').textContent = text ? '  ·  ' + text : '';
+// ── Publish state ──────────────────────────────────────────────────
+// The pill in the corner answers one question at all times: is what I see
+// on GitHub? Green: yes. Amber: not yet (waiting, or on its way). Red: it
+// failed, and why.
+const pubState = document.getElementById('pubState');
+let pubNote = '', lastErrText = '', upload = null, draftWaiting = false;   // upload: { k, n } while files go up
+function renderPub(){
+  let cls = 'ok', text = 'Published', title = 'Everything on this board is on GitHub';
+  if (!canEdit()) {
+    pubState.classList.toggle('show', draftWaiting);
+    cls = 'error'; text = 'Unpublished changes on this device'; title = 'Sign in under Publishing to send them to GitHub';
+  }
+  else if (pubNote) { cls = 'error'; text = pubNote; title = ''; }
+  else if (tokenDead) { cls = 'error'; text = lastErrText; title = 'Open the publishing settings'; }
+  else if (committing) { cls = 'busy'; text = upload ? `Uploading ${upload.k} of ${upload.n}…` : 'Publishing…'; title = 'Sending your changes to GitHub – keep the page open'; }
+  else if (manifestDirty) {
+    if (lastErrText) { cls = 'error'; text = 'Publish failed · retrying'; title = lastErrText; }
+    else { cls = 'pending'; text = 'Not published yet'; title = 'Publishing in a moment – click to publish now'; }
+  }
+  pubState.className = cls + (pubState.classList.contains('show') ? ' show' : '');
+  pubState.querySelector('.txt').textContent = text;
+  pubState.title = title;
 }
+pubState.addEventListener('click', e => {
+  e.stopPropagation(); addMenu.classList.remove('open');
+  if (!canEdit() || tokenDead) { tokenPanel.classList.add('open'); if (!canEdit()) document.getElementById('tokenInput').focus(); return; }
+  if (manifestDirty && !committing) { clearTimeout(commitT); commitT = null; runCommit(); }
+});
+// Transient warnings (a file too big, …) borrow the pill for a moment.
+function setSaving(text, error = false){ pubNote = error && text ? text : ''; renderPub(); }
+
+// ── Local draft ────────────────────────────────────────────────────
+// Everything not yet on GitHub – new or moved pieces, deletions, the files
+// still to upload – is also kept in this browser, so a reload (or a dead
+// token) never loses work: it comes back and is published when it can be.
+let draftT = null, inflightFiles = new Map();
+function saveDraftSoon(){ clearTimeout(draftT); draftT = setTimeout(saveDraft, 300); }
+async function saveDraft(){
+  if (!metaDb || !canEdit()) return;
+  clearTimeout(draftT); draftT = null;
+  const recs = [...touchedIds].map(id => items.get(id)).filter(Boolean).map(it => stripRec(it.rec));
+  const files = {};
+  for (const [n, b] of inflightFiles) files[n] = b;
+  for (const [n, b] of pendingFiles) files[n] = b;
+  try {
+    if (!recs.length && !deletedIds.size && !Object.keys(files).length) await metaTx('readwrite', s => s.delete('draft'));
+    else await metaPut({ key: 'draft', items: recs, deleted: [...deletedIds], msgs: [...pendingMsgs], files, saved: Date.now() });
+  } catch (e) { console.warn('draft not saved', e); }
+}
+async function restoreDraft(){
+  const d = await metaGet('draft').catch(() => null);
+  if (!d || !((d.items && d.items.length) || (d.deleted && d.deleted.length))) return false;
+  for (const id of d.deleted || []) { const it = items.get(id); if (it) unmount(it); deletedIds.add(id); }
+  for (const rec of d.items || []) {
+    const blob = rec.file && d.files && d.files[rec.file];
+    if (blob) { rec.blob = blob; pendingFiles.set(rec.file, blob); }
+    if (rec.file) takenNames.add(rec.file);
+    const ex = items.get(rec.id); if (ex) unmount(ex);
+    mount(rec, await srcFor(rec), { entering: true });
+    touchedIds.add(rec.id);
+  }
+  (d.msgs || []).forEach(m => pendingMsgs.add(m));
+  scheduleCommit(null, 1200);
+  return true;
+}
+window.addEventListener('beforeunload', e => {
+  if (canEdit() && (committing || manifestDirty || pendingFiles.size)) { e.preventDefault(); e.returnValue = ''; }
+});
 async function runCommit(){
   if (committing) { scheduleCommit(null, 800); return; }
   if (!canEdit() || !manifestDirty) return;
   committing = true;
-  const files = [...pendingFiles]; pendingFiles.clear();
+  const files = [...pendingFiles]; pendingFiles.clear(); inflightFiles = new Map(files);
   const msgs = [...pendingMsgs]; pendingMsgs.clear();
   manifestDirty = false;
-  setSaving('publishing…');
+  renderPub();
+  let carriedT = new Set(), carriedD = new Set();   // what the committed manifest actually contained
   try {
     // Blobs first: they do not depend on the branch head, so a retry reuses them.
     const blobs = [];
+    let k = 0;
     for (const [name, blob] of files) {
+      upload = { k: ++k, n: files.length }; renderPub();
       const b = await api(repoPath('/git/blobs'), { method: 'POST', body: JSON.stringify({ content: await toBase64(blob), encoding: 'base64' }) });
       blobs.push({ path: `${GH.dir}/${name}`, mode: '100644', type: 'blob', sha: b.sha });
     }
+    upload = null; renderPub();
     for (let attempt = 0; ; attempt++) {
       const head = (await api(repoPath(`/git/ref/heads/${GH.branch}`))).object.sha;
       const base = await api(repoPath(`/git/commits/${head}`));
       await mergeRemote(await fetchManifest(head));
+      carriedT = new Set(touchedIds); carriedD = new Set(deletedIds);
       const tree = await api(repoPath('/git/trees'), { method: 'POST', body: JSON.stringify({ base_tree: base.tree.sha,
         tree: [...blobs, { path: `${GH.dir}/${GH.manifest}`, mode: '100644', type: 'blob', content: manifestJson() }] }) });
       const message = 'Board: ' + (msgs.length ? msgs.slice(0, 3).join(', ') + (msgs.length > 3 ? ` (+${msgs.length - 3})` : '') : 'update');
@@ -467,20 +575,26 @@ async function runCommit(){
       try { await api(repoPath(`/git/refs/heads/${GH.branch}`), { method: 'PATCH', body: JSON.stringify({ sha: c.sha, force: false }) }); break; }
       catch (e) { if (attempt < 2 && (e.status === 422 || e.status === 409)) continue; throw e; }   // someone else pushed: rebuild on the new head
     }
-    touchedIds.clear(); deletedIds.clear();
-    setSaving('published');
-    setTimeout(() => { if (!committing && !manifestDirty) setSaving(''); }, 2500);
+    // Only what this commit carried is now safe; anything touched since stays queued.
+    for (const id of carriedT) touchedIds.delete(id);
+    for (const id of carriedD) deletedIds.delete(id);
+    inflightFiles = new Map();
+    lastErrText = '';
     mirrorWrite(files);
   } catch (e) {
     for (const [n, b] of files) pendingFiles.set(n, b);
+    inflightFiles = new Map();
     msgs.forEach(m => pendingMsgs.add(m));
     manifestDirty = true;
     console.warn('publish failed', e);
     tokenDead = e.status === 401 || e.status === 403;
-    setSaving(tokenDead ? (e.status === 403 ? 'publish failed: the token can only read – set Contents to Read and write on GitHub' : 'publish failed: token rejected – paste a new one under Publishing') : 'publish failed, retrying…', true);
+    lastErrText = tokenDead
+      ? (e.status === 403 ? 'Publish failed: the token can only read – set Contents to Read and write on GitHub' : 'Publish failed: token rejected – paste a new one')
+      : `Publish failed (${e.status || 'offline'}) – retrying in 15 s`;
     if (!tokenDead) { clearTimeout(commitT); commitT = setTimeout(() => { commitT = null; runCommit(); }, 15000); }
   } finally {
-    committing = false;
+    committing = false; upload = null;
+    saveDraft(); renderPub();
     if (manifestDirty && !commitT && !tokenDead) scheduleCommit(null);
   }
 }
@@ -570,8 +684,8 @@ async function saveToken(){
     input.value = '';
     tokenPanel.classList.remove('open');
     const resuming = tokenDead;
-    tokenDead = false;
-    if (resuming) { setSaving(''); scheduleCommit(null, 300); }   // same board, just a new key: flush the queue
+    tokenDead = false; lastErrText = '';
+    if (resuming) { renderPub(); scheduleCommit(null, 300); }   // same board, just a new key: flush the queue
     else await becomeEditor();
   } catch (e) {
     token = prev;
@@ -933,10 +1047,37 @@ function unmount(it){
   if (selectedId === it.rec.id) { selectedId = null; syncSel(); }
 }
 
+// ── Undo for removals ──────────────────────────────────────────────
+// Deleting is a single click or keypress, so the last few seconds of it can
+// be taken back. Files stay in the repository anyway.
+const undoBar = document.getElementById('undoBar');
+let removed = [], undoT = null;
+function offerUndo(recs){
+  removed.push(...recs);
+  const n = removed.length;
+  undoBar.querySelector('.txt').textContent = n === 1 ? `Removed ${labelOf(removed[0])}` : `Removed ${n} items`;
+  undoBar.classList.add('show');
+  clearTimeout(undoT);
+  undoT = setTimeout(() => { undoBar.classList.remove('show'); removed = []; }, 8000);
+}
+document.getElementById('undoBtn').addEventListener('click', async e => {
+  e.stopPropagation();
+  const back = removed; removed = []; clearTimeout(undoT); undoBar.classList.remove('show');
+  for (const rec of back) {
+    if (items.has(rec.id)) continue;
+    deletedIds.delete(rec.id);
+    zTop = Math.max(zTop, rec.z || 0);
+    mount(rec, await srcFor(rec), { entering: true });
+    persist(rec, `restore ${labelOf(rec)}`);
+  }
+  updateStatus();
+});
 function remove(id){
   const it = items.get(id); if (!it) return;
+  const rec = it.rec;
   unmount(it);
-  unpersist(it.rec);
+  unpersist(rec);
+  if (canEdit()) offerUndo([rec]);
   updateStatus();
 }
 
@@ -959,6 +1100,7 @@ function updateStatus(){
   document.getElementById('status').querySelector('.count').textContent = n ? `${n} ${n === 1 ? 'item' : 'items'}  ·  ${Math.round(view.s * 100)}%  ·  ${where}` : '';
 }
 function refreshChrome(){
+  if (typeof renderPub === 'function' && pubState) renderPub();
   document.body.classList.toggle('fs', fsSupported);
   document.body.classList.toggle('mode-editor', mode === 'editor');
   document.body.classList.toggle('mode-viewer', mode === 'viewer');
@@ -1440,9 +1582,11 @@ document.getElementById('btnShuffle').addEventListener('click', () => {
 document.getElementById('btnClear').addEventListener('click', () => {
   if (!items.size || !canEdit()) return;
   if (!confirm(`Remove all ${items.size} items from the board? The files stay in the repository.`)) return;
+  const all = [...items.values()].map(it => it.rec);
   for (const it of [...items.values()]) { deletedIds.add(it.rec.id); unmount(it); }
   zTop = 0;
   scheduleCommit('clear the board', 500);
+  offerUndo(all);
   updateStatus();
 });
 
@@ -1452,6 +1596,9 @@ async function becomeEditor(){
   for (const it of [...items.values()]) unmount(it);   // re-render with editing enabled, from the fresh manifest
   refreshChrome();
   await loadBoard();
+  draftWaiting = false;
+  await restoreDraft();
+  renderPub();
   startPolling();
   if (fsSupported) {
     const saved = await metaGet('dir').catch(() => null);
@@ -1499,7 +1646,12 @@ async function loadBoard(){
     }
   }
   if (canEdit()) await becomeEditor();
-  else { refreshChrome(); await loadBoard(); }
+  else {
+    refreshChrome(); await loadBoard();
+    const d = await metaGet('draft').catch(() => null);
+    draftWaiting = !!(d && ((d.items && d.items.length) || (d.deleted && d.deleted.length)));
+    renderPub();
+  }
 })();
 window.addEventListener('resize', updateStatus);
 </script>
