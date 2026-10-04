@@ -176,22 +176,48 @@
   }
   .tool:hover { color: #2B2828; transform: translateY(-1px); }
   .tool svg { display: block; }
+  /* Which tools exist depends on whether this browser can publish. */
+  body.mode-viewer #btnAdd, body.mode-viewer #btnClear, body.mode-viewer #btnShuffle, body.mode-viewer #btnFolder { display: none; }
   #btnFolder { display: none; }
-  body.fs:not(.mode-folder) #btnFolder { display: inline-flex; }
-  body.mode-viewer #btnAdd, body.mode-viewer #btnClear, body.mode-viewer #btnShuffle { display: none; }
+  body.mode-editor.fs:not(.mirror-on) #btnFolder { display: inline-flex; }
+  body.mirror-pending #btnFolder { color: #2B2828; }
+  #btnPublish .on, #btnPublish .off { display: none; }
+  body.mode-editor #btnPublish .on, body.mode-viewer #btnPublish .off { display: inline; }
 
-  #addMenu {
+  .panel {
     position: fixed; right: max(24px, env(safe-area-inset-right, 0px) + 16px);
     bottom: max(64px, env(safe-area-inset-bottom, 0px) + 56px);
-    display: none; flex-direction: column; min-width: 150px; padding: 6px;
-    background: rgba(255,255,255,0.92); border: 1px solid rgba(0,0,0,0.08); border-radius: 14px;
+    display: none; flex-direction: column; gap: 10px; width: min(360px, calc(100vw - 48px)); padding: 16px 16px 14px;
+    background: rgba(255,255,255,0.94); border: 1px solid rgba(0,0,0,0.08); border-radius: 16px;
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
     box-shadow: 0 8px 30px rgba(0,0,0,0.10); z-index: 110;
-    transform-origin: 100% 100%;
-    animation: pop 0.22s cubic-bezier(0.22,1,0.36,1);
+    transform-origin: 100% 100%; animation: pop 0.22s cubic-bezier(0.22,1,0.36,1);
+    -webkit-user-select: text; user-select: text;
   }
-  #addMenu.open { display: flex; }
+  .panel.open { display: flex; }
   @keyframes pop { from { opacity: 0; transform: translateY(6px) scale(0.96); } }
+  .panel h2 { font-size: 14px; font-weight: 500; }
+  .panel p  { font-size: 12.5px; line-height: 1.55; color: #696767; font-weight: 300; }
+  .panel input {
+    font: inherit; font-size: 13px; padding: 9px 11px; border-radius: 9px;
+    border: 1px solid rgba(0,0,0,0.12); background: #fff; color: #2B2828; width: 100%; outline: none;
+  }
+  .panel input:focus { border-color: #2B2828; }
+  .panel .row { display: flex; gap: 8px; justify-content: flex-end; align-items: center; }
+  .panel .err { color: #b3261e; font-size: 12px; min-height: 1em; margin-right: auto; }
+  .panel button {
+    font: inherit; font-size: 13px; padding: 8px 14px; border-radius: 100px; cursor: pointer; border: 1px solid rgba(0,0,0,0.12);
+    background: #fff; color: #2B2828;
+  }
+  .panel button.primary { background: #2B2828; color: #fff; border-color: #2B2828; }
+  .panel button.quiet { border: none; background: none; color: #999999; padding: 8px 6px; }
+  .panel button:disabled { opacity: 0.5; cursor: default; }
+  .panel .only { display: none; }
+  body.mode-viewer #tokenPanel .only.viewer, body.mode-editor #tokenPanel .only.editor { display: block; }
+  body.mode-viewer #tokenPanel .row.only.viewer, body.mode-editor #tokenPanel .row.only.editor { display: flex; }
+
+  #addMenu { display: none; flex-direction: column; min-width: 150px; padding: 6px; width: auto; gap: 0; }
+  #addMenu.open { display: flex; }
   #addMenu button {
     border: none; background: none; font: inherit; font-size: 13.5px; color: #2B2828; text-align: left;
     padding: 9px 12px; border-radius: 9px; cursor: pointer; display: flex; align-items: center; gap: 10px;
@@ -206,7 +232,9 @@
     font-size: 12px; color: rgba(43,40,40,0.45); letter-spacing: 0.02em;
     z-index: 100; pointer-events: none; transition: opacity 0.4s;
   }
-  body:not(.has-items) .status { opacity: 0; }
+  body.saving .status .save { color: #2B2828; }
+  body.save-error .status .save { color: #b3261e; }
+  body:not(.has-items):not(.saving):not(.save-error) .status { opacity: 0; }
 
   #empty {
     position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -216,24 +244,9 @@
   #empty p  { font-size: 0.9rem; font-weight: 300; color: #696767; line-height: 1.6; }
   #empty kbd { font: inherit; padding: 1px 6px; border-radius: 5px; background: rgba(43,40,40,0.06); }
   #empty .only { display: none; }
-  body.mode-local  #empty .only.local,
-  body.mode-folder #empty .only.folder,
-  body.mode-viewer #empty .only.viewer,
-  body.mode-pending #empty .only.pending { display: block; }
+  body.mode-editor #empty .only.editor, body.mode-viewer #empty .only.viewer { display: block; }
   body.db-blocked #empty .only.blocked { display: block; }
   body.has-items #empty { opacity: 0; }
-
-  #reconnect {
-    position: fixed; left: 50%; top: calc(50% + 72px); transform: translateX(-50%);
-    display: none; align-items: center; gap: 8px;
-    font: inherit; font-size: 13px; color: #2B2828; background: rgba(255,255,255,0.85);
-    border: 1px solid rgba(0,0,0,0.08); border-radius: 100px; padding: 9px 16px; cursor: pointer;
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 2px 20px rgba(0,0,0,0.06); z-index: 100;
-    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), background 0.2s;
-  }
-  #reconnect:hover { transform: translateX(-50%) translateY(-1px); background: #fff; }
-  body.mode-pending #reconnect { display: inline-flex; }
 
   #dropHint {
     position: fixed; inset: 16px; border-radius: 22px;
@@ -260,7 +273,7 @@
   @media (prefers-reduced-motion: reduce) {
     .item.entering { animation: none; }
     .item.settling { transition: none; }
-    #addMenu { animation: none; }
+    .panel { animation: none; }
   }
 </style>
 </head>
@@ -274,28 +287,34 @@
 <div id="viewport"><div id="world"><div id="selBox"><div class="handle rotate" title="Drag to tilt · Shift snaps"></div><div class="handle resize" title="Drag to resize"></div></div></div></div>
 
 <div id="empty">
-  <h1 class="only local folder pending">Drop anything that inspires you</h1>
+  <h1 class="only editor">Drop anything that inspires you</h1>
   <h1 class="only viewer">Nothing on the board yet</h1>
-  <p class="only local">Images, videos and links land where you drop them. Double-click for a note.<br>Scroll to pan, pinch to zoom, drag to rearrange. Select a piece to resize or tilt it &nbsp;·&nbsp; <kbd>⌘V</kbd> pastes.<br>Select a picture or video and paste a link to attach it.<br><br>Right now pieces are kept in this browser only. Connect your <strong>Inspiration</strong> folder below to save the files there.</p>
-  <p class="only folder">Everything you drop is saved into your <strong>Inspiration</strong> folder. Double-click for a note.<br>Scroll to pan, pinch to zoom, drag to rearrange. Select a piece to resize or tilt it &nbsp;·&nbsp; <kbd>⌘V</kbd> pastes.<br>Select a picture or video and paste a link to attach it.</p>
-  <p class="only pending">Your Inspiration folder needs one click to reconnect before the board can load.</p>
+  <p class="only editor">Images, videos and links land where you drop them. Double-click for a note.<br>Scroll to pan, pinch to zoom, drag to rearrange. Select a piece to resize or tilt it &nbsp;·&nbsp; <kbd>⌘V</kbd> pastes.<br>Select a picture or video and paste a link to attach it.<br><br>Everything you add is published to your board within a minute, on every device.</p>
   <p class="only blocked">Another Inspiration tab is holding the board open. Close it, then reload this one.</p>
 </div>
-<button id="reconnect">
-  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M1.5 4.5h4l1.5 1.5h7.5v7h-13z"/></svg>
-  Reconnect Inspiration folder
-</button>
 <div id="dropHint">Drop to add</div>
 
-<p class="status" id="status"></p>
-<div id="addMenu" role="menu">
+<p class="status" id="status"><span class="count"></span><span class="save"></span></p>
+
+<div class="panel" id="tokenPanel">
+  <h2 class="only viewer">Publish from this browser</h2>
+  <p class="only viewer">Paste a GitHub token that can write to <strong>InguPingu/design-portfolio</strong>. Create it under <em>Settings → Developer settings → Fine-grained tokens</em>: only this repository, with <strong>Contents: Read and write</strong>. It is kept in this browser and only ever sent to GitHub.</p>
+  <input class="only viewer" id="tokenInput" type="password" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
+  <div class="row only viewer"><span class="err" id="tokenErr"></span><button class="quiet" id="tokenCancel">Cancel</button><button class="primary" id="tokenSave">Save</button></div>
+  <h2 class="only editor">Publishing</h2>
+  <p class="only editor">Every change on this board is committed to <strong>InguPingu/design-portfolio</strong><span id="tokenWho"></span> and goes live within a minute. Visitors see it read-only.</p>
+  <div class="row only editor"><span class="err"></span><button class="quiet" id="tokenForget">Sign out of this browser</button></div>
+</div>
+
+<div class="panel" id="addMenu" role="menu">
   <button data-add="files"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 10.5l3.5-3 3 2.5 2-1.5L14 11"/><circle cx="10.5" cy="6" r="1"/></svg>Files…</button>
   <button data-add="note"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M3 2.5h10v8l-3 3H3z"/><path d="M10 13.5v-3h3"/></svg>Note <kbd>double-click</kbd></button>
   <button data-add="todo"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5l1.5 1.5 2.5-3M8 5h6M2.5 10.5l1.5 1.5 2.5-3M8 11h6"/></svg>To-do</button>
   <button data-add="link"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5l3-3M7 4.5l1-1a2.5 2.5 0 013.5 3.5l-1 1M9 11.5l-1 1A2.5 2.5 0 014.5 9l1-1"/></svg>Link <kbd>paste a URL</kbd></button>
 </div>
+
 <div class="tools">
-  <button class="tool" id="btnFolder" title="Save pieces into a folder on disk">
+  <button class="tool" id="btnFolder" title="Also keep a copy of every file in a folder on this computer">
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M1.5 4.5h4l1.5 1.5h7.5v7h-13z"/></svg><span>Connect folder</span>
   </button>
   <button class="tool" id="btnFit" title="Fit everything in view">
@@ -310,98 +329,172 @@
   <button class="tool" id="btnAdd" title="Add files, a note, a to-do list or a link" aria-haspopup="menu">
     <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg><span>Add</span>
   </button>
+  <button class="tool" id="btnPublish" title="Publishing from this browser">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="10.5" r="3"/><path d="M7.5 8.5L14 2M11 5l2 2M12.5 3.5l1.5 1.5"/></svg><span class="off">Edit</span><span class="on">Publishing</span>
+  </button>
 </div>
 <input type="file" id="fileInput" accept="image/*,video/*" multiple hidden>
 <p class="watermark">Designed in Figma &nbsp;·&nbsp; Vibe coded with Claude</p>
 
 <script>
-// ── Storage ────────────────────────────────────────────────────────
-// Where the board lives is decided once at load:
-//   folder  – a real folder on disk, connected through the File System Access
-//             API. Dropped files are written into it, and board.json alongside
-//             them holds the layout. This is the editing mode; since the folder
-//             sits inside the repo, committing it publishes the board. Notes and
-//             to-dos are personal, so they go to notes.json, which git ignores.
-//   viewer  – the published site. board.json and the files are fetched from
-//             Inspiration/ read-only. notes.json is never published.
-//   local   – IndexedDB fallback when no folder is connected, or the browser
-//             has no File System Access API. Private to this browser.
-//   pending – a folder was connected before but needs a click to re-grant
-//             access this session.
-// A record is the manifest entry: id, kind, media (file or url) or text
-// (text, items, url/title), aspect, and layout (centre x/y in world units,
-// width, rotation, z). Local mode adds a blob for media.
-const FOLDER = 'Inspiration', MANIFEST = 'board.json', NOTES = 'notes.json';
-const fsSupported = 'showDirectoryPicker' in window;
-let mode = 'local', dir = null, removedFiles = [];
-const isText    = rec => rec.kind === 'note' || rec.kind === 'todo' || rec.kind === 'link';
-const isPrivate = rec => rec.kind === 'note' || rec.kind === 'todo';
+// ── Store ──────────────────────────────────────────────────────────
+// The board lives in the repository: Inspiration/ holds the files and
+// board.json holds the layout. There are two ways to be here:
+//   editor – this browser holds a GitHub token for the repo. Every change is
+//            committed through GitHub's API and Pages republishes it within a
+//            minute, so every device sees it and can edit from anywhere the
+//            token has been entered. Other devices' changes are merged in
+//            before each commit and on a slow poll.
+//   viewer – no token: the published board, read-only.
+// Optionally, an editor on a desktop can also connect the Inspiration folder
+// on disk; it is kept as a mirror of the repository's files, nothing more.
+const GH = { owner: 'InguPingu', repo: 'design-portfolio', branch: 'main', dir: 'Inspiration', manifest: 'board.json' };
+const onSite = location.protocol.startsWith('http');
+let token = localStorage.getItem('inspiration.token') || '';
+let mode = token ? 'editor' : 'viewer', who = '';
+const canEdit = () => mode === 'editor';
+const isText  = rec => rec.kind === 'note' || rec.kind === 'todo' || rec.kind === 'link';
 
-// The folder handle lives in its own database so the items database never
-// needs a version bump: IndexedDB stalls an upgrade for as long as an older tab
-// holds the database open, which left the whole page blank. Databases are
-// opened at whatever version they already have, and every connection steps
-// aside for a future upgrade instead of blocking it.
-const DB_NAME = 'inspiration', META_DB = 'inspiration-meta';
-let db, metaDb;
-function openDB(name, store, keyPath){
-  return new Promise((res, rej) => {
-    const r = indexedDB.open(name);
-    r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains(store)) r.result.createObjectStore(store, { keyPath }); };
-    r.onblocked = () => document.body.classList.add('db-blocked');
-    r.onsuccess = () => { const d = r.result; d.onversionchange = () => d.close(); res(d); };
-    r.onerror   = () => rej(r.error);
-  });
+class ApiError extends Error { constructor(status, path, body){ super(`${status} ${path}${body ? ': ' + body.slice(0, 160) : ''}`); this.status = status; } }
+async function api(path, opt = {}){
+  const r = await fetch('https://api.github.com' + path, { ...opt, headers: {
+    Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + token, 'X-GitHub-Api-Version': '2022-11-28',
+    ...(opt.body ? { 'Content-Type': 'application/json' } : {}), ...(opt.headers || {}) } });
+  if (!r.ok) throw new ApiError(r.status, path, await r.text().catch(() => ''));
+  return r.status === 204 ? null : r.json();
 }
-const tx = (d, store, rw, fn) => new Promise((res, rej) => {
-  const t = d.transaction(store, rw), out = fn(t.objectStore(store));
-  t.oncomplete = () => res(out && out.result);
-  t.onerror    = () => rej(t.error);
-});
-const dbAll   = ()  => tx(db, 'items', 'readonly',  s => s.getAll());
-const dbPut   = rec => tx(db, 'items', 'readwrite', s => s.put(rec));
-const dbDel   = id  => tx(db, 'items', 'readwrite', s => s.delete(id));
-const dbClear = ()  => tx(db, 'items', 'readwrite', s => s.clear());
-const metaGet = key => tx(metaDb, 'meta', 'readonly',  s => s.get(key));
-const metaPut = val => tx(metaDb, 'meta', 'readwrite', s => s.put(val));
+const repoPath = p => `/repos/${GH.owner}/${GH.repo}${p}`;
+const b64decode = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, '')), c => c.charCodeAt(0)));
+const toBase64 = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result.split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); });
+const rawUrl = file => `https://raw.githubusercontent.com/${GH.owner}/${GH.repo}/${GH.branch}/${GH.dir}/${encodeURIComponent(file)}`;
 
-// Folder backend.
-const stripRec = ({ blob, ...rest }) => rest;
-async function writeFile(name, blob){
-  const fh = await dir.getFileHandle(name, { create: true });
-  const w = await fh.createWritable();
-  await w.write(blob); await w.close();
+// Reads the manifest at a given ref (or the branch head). Fresh, unlike Pages.
+async function fetchManifest(ref = GH.branch){
+  try { const f = await api(repoPath(`/contents/${GH.dir}/${GH.manifest}?ref=${ref}`)); return JSON.parse(b64decode(f.content)); }
+  catch (e) { if (e.status === 404) return { version: 1, items: [] }; throw e; }
 }
-async function readJson(name, fallback){
-  try { return JSON.parse(await (await (await dir.getFileHandle(name)).getFile()).text()); }
-  catch { return fallback; }
+async function fetchDirNames(){
+  try { return (await api(repoPath(`/contents/${GH.dir}?ref=${GH.branch}`))).map(f => f.name); }
+  catch (e) { if (e.status === 404) return []; throw e; }
 }
-async function readManifest(){
-  const board = await readJson(MANIFEST, { version: 1, items: [], removed: [] });
-  const notes = await readJson(NOTES, { items: [] });
-  return { ...board, items: [...(board.items || []), ...(notes.items || [])] };
+
+// Everything that changes goes through one queue and becomes one commit:
+// new files as blobs plus the manifest, atomically. Adds commit almost at
+// once; layout fiddling is batched while it is still going on.
+const pendingFiles = new Map();   // name -> Blob
+const pendingMsgs  = new Set();
+let manifestDirty = false, commitT = null, committing = false, tokenDead = false;
+const touchedIds = new Set(), deletedIds = new Set();   // for merging other devices' edits
+function scheduleCommit(msg, delay){
+  if (msg) pendingMsgs.add(msg);
+  manifestDirty = true;
+  if (tokenDead) return;   // queued work waits for a working token; saving one flushes it
+  clearTimeout(commitT);
+  commitT = setTimeout(() => { commitT = null; runCommit(); }, delay ?? (pendingFiles.size ? 400 : 2500));
 }
-let manifestT;
-function scheduleManifest(){ clearTimeout(manifestT); manifestT = setTimeout(writeManifest, 300); }
-async function writeManifest(){
-  if (mode !== 'folder') return;
-  const all = [...items.values()].map(i => stripRec(i.rec)), updated = Date.now();
-  const json = o => new Blob([JSON.stringify(o, null, 2)], { type: 'application/json' });
-  await writeFile(MANIFEST, json({ version: 1, updated, items: all.filter(r => !isPrivate(r)), removed: removedFiles }));
-  await writeFile(NOTES,    json({ version: 1, updated, items: all.filter(isPrivate) }));
+function stripRec({ blob, ...rest }){ return rest; }
+function manifestJson(){
+  return JSON.stringify({ version: 1, updated: Date.now(), items: [...items.values()].map(i => stripRec(i.rec)) }, null, 2);
 }
-async function folderNames(){
-  const names = new Set();
-  for await (const [name, h] of dir.entries()) if (h.kind === 'file') names.add(name);
-  return names;
+function setSaving(text, error = false){
+  document.body.classList.toggle('saving', !!text && !error);
+  document.body.classList.toggle('save-error', error);
+  document.getElementById('status').querySelector('.save').textContent = text ? '  ·  ' + text : '';
 }
+async function runCommit(){
+  if (committing) { scheduleCommit(null, 800); return; }
+  if (!canEdit() || !manifestDirty) return;
+  committing = true;
+  const files = [...pendingFiles]; pendingFiles.clear();
+  const msgs = [...pendingMsgs]; pendingMsgs.clear();
+  manifestDirty = false;
+  setSaving('publishing…');
+  try {
+    // Blobs first: they do not depend on the branch head, so a retry reuses them.
+    const blobs = [];
+    for (const [name, blob] of files) {
+      const b = await api(repoPath('/git/blobs'), { method: 'POST', body: JSON.stringify({ content: await toBase64(blob), encoding: 'base64' }) });
+      blobs.push({ path: `${GH.dir}/${name}`, mode: '100644', type: 'blob', sha: b.sha });
+    }
+    for (let attempt = 0; ; attempt++) {
+      const head = (await api(repoPath(`/git/ref/heads/${GH.branch}`))).object.sha;
+      const base = await api(repoPath(`/git/commits/${head}`));
+      await mergeRemote(await fetchManifest(head));
+      const tree = await api(repoPath('/git/trees'), { method: 'POST', body: JSON.stringify({ base_tree: base.tree.sha,
+        tree: [...blobs, { path: `${GH.dir}/${GH.manifest}`, mode: '100644', type: 'blob', content: manifestJson() }] }) });
+      const message = 'Board: ' + (msgs.length ? msgs.slice(0, 3).join(', ') + (msgs.length > 3 ? ` (+${msgs.length - 3})` : '') : 'update');
+      const c = await api(repoPath('/git/commits'), { method: 'POST', body: JSON.stringify({ message, tree: tree.sha, parents: [head] }) });
+      try { await api(repoPath(`/git/refs/heads/${GH.branch}`), { method: 'PATCH', body: JSON.stringify({ sha: c.sha, force: false }) }); break; }
+      catch (e) { if (attempt < 2 && (e.status === 422 || e.status === 409)) continue; throw e; }   // someone else pushed: rebuild on the new head
+    }
+    touchedIds.clear(); deletedIds.clear();
+    setSaving('published');
+    setTimeout(() => { if (!committing && !manifestDirty) setSaving(''); }, 2500);
+    mirrorWrite(files);
+  } catch (e) {
+    for (const [n, b] of files) pendingFiles.set(n, b);
+    msgs.forEach(m => pendingMsgs.add(m));
+    manifestDirty = true;
+    console.warn('publish failed', e);
+    tokenDead = e.status === 401 || e.status === 403;
+    setSaving(tokenDead ? 'publish failed: token rejected – paste a new one under Publishing' : 'publish failed, retrying…', true);
+    if (!tokenDead) { clearTimeout(commitT); commitT = setTimeout(() => { commitT = null; runCommit(); }, 15000); }
+  } finally {
+    committing = false;
+    if (manifestDirty && !commitT && !tokenDead) scheduleCommit(null);
+  }
+}
+
+// Fold in what other devices have done since we last looked: new pieces
+// appear, pieces we have not touched follow their remote state, pieces gone
+// remotely leave here too. Our own uncommitted work always wins.
+async function mergeRemote(remote){
+  const seen = new Set();
+  for (const rrec of remote.items || []) {
+    seen.add(rrec.id);
+    if (deletedIds.has(rrec.id)) continue;
+    const it = items.get(rrec.id);
+    if (!it) { mount(rrec, await srcFor(rrec), { entering: true }); continue; }
+    if (touchedIds.has(rrec.id)) continue;
+    if (JSON.stringify(stripRec(it.rec)) !== JSON.stringify(rrec)) {
+      const sel = selectedId === rrec.id;
+      unmount(it); mount(rrec, await srcFor(rrec));
+      if (sel) select(rrec.id);
+    }
+  }
+  for (const it of [...items.values()]) if (!seen.has(it.rec.id) && !touchedIds.has(it.rec.id)) unmount(it);
+  updateStatus();
+}
+let pollT = null;
+function startPolling(){
+  clearInterval(pollT);
+  pollT = setInterval(async () => {
+    if (!canEdit() || committing || manifestDirty || document.visibilityState !== 'visible') return;
+    try { await mergeRemote(await fetchManifest()); } catch (e) { console.warn('poll failed', e); }
+  }, 45000);
+}
+
+// The single write path for layout and content changes.
+function persist(rec, msg){
+  if (!canEdit()) return;
+  touchedIds.add(rec.id);
+  scheduleCommit(msg || null);
+}
+function unpersist(rec){
+  if (!canEdit()) return;
+  deletedIds.add(rec.id); touchedIds.delete(rec.id);
+  scheduleCommit(`remove ${labelOf(rec)}`, 1200);
+}
+const labelOf = rec => rec.file || rec.title || (rec.text || '').slice(0, 24) || rec.kind;
+
+let takenNames = new Set();
 function safeName(name){
-  return name.replace(/[\/\\:*?"<>|]+/g, '-').replace(/\s+/g, ' ').trim() || 'untitled';
+  return name.replace(/[\/\\:*?"<>|#%]+/g, '-').replace(/\s+/g, ' ').trim() || 'untitled';
 }
-function uniqueName(name, taken){
-  if (!taken.has(name)) { taken.add(name); return name; }
+function uniqueName(name){
+  if (!takenNames.has(name)) { takenNames.add(name); return name; }
   const dot = name.lastIndexOf('.'), stem = dot > 0 ? name.slice(0, dot) : name, ext = dot > 0 ? name.slice(dot) : '';
-  for (let n = 2; ; n++) { const c = `${stem}-${n}${ext}`; if (!taken.has(c)) { taken.add(c); return c; } }
+  for (let n = 2; ; n++) { const c = `${stem}-${n}${ext}`; if (!takenNames.has(c)) { takenNames.add(c); return c; } }
 }
 // Pasted screenshots all arrive as "image.png"; give them a timestamp instead.
 function nameForFile(f, kind){
@@ -413,16 +506,105 @@ function nameForFile(f, kind){
   return safeName(f.name);
 }
 
-// The single write path for layout and content changes, whichever backend is active.
-function persist(rec){
-  if (mode === 'folder') scheduleManifest();
-  else if (mode === 'local') dbPut(rec);
+// ── Token ──────────────────────────────────────────────────────────
+const tokenPanel = document.getElementById('tokenPanel');
+async function validateToken(){
+  const repo = await api(repoPath(''));
+  if (!repo.permissions || !repo.permissions.push) throw new ApiError(403, 'repo', 'token cannot write to this repository');
+  try { who = (await api('/user')).login; } catch { who = ''; }
 }
-function unpersist(rec){
-  if (mode === 'folder') { if (rec.file) removedFiles.push(rec.file); scheduleManifest(); }
-  else if (mode === 'local') dbDel(rec.id);
+async function saveToken(){
+  const input = document.getElementById('tokenInput'), err = document.getElementById('tokenErr'), btn = document.getElementById('tokenSave');
+  const t = input.value.trim(); if (!t) return;
+  btn.disabled = true; err.textContent = '';
+  const prev = token; token = t;
+  try {
+    await validateToken();
+    localStorage.setItem('inspiration.token', token);
+    input.value = '';
+    tokenPanel.classList.remove('open');
+    const resuming = tokenDead;
+    tokenDead = false;
+    if (resuming) { setSaving(''); scheduleCommit(null, 300); }   // same board, just a new key: flush the queue
+    else await becomeEditor();
+  } catch (e) {
+    token = prev;
+    err.textContent = e.status === 401 ? 'GitHub did not accept that token.' : e.status === 403 || e.status === 404 ? 'That token cannot write to the repository.' : 'Could not reach GitHub.';
+  } finally { btn.disabled = false; }
 }
-const canEdit = () => mode === 'folder' || mode === 'local';
+function forgetToken(){
+  localStorage.removeItem('inspiration.token'); token = ''; who = '';
+  tokenPanel.classList.remove('open');
+  location.reload();
+}
+document.getElementById('btnPublish').addEventListener('click', e => {
+  e.stopPropagation(); addMenu.classList.remove('open'); tokenPanel.classList.toggle('open');
+  if (tokenPanel.classList.contains('open') && !canEdit()) document.getElementById('tokenInput').focus();
+});
+document.getElementById('tokenSave').addEventListener('click', saveToken);
+document.getElementById('tokenInput').addEventListener('keydown', e => { if (e.key === 'Enter') saveToken(); });
+document.getElementById('tokenCancel').addEventListener('click', () => tokenPanel.classList.remove('open'));
+document.getElementById('tokenForget').addEventListener('click', forgetToken);
+
+// ── Mirror folder (optional, desktop Chrome) ───────────────────────
+// Keeps a copy of the repository's files in a folder on this machine.
+const fsSupported = 'showDirectoryPicker' in window;
+let mirror = null, mirrorState = 'off';   // off | pending | on
+const META_DB = 'inspiration-meta';
+let metaDb;
+function openMetaDB(){
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(META_DB);
+    r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains('meta')) r.result.createObjectStore('meta', { keyPath: 'key' }); };
+    r.onblocked = () => document.body.classList.add('db-blocked');
+    r.onsuccess = () => { const d = r.result; d.onversionchange = () => d.close(); res(d); };
+    r.onerror   = () => rej(r.error);
+  });
+}
+const metaTx = (rw, fn) => new Promise((res, rej) => { if (!metaDb) return res(null); const t = metaDb.transaction('meta', rw), out = fn(t.objectStore('meta')); t.oncomplete = () => res(out && out.result); t.onerror = () => rej(t.error); });
+const metaGet = key => metaTx('readonly',  s => s.get(key));
+const metaPut = val => metaTx('readwrite', s => s.put(val));
+async function mirrorWriteFile(name, blob){
+  const fh = await mirror.getFileHandle(name, { create: true });
+  const w = await fh.createWritable(); await w.write(blob); await w.close();
+}
+async function mirrorWrite(files){
+  if (mirrorState !== 'on') return;
+  try {
+    for (const [name, blob] of files) await mirrorWriteFile(name, blob);
+    await mirrorWriteFile(GH.manifest, new Blob([manifestJson()], { type: 'application/json' }));
+  } catch (e) { console.warn('mirror write failed', e); }
+}
+// Anything in the repository that the folder lacks gets fetched into it.
+async function mirrorSyncDown(){
+  if (mirrorState !== 'on') return;
+  try {
+    const have = new Set(); for await (const [n, h] of mirror.entries()) if (h.kind === 'file') have.add(n);
+    for (const { rec } of items.values()) {
+      if (!rec.file || have.has(rec.file)) continue;
+      const r = await fetch(rawUrl(rec.file)); if (!r.ok) continue;
+      await mirrorWriteFile(rec.file, await r.blob());
+    }
+    await mirrorWriteFile(GH.manifest, new Blob([manifestJson()], { type: 'application/json' }));
+  } catch (e) { console.warn('mirror sync failed', e); }
+}
+function refreshMirrorChrome(){
+  document.body.classList.toggle('mirror-on', mirrorState === 'on');
+  document.body.classList.toggle('mirror-pending', mirrorState === 'pending');
+  document.querySelector('#btnFolder span').textContent = mirrorState === 'pending' ? 'Reconnect folder' : 'Connect folder';
+}
+async function connectMirror(){
+  if (mirrorState === 'pending') {
+    if ((await mirror.requestPermission({ mode: 'readwrite' })) !== 'granted') return;
+  } else {
+    try { mirror = await showDirectoryPicker({ id: 'inspiration', mode: 'readwrite', startIn: 'desktop' }); }
+    catch (e) { if (e.name !== 'AbortError') console.warn(e); return; }
+    await metaPut({ key: 'dir', handle: mirror });
+  }
+  mirrorState = 'on'; refreshMirrorChrome();
+  mirrorSyncDown();
+}
+document.getElementById('btnFolder').addEventListener('click', connectMirror);
 
 // ── View ───────────────────────────────────────────────────────────
 const viewport = document.getElementById('viewport');
@@ -499,14 +681,13 @@ const playWatcher = new IntersectionObserver(entries => {
   }
 }, { threshold: 0.05 });
 
-// Where a record's pixels come from depends on the backend.
+// Where a record's pixels come from. Files just added show from the blob in
+// hand; files in the repository come straight from GitHub for editors (fresh
+// the moment they are committed) and from the published site for viewers.
 async function srcFor(rec){
   if (isText(rec)) return null;
   if (rec.blob) return URL.createObjectURL(rec.blob);
-  if (rec.file) {
-    if (mode === 'folder') return URL.createObjectURL(await (await dir.getFileHandle(rec.file)).getFile());
-    return `${FOLDER}/${encodeURIComponent(rec.file)}`;
-  }
+  if (rec.file) return canEdit() || !onSite ? rawUrl(rec.file) : `${GH.dir}/${encodeURIComponent(rec.file)}`;
   return rec.url;
 }
 function mediaFor(rec, src){
@@ -536,7 +717,7 @@ function onEdited(it){
   readBack(it);
   fitHeight(it);
   clearTimeout(saveTimers.get(it.rec.id));
-  saveTimers.set(it.rec.id, setTimeout(() => persist(it.rec), 400));
+  saveTimers.set(it.rec.id, setTimeout(() => persist(it.rec, `edit ${it.rec.kind}`), 400));
 }
 function readBack(it){
   const { rec, el } = it;
@@ -613,11 +794,11 @@ function renderBadge(it){
 }
 function attachLink(it, url){
   it.rec.link = normUrl(url);
-  renderBadge(it); persist(it.rec); select(it.rec.id);
+  renderBadge(it); persist(it.rec, `link ${labelOf(it.rec)}`); select(it.rec.id);
 }
 function detachLink(it){
   delete it.rec.link;
-  renderBadge(it); persist(it.rec);
+  renderBadge(it); persist(it.rec, `unlink ${labelOf(it.rec)}`);
 }
 
 function todoRow(row, it){
@@ -676,12 +857,12 @@ function unmount(it){
   if (it.media && it.media.src.startsWith('blob:')) URL.revokeObjectURL(it.media.src);
   it.el.remove();
   items.delete(it.rec.id);
+  if (selectedId === it.rec.id) { selectedId = null; syncSel(); }
 }
 
 function remove(id){
   const it = items.get(id); if (!it) return;
   unmount(it);
-  if (selectedId === id) { selectedId = null; syncSel(); }
   unpersist(it.rec);
   updateStatus();
 }
@@ -701,12 +882,15 @@ function bringToFront(it){
 function updateStatus(){
   const n = items.size;
   document.body.classList.toggle('has-items', n > 0);
-  const where = { folder: 'Inspiration folder', local: 'saved in this browser', viewer: 'read-only', pending: '' }[mode];
-  document.getElementById('status').textContent = n ? `${n} ${n === 1 ? 'item' : 'items'}  ·  ${Math.round(view.s * 100)}%${where ? '  ·  ' + where : ''}` : '';
+  const where = canEdit() ? 'publishing to GitHub' : 'read-only';
+  document.getElementById('status').querySelector('.count').textContent = n ? `${n} ${n === 1 ? 'item' : 'items'}  ·  ${Math.round(view.s * 100)}%  ·  ${where}` : '';
 }
 function refreshChrome(){
   document.body.classList.toggle('fs', fsSupported);
-  for (const m of ['local', 'folder', 'viewer', 'pending']) document.body.classList.toggle('mode-' + m, mode === m);
+  document.body.classList.toggle('mode-editor', mode === 'editor');
+  document.body.classList.toggle('mode-viewer', mode === 'viewer');
+  document.getElementById('tokenWho').textContent = who ? ` as ${who}` : '';
+  refreshMirrorChrome();
   updateStatus();
 }
 
@@ -770,23 +954,24 @@ function measure(kind, src){
 }
 const BASE_W = { video: 340, image: 300, note: 250, todo: 270, link: 320 };
 const freshRec = (kind, aspect) => ({ id: uid(), kind, aspect, w: BASE_W[kind] * (isText({ kind }) ? rnd(0.95, 1.05) : rnd(0.82, 1.18)), z: ++zTop, created: Date.now() });
+const MAX_FILE = 95 * 1024 * 1024;   // GitHub refuses blobs over 100MB
 
 async function addFiles(files, at){
   if (!canEdit()) return;
   const list = [...files].filter(f => kindOf(f.type, f.name));
   if (!list.length) return;
-  const taken = mode === 'folder' ? await folderNames() : null;
-  const entries = await Promise.all(list.map(async f => {
+  const tooBig = list.filter(f => f.size > MAX_FILE);
+  if (tooBig.length) { setSaving(`${tooBig.map(f => f.name).join(', ')}: over 95MB, GitHub will not take it`, true); setTimeout(() => setSaving(''), 6000); }
+  const ok = list.filter(f => f.size <= MAX_FILE);
+  if (!ok.length) return;
+  const entries = await Promise.all(ok.map(async f => {
     const kind = kindOf(f.type, f.name);
     const src = URL.createObjectURL(f);
     const rec = freshRec(kind, await measure(kind, src));
-    if (mode === 'folder') {
-      rec.file = uniqueName(nameForFile(f, kind), taken);
-      await writeFile(rec.file, f);
-    } else {
-      rec.blob = f;
-    }
-    return { rec, src };
+    rec.file = uniqueName(nameForFile(f, kind));
+    rec.blob = f;
+    pendingFiles.set(rec.file, f);
+    return { rec, src, msg: `add ${rec.file}` };
   }));
   commit(entries, at);
 }
@@ -800,21 +985,19 @@ async function addUrl(url, at){
   let src = url;
   // Try to make it ours. Cross-origin servers often refuse, in which case the
   // piece simply stays a link to where it came from.
-  if (mode === 'folder') {
-    try {
-      const blob = await (await fetch(url, { mode: 'cors' })).blob();
-      const base = safeName((url.split('/').pop().split('?')[0]) || `web-${rec.id}`);
-      rec.file = uniqueName(base, await folderNames());
-      await writeFile(rec.file, blob);
-      src = URL.createObjectURL(blob);
-    } catch { rec.url = url; }
-  } else rec.url = url;
-  commit([{ rec, src }], at);
+  try {
+    const blob = await (await fetch(url, { mode: 'cors' })).blob();
+    if (blob.size > MAX_FILE) throw new Error('too big');
+    rec.file = uniqueName(safeName((url.split('/').pop().split('?')[0]) || `web-${rec.id}`));
+    rec.blob = blob; pendingFiles.set(rec.file, blob);
+    src = URL.createObjectURL(blob);
+  } catch { rec.url = url; }
+  commit([{ rec, src, msg: `add ${labelOf(rec)}` }], at);
 }
 function addText(kind, at, data = {}){
   if (!canEdit()) return;
   const rec = Object.assign(freshRec(kind, 1.6), data);   // provisional aspect; measured on mount
-  commit([{ rec, src: null }], at);
+  commit([{ rec, src: null, msg: `add ${kind}` }], at);
   const it = items.get(rec.id);
   const focusTarget = kind === 'note' ? '.body' : kind === 'todo' ? '.title' : (rec.url ? '.title' : '.url');
   const field = it.el.querySelector(focusTarget);
@@ -824,7 +1007,7 @@ function addText(kind, at, data = {}){
 function commit(entries, at){
   const p = at || viewCentre();
   scatter(entries.map(e => e.rec), p.x, p.y);
-  entries.forEach(({ rec, src }, k) => { mount(rec, src, { entering: true, delay: Math.min(k * 45, 500) }); persist(rec); });
+  entries.forEach(({ rec, src, msg }, k) => { mount(rec, src, { entering: true, delay: Math.min(k * 45, 500) }); persist(rec, msg); });
   select(entries[entries.length - 1].rec.id);
 }
 
@@ -865,7 +1048,7 @@ window.addEventListener('drop', e => {
   takeTransfer(e.dataTransfer, toWorld(e.clientX, e.clientY), onEl && items.get(onEl.dataset.id));
 });
 document.addEventListener('paste', e => {
-  if (e.target.isContentEditable || e.target.tagName === 'INPUT') return;   // pasting inside a card edits the card
+  if (e.target.isContentEditable || e.target.tagName === 'INPUT') return;   // pasting inside a card or the token field edits that
   const sel = selectedId && items.get(selectedId);
   if (e.clipboardData && takeTransfer(e.clipboardData, null, sel)) e.preventDefault();
 });
@@ -874,13 +1057,16 @@ fileInput.addEventListener('change', () => { addFiles(fileInput.files); fileInpu
 
 // The Add button opens a small menu; a double-click on empty canvas is the shortcut for a note.
 const addMenu = document.getElementById('addMenu');
-document.getElementById('btnAdd').addEventListener('click', e => { e.stopPropagation(); addMenu.classList.toggle('open'); });
+document.getElementById('btnAdd').addEventListener('click', e => { e.stopPropagation(); tokenPanel.classList.remove('open'); addMenu.classList.toggle('open'); });
 addMenu.addEventListener('click', e => {
   const b = e.target.closest('button[data-add]'); if (!b) return;
   addMenu.classList.remove('open');
   if (b.dataset.add === 'files') fileInput.click(); else addText(b.dataset.add);
 });
-document.addEventListener('pointerdown', e => { if (!e.target.closest('#addMenu, #btnAdd')) addMenu.classList.remove('open'); });
+document.addEventListener('pointerdown', e => {
+  if (!e.target.closest('#addMenu, #btnAdd')) addMenu.classList.remove('open');
+  if (!e.target.closest('#tokenPanel, #btnPublish')) tokenPanel.classList.remove('open');
+});
 viewport.addEventListener('dblclick', e => {
   if (e.target !== viewport && e.target !== world) return;
   addText('note', toWorld(e.clientX, e.clientY));
@@ -904,7 +1090,7 @@ viewport.addEventListener('pointerdown', e => {
   const el = e.target.closest('.item');
   if (el) {
     const it = items.get(el.dataset.id);
-    bringToFront(it);
+    if (canEdit()) bringToFront(it);
     // Inside a text card, editable fields, checkboxes and the open-link arrow keep
     // their native behaviour; the card is dragged by its grip, padding and edges.
     if (e.target.closest('[contenteditable], input, a')) { select(it.rec.id); return; }
@@ -949,13 +1135,13 @@ viewport.addEventListener('pointermove', e => {
 function endGesture(e){
   if (!gesture) return;
   if (gesture.kind === 'rotate' || gesture.kind === 'resize') {
-    persist(gesture.it.rec);
+    persist(gesture.it.rec, `${gesture.kind} ${labelOf(gesture.it.rec)}`);
     gesture = null;
     return;
   }
   if (gesture.kind === 'item') {
     gesture.it.el.classList.remove('dragging');
-    if (gesture.moved) persist(gesture.it.rec);
+    if (gesture.moved) persist(gesture.it.rec, `move ${labelOf(gesture.it.rec)}`);
     select(gesture.it.rec.id);
   } else {
     viewport.classList.remove('panning');
@@ -977,23 +1163,24 @@ viewport.addEventListener('wheel', e => {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (addMenu.classList.contains('open')) { addMenu.classList.remove('open'); return; }
+    if (tokenPanel.classList.contains('open')) { tokenPanel.classList.remove('open'); return; }
     if (e.target.isContentEditable) { e.target.blur(); return; }
     select(null); return;
   }
-  // Typing inside a card is typing, not shortcuts.
+  // Typing inside a card or the token field is typing, not shortcuts.
   if (e.target.isContentEditable || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   const sel = selectedId && items.get(selectedId);
-  if (sel && !e.metaKey && !e.ctrlKey) {
+  if (sel && canEdit() && !e.metaKey && !e.ctrlKey) {
     if (e.key === '[' || e.key === ']') {
       e.preventDefault();
       sel.rec.rot = normDeg(sel.rec.rot + (e.key === ']' ? 1 : -1) * (e.shiftKey ? 15 : 3));
-      place(sel.el, sel.rec); persist(sel.rec); return;
+      place(sel.el, sel.rec); persist(sel.rec, `rotate ${labelOf(sel.rec)}`); return;
     }
     if (e.key === '-' || e.key === '=' || e.key === '+') {
       e.preventDefault();
       sel.rec.w = clampW(sel.rec.w * (e.key === '-' ? 0.9 : 1.1));
       if (isText(sel.rec)) fitHeight(sel); else place(sel.el, sel.rec);
-      persist(sel.rec); return;
+      persist(sel.rec, `resize ${labelOf(sel.rec)}`); return;
     }
   }
   if ((e.key === 'Backspace' || e.key === 'Delete') && selectedId && canEdit()) { e.preventDefault(); remove(selectedId); }
@@ -1028,7 +1215,7 @@ function fitAll(){
 document.getElementById('btnFit').addEventListener('click', fitAll);
 
 document.getElementById('btnShuffle').addEventListener('click', () => {
-  if (!items.size) return;
+  if (!items.size || !canEdit()) return;
   const recs = [...items.values()].map(i => i.rec).sort(() => Math.random() - 0.5);
   const c = viewCentre();
   // Everything moves this time, so the spiral is the only fixed reference.
@@ -1047,130 +1234,71 @@ document.getElementById('btnShuffle').addEventListener('click', () => {
     it.el.addEventListener('transitionend', () => it.el.classList.remove('settling'), { once: true });
     persist(it.rec);
   }
+  pendingMsgs.add('shuffle');
   setTimeout(fitAll, 60);
 });
 
-document.getElementById('btnClear').addEventListener('click', async () => {
-  if (!items.size) return;
-  const note = mode === 'folder' ? ' The files stay in your Inspiration folder.' : '';
-  if (!confirm(`Remove all ${items.size} items from the board?${note}`)) return;
-  for (const it of [...items.values()]) { if (it.rec.file) removedFiles.push(it.rec.file); unmount(it); }
-  selectedId = null; zTop = 0; syncSel();
-  if (mode === 'local') await dbClear(); else await writeManifest();
+document.getElementById('btnClear').addEventListener('click', () => {
+  if (!items.size || !canEdit()) return;
+  if (!confirm(`Remove all ${items.size} items from the board? The files stay in the repository.`)) return;
+  for (const it of [...items.values()]) { deletedIds.add(it.rec.id); unmount(it); }
+  zTop = 0;
+  scheduleCommit('clear the board', 500);
   updateStatus();
 });
 
-// ── Folder connection ──────────────────────────────────────────────
-async function connectFolder(){
-  let handle;
-  try { handle = await showDirectoryPicker({ id: 'inspiration', mode: 'readwrite', startIn: 'desktop' }); }
-  catch (e) { if (e.name !== 'AbortError') console.warn(e); return; }
-  dir = handle;
-  await metaPut({ key: 'dir', handle });
-  // Anything held in this browser moves into the folder first.
-  const held = [...items.values()].filter(i => i.rec.blob);
-  if (held.length) {
-    const taken = await folderNames();
-    for (const it of held) {
-      it.rec.file = uniqueName(nameForFile(it.rec.blob, it.rec.kind), taken);
-      await writeFile(it.rec.file, it.rec.blob);
-      delete it.rec.blob;
+// ── Init ───────────────────────────────────────────────────────────
+async function becomeEditor(){
+  mode = 'editor';
+  for (const it of [...items.values()]) unmount(it);   // re-render with editing enabled, from the fresh manifest
+  refreshChrome();
+  await loadBoard();
+  startPolling();
+  if (fsSupported) {
+    const saved = await metaGet('dir').catch(() => null);
+    if (saved && saved.handle) {
+      mirror = saved.handle;
+      mirrorState = (await mirror.queryPermission({ mode: 'readwrite' })) === 'granted' ? 'on' : 'pending';
+      refreshMirrorChrome();
+      mirrorSyncDown();
     }
   }
-  const wasLocal = mode === 'local';
-  mode = 'folder';
-  const existing = await readManifest();
-  removedFiles = existing.removed || [];
-  if (wasLocal) await dbClear();
-  // A folder that already has a board: keep what is there, add what we brought.
-  if (existing.items && existing.items.length && !items.size) await loadFromFolder();
-  else { await writeManifest(); await adoptNewFiles(); }
-  refreshChrome();
-  if (items.size) fitAll();
 }
-async function reconnectFolder(){
-  const p = await dir.requestPermission({ mode: 'readwrite' });
-  if (p !== 'granted') return;
-  mode = 'folder';
-  await loadFromFolder();
-  refreshChrome();
-  if (items.size && (!localStorage.getItem('inspiration.view') || !anyVisible())) fitAll();
-}
-document.getElementById('btnFolder').addEventListener('click', connectFolder);
-document.getElementById('reconnect').addEventListener('click', reconnectFolder);
-
-// Media that shows up in the folder by other means (Finder, say) joins the
-// board; anything removed from the board earlier stays off it.
-async function adoptNewFiles(){
-  const known = new Set([...items.values()].map(i => i.rec.file).filter(Boolean));
-  const skip = new Set(removedFiles);
-  const fresh = [];
-  for await (const [name, h] of dir.entries()) {
-    if (h.kind !== 'file' || name === MANIFEST || name === NOTES || known.has(name) || skip.has(name)) continue;
-    const kind = kindOf('', name); if (!kind) continue;
-    const file = await h.getFile();
-    const src = URL.createObjectURL(file);
-    const rec = freshRec(kind, await measure(kind, src));
-    rec.file = name; rec.created = file.lastModified || Date.now();
-    fresh.push({ rec, src });
-  }
-  // Forget removals for files that are no longer in the folder at all.
-  const present = await folderNames();
-  removedFiles = removedFiles.filter(n => present.has(n));
-  if (fresh.length) {
-    fresh.sort((a, b) => a.rec.created - b.rec.created);
-    const c = viewCentre();
-    scatter(fresh.map(e => e.rec), c.x, c.y);
-    fresh.forEach(({ rec, src }, k) => mount(rec, src, { entering: true, delay: Math.min(k * 45, 500) }));
-  }
-  if (fresh.length || removedFiles.length !== skip.size) scheduleManifest();
-}
-async function loadFromFolder(){
-  const m = await readManifest();
-  removedFiles = m.removed || [];
-  const recs = (m.items || []).sort((a, b) => a.z - b.z);
-  let missing = false, k = 0;
-  for (const rec of recs) {
-    try { mount(rec, await srcFor(rec), { entering: true, delay: Math.min(k++ * 30, 600) }); }
-    catch { missing = true; }   // file gone from the folder: drop it from the board
-  }
-  await adoptNewFiles();
-  if (missing) scheduleManifest();
-}
-
-// ── Init ───────────────────────────────────────────────────────────
-(async () => {
-  refreshChrome();   // the toolbar and empty state never wait on storage
-  [db, metaDb] = await Promise.all([openDB(DB_NAME, 'items', 'id'), openDB(META_DB, 'meta', 'key')]);
-  const saved = fsSupported ? await metaGet('dir') : null;
-  if (saved && saved.handle) {
-    dir = saved.handle;
-    mode = (await dir.queryPermission({ mode: 'readwrite' })) === 'granted' ? 'folder' : 'pending';
-  } else if (location.protocol.startsWith('http')) {
-    mode = 'viewer';
-  }
-  refreshChrome();
-
-  if (mode === 'folder') {
-    await loadFromFolder();
-  } else if (mode === 'viewer') {
-    try {
-      const m = await (await fetch(`${FOLDER}/${MANIFEST}`, { cache: 'no-cache' })).json();
-      const recs = (m.items || []).filter(r => !isPrivate(r)).sort((a, b) => a.z - b.z);
-      let k = 0;
-      for (const rec of recs) mount(rec, await srcFor(rec), { entering: true, delay: Math.min(k++ * 30, 600) });
-    } catch { /* no board published yet */ }
-  } else if (mode === 'local') {
-    const recs = (await dbAll()).sort((a, b) => a.z - b.z);
-    let k = 0;
-    for (const rec of recs) mount(rec, await srcFor(rec), { entering: true, delay: Math.min(k++ * 30, 600) });
-  }
+async function loadBoard(){
+  let recs = [];
+  try {
+    if (canEdit()) {
+      const [m, names] = await Promise.all([fetchManifest(), fetchDirNames()]);
+      recs = m.items || [];
+      takenNames = new Set([...names, ...recs.map(r => r.file).filter(Boolean)]);
+    } else if (onSite) {
+      recs = ((await (await fetch(`${GH.dir}/${GH.manifest}`, { cache: 'no-cache' })).json()).items) || [];
+    }
+  } catch (e) { console.warn('could not load the board', e); }
+  recs.sort((a, b) => a.z - b.z);
+  let k = 0;
+  for (const rec of recs) mount(rec, await srcFor(rec), { entering: true, delay: Math.min(k++ * 30, 600) });
   applyView();
   // A view remembered from an earlier visit can point at empty space once the
   // board gains or moves pieces, which looks exactly like an empty board.
   if (items.size && (!localStorage.getItem('inspiration.view') || !anyVisible())) fitAll();
-  // Web fonts arrive late and change text heights; measure the cards again once they are in.
   document.fonts.ready.then(() => { for (const it of items.values()) if (isText(it.rec)) fitHeight(it); });
+}
+(async () => {
+  refreshChrome();   // the toolbar and empty state never wait on the network
+  metaDb = await openMetaDB().catch(() => null);
+  if (token) {
+    try { await validateToken(); }
+    catch (e) {
+      if (e.status === 401 || e.status === 403 || e.status === 404) {
+        localStorage.removeItem('inspiration.token'); token = ''; mode = 'viewer';
+        document.getElementById('tokenErr').textContent = 'Your saved token no longer works; paste a new one.';
+      }
+      // Offline or GitHub down: stay an editor so queued work can still be retried.
+    }
+  }
+  if (canEdit()) await becomeEditor();
+  else { refreshChrome(); await loadBoard(); }
 })();
 window.addEventListener('resize', updateStatus);
 </script>
