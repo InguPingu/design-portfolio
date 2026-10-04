@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791122879204,
+  "updated": 1791122956375,
   "items": [
     {
       "id": "mutug90b5m6pd",
@@ -284,6 +284,20 @@
       "y": 628.6482657316174,
       "rot": 0,
       "link": "https://www.madhurima.me/home#work"
+    },
+    {
+      "id": "mutwcv8wt9o22",
+      "kind": "video",
+      "aspect": 1.7989473684210526,
+      "natural": 1.7989473684210526,
+      "w": 311.9101806352163,
+      "z": 98,
+      "created": 1791122947376,
+      "file": "Screen Recording 2026-10-04 at 16.08.47.mov",
+      "x": 2892.5544166411532,
+      "y": 1022.123084485,
+      "rot": 0,
+      "link": "https://www.cindyly.design/?tama"
     }
   ]
 }
