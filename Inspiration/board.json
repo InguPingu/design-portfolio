@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791126169526,
+  "updated": 1791126275713,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video"
@@ -443,6 +443,20 @@
       "rot": 0
     },
     {
+      "id": "mutw6i4w2adn6",
+      "kind": "video",
+      "aspect": 1.5,
+      "natural": 1.5,
+      "w": 80,
+      "z": 170,
+      "created": 1791122650448,
+      "file": "ascii-animation (1).mp4",
+      "x": 1701.67748849996,
+      "y": 1308.213177636906,
+      "rot": 0,
+      "link": "https://www.ascii-magic.com/app"
+    },
+    {
       "id": "mutx0u9ltbysr",
       "kind": "image",
       "aspect": 0.8015267175572519,
@@ -456,18 +470,17 @@
       "rot": 0
     },
     {
-      "id": "mutw6i4w2adn6",
-      "kind": "video",
-      "aspect": 1.5,
-      "natural": 1.5,
-      "w": 80,
-      "z": 170,
-      "created": 1791122650448,
-      "file": "ascii-animation (1).mp4",
-      "x": 1701.67748849996,
-      "y": 1308.213177636906,
-      "rot": 0,
-      "link": "https://www.ascii-magic.com/app"
+      "id": "mutyc5hotbp5h",
+      "kind": "image",
+      "aspect": 0.5,
+      "natural": 0.5,
+      "w": 299.9656994407942,
+      "z": 172,
+      "created": 1791126273228,
+      "file": "paste-20261004-170433.png",
+      "x": 3472.3383208712225,
+      "y": 1243.1983524551952,
+      "rot": 0
     }
   ]
 }
