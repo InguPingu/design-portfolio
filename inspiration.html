@@ -347,6 +347,7 @@
   body.mode-editor #empty .only.editor, body.mode-viewer #empty .only.viewer { display: block; }
   body.db-blocked #empty .only.blocked { display: block; }
   body.has-items #empty { opacity: 0; }
+  body.loading #empty { opacity: 0; transition: none; }   /* nothing claims "empty" until the board is actually known */
 
   #dropHint {
     position: fixed; inset: 16px; border-radius: 22px;
@@ -379,7 +380,7 @@
   }
 </style>
 </head>
-<body>
+<body class="loading">
 <nav class="site-nav">
   <a href="cards.html">Projects</a>
   <a href="about.html">About</a>
@@ -709,7 +710,7 @@ async function runCommit(){
     if (carriedW === wallVersion) wallTouched = false;
     inflightFiles = new Map();
     lastErrText = '';
-    mirrorWrite(files);
+    mirrorWrite(files); rememberBoard();
   } catch (e) {
     for (const [n, b] of files) pendingFiles.set(n, b);
     inflightFiles = new Map();
@@ -757,7 +758,7 @@ async function mergeRemote(remote){
     }
   }
   for (const it of [...items.values()]) if (!seen.has(it.rec.id) && !touchedIds.has(it.rec.id)) unmount(it);
-  updateStatus();
+  updateStatus(); rememberBoard();
 }
 let pollT = null;
 function startPolling(){
@@ -1815,11 +1816,12 @@ document.getElementById('btnClear').addEventListener('click', () => {
 });
 
 // ── Init ───────────────────────────────────────────────────────────
-async function becomeEditor(){
+async function becomeEditor(preloaded){
+  const switching = mode !== 'editor';
   mode = 'editor';
-  for (const it of [...items.values()]) unmount(it);   // re-render with editing enabled, from the fresh manifest
+  if (switching) for (const it of [...items.values()]) unmount(it);   // re-render with editing enabled, from the fresh manifest
   refreshChrome();
-  await loadBoard();
+  await loadBoard(preloaded);
   draftWaiting = false;
   await restoreDraft();
   renderPub();
@@ -1834,24 +1836,44 @@ async function becomeEditor(){
     }
   }
 }
-async function loadBoard(){
-  let recs = [], wall = null;
+// The last board this browser saw is kept locally and drawn at once on the
+// next visit, before GitHub answers; the fresh manifest then reconciles it.
+function rememberBoard(){ try { localStorage.setItem('inspiration.board', manifestJson()); } catch {} }
+async function showCachedBoard(){
+  let m; try { m = JSON.parse(localStorage.getItem('inspiration.board')); } catch {}
+  if (!m || !((m.items && m.items.length) || m.wallpaper)) return false;
+  const recs = [...(m.items || [])].sort((a, b) => a.z - b.z);
+  let k = 0;
+  for (const rec of recs) mount(rec, await srcFor(rec), { entering: true, delay: Math.min(k++ * 20, 300) });
+  setWallpaper(m.wallpaper || null, true);
+  applyView();
+  if (items.size && (!localStorage.getItem('inspiration.view') || !anyVisible())) fitAll();
+  return true;
+}
+async function loadBoard(preloaded){
+  let m = null;
   try {
     if (canEdit()) {
-      const [m, names] = await Promise.all([fetchManifest(), fetchDirNames()]);
-      recs = m.items || []; wall = m.wallpaper || null;
-      takenNames = new Set([...names, ...recs.map(r => r.file).filter(Boolean)]);
+      const [mm, names] = await Promise.all([preloaded ? preloaded.then(x => x || fetchManifest()) : fetchManifest(), fetchDirNames()]);
+      m = mm;
+      takenNames = new Set([...names, ...(m.items || []).map(r => r.file).filter(Boolean)]);
     } else if (onSite) {
       // A changing query string sidesteps the CDN's ten-minute cache, so visitors
       // see a publish about as soon as Pages has built it.
-      const m = await (await fetch(`${GH.dir}/${GH.manifest}?v=${Date.now()}`, { cache: 'no-cache' })).json();
-      recs = m.items || []; wall = m.wallpaper || null;
+      m = await (await fetch(`${GH.dir}/${GH.manifest}?v=${Date.now()}`, { cache: 'no-cache' })).json();
     }
   } catch (e) { console.warn('could not load the board', e); }
-  recs.sort((a, b) => a.z - b.z);
-  let k = 0;
-  for (const rec of recs) mount(rec, await srcFor(rec), { entering: true, delay: Math.min(k++ * 30, 600) });
-  setWallpaper(wall, true);
+  if (m) {
+    if (items.size || wallpaper) await mergeRemote(m);   // the cached board is already up: adjust it
+    else {
+      const recs = [...(m.items || [])].sort((a, b) => a.z - b.z);
+      let k = 0;
+      for (const rec of recs) mount(rec, await srcFor(rec), { entering: true, delay: Math.min(k++ * 30, 600) });
+      setWallpaper(m.wallpaper || null, true);
+    }
+    rememberBoard();
+  }
+  document.body.classList.remove('loading');
   applyView();
   // A view remembered from an earlier visit can point at empty space once the
   // board gains or moves pieces, which looks exactly like an empty board.
@@ -1859,9 +1881,12 @@ async function loadBoard(){
   document.fonts.ready.then(() => { for (const it of items.values()) if (isText(it.rec)) fitHeight(it); });
 }
 (async () => {
-  refreshChrome();   // the toolbar and empty state never wait on the network
+  refreshChrome();   // the toolbar never waits on the network
+  await showCachedBoard();   // last known board, instantly; GitHub's answer adjusts it below
   metaDb = await openMetaDB().catch(() => null);
+  let preloaded = null;
   if (token) {
+    preloaded = fetchManifest().catch(() => null);   // in flight while the token is checked
     try { await validateToken(false); }
     catch (e) {
       if (e.status === 401 || e.status === 404 || (e.status === 403 && !isRateLimit(e))) {
@@ -1871,7 +1896,7 @@ async function loadBoard(){
       // Offline or GitHub down: stay an editor so queued work can still be retried.
     }
   }
-  if (canEdit()) await becomeEditor();
+  if (canEdit()) await becomeEditor(preloaded);
   else {
     refreshChrome(); await loadBoard();
     const d = await metaGet('draft').catch(() => null);
