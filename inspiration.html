@@ -434,14 +434,24 @@ let mode = token ? 'editor' : 'viewer', who = '';
 const canEdit = () => mode === 'editor';
 const isText  = rec => rec.kind === 'note' || rec.kind === 'todo' || rec.kind === 'link';
 
-class ApiError extends Error { constructor(status, path, body){ super(`${status} ${path}${body ? ': ' + body.slice(0, 160) : ''}`); this.status = status; } }
+class ApiError extends Error {
+  constructor(status, path, body, retryAfter){
+    super(`${status} ${path}${body ? ': ' + body.slice(0, 160) : ''}`);
+    this.status = status; this.body = body || ''; this.retryAfter = retryAfter;
+  }
+  get ghMessage(){ try { return JSON.parse(this.body).message || ''; } catch { return ''; } }
+}
+// GitHub allows 500 content-creating requests an hour per token; past that it
+// answers 403/429 with "secondary rate limit", which says nothing about the token.
+const isRateLimit = e => e && (e.status === 429 || (e.status === 403 && /rate limit/i.test(e.body || '')));
 async function api(path, opt = {}){
   const r = await fetch('https://api.github.com' + path, { ...opt, headers: {
     Accept: 'application/vnd.github+json', Authorization: 'Bearer ' + token, 'X-GitHub-Api-Version': '2022-11-28',
     ...(opt.body ? { 'Content-Type': 'application/json' } : {}), ...(opt.headers || {}) } });
-  if (!r.ok) throw new ApiError(r.status, path, await r.text().catch(() => ''));
+  if (!r.ok) throw new ApiError(r.status, path, await r.text().catch(() => ''), Number(r.headers.get('retry-after')) || undefined);
   return r.status === 204 ? null : r.json();
 }
+const b64encode = str => btoa(unescape(encodeURIComponent(str)));
 const repoPath = p => `/repos/${GH.owner}/${GH.repo}${p}`;
 const b64decode = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, '')), c => c.charCodeAt(0)));
 const toBase64 = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result.split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); });
@@ -492,7 +502,7 @@ function renderPub(){
   else if (tokenDead) { cls = 'error'; text = lastErrText; title = 'Open the publishing settings'; }
   else if (committing) { cls = 'busy'; text = upload ? `Uploading ${upload.k} of ${upload.n}…` : 'Publishing…'; title = 'Sending your changes to GitHub – keep the page open'; }
   else if (manifestDirty) {
-    if (lastErrText) { cls = 'error'; text = 'Publish failed · retrying'; title = lastErrText; }
+    if (lastErrText) { cls = 'error'; text = lastErrText; title = lastErrText; }
     else { cls = 'pending'; text = 'Not published yet'; title = 'Publishing in a moment – click to publish now'; }
   }
   pubState.className = cls + (pubState.classList.contains('show') ? ' show' : '');
@@ -544,6 +554,20 @@ async function restoreDraft(){
 window.addEventListener('beforeunload', e => {
   if (canEdit() && (committing || manifestDirty || pendingFiles.size)) { e.preventDefault(); e.returnValue = ''; }
 });
+// A file GitHub itself refuses (too large, malformed) would otherwise be retried
+// forever now that drafts survive reloads; after two refusals it leaves the board.
+const fileFails = new Map();
+function giveUpOn(name, e){
+  const n = (fileFails.get(name) || 0) + 1; fileFails.set(name, n);
+  if (n < 2) return false;
+  fileFails.delete(name); pendingFiles.delete(name); takenNames.delete(name);
+  for (const it of [...items.values()]) if (it.rec.file === name) { touchedIds.delete(it.rec.id); unmount(it); }
+  if (![...items.values()].some(() => true)) updateStatus();
+  pubNote = `GitHub would not take ${name} (${e.status}${e.ghMessage ? ': ' + e.ghMessage : ''}) – removed from the board`;
+  setTimeout(() => { if (pubNote.startsWith(`GitHub would not take ${name}`)) { pubNote = ''; renderPub(); } }, 12000);
+  updateStatus();
+  return true;
+}
 async function runCommit(){
   if (committing) { scheduleCommit(null, 800); return; }
   if (!canEdit() || !manifestDirty) return;
@@ -559,18 +583,31 @@ async function runCommit(){
     let k = 0;
     for (const [name, blob] of files) {
       upload = { k: ++k, n: files.length }; renderPub();
-      const b = await api(repoPath('/git/blobs'), { method: 'POST', body: JSON.stringify({ content: await toBase64(blob), encoding: 'base64' }) });
+      let b;
+      try { b = await api(repoPath('/git/blobs'), { method: 'POST', body: JSON.stringify({ content: await toBase64(blob), encoding: 'base64' }) }); }
+      catch (e) { e.file = name; throw e; }
       blobs.push({ path: `${GH.dir}/${name}`, mode: '100644', type: 'blob', sha: b.sha });
     }
     upload = null; renderPub();
     for (let attempt = 0; ; attempt++) {
+      const message = 'Board: ' + (msgs.length ? msgs.slice(0, 3).join(', ') + (msgs.length > 3 ? ` (+${msgs.length - 3})` : '') : 'update');
+      if (!blobs.length) {
+        // Only the board changed: one request through the contents API instead of
+        // tree + commit + ref, which keeps well inside GitHub's hourly budget.
+        const cur = await api(repoPath(`/contents/${GH.dir}/${GH.manifest}?ref=${GH.branch}`)).catch(e => { if (e.status === 404) return null; throw e; });
+        await mergeRemote(cur ? JSON.parse(b64decode(cur.content)) : { version: 1, items: [] });
+        carriedT = new Set(touchedIds); carriedD = new Set(deletedIds);
+        try {
+          await api(repoPath(`/contents/${GH.dir}/${GH.manifest}`), { method: 'PUT', body: JSON.stringify({ message, content: b64encode(manifestJson()), branch: GH.branch, ...(cur ? { sha: cur.sha } : {}) }) });
+          break;
+        } catch (e) { if (attempt < 2 && (e.status === 409 || e.status === 422)) continue; throw e; }   // someone else changed the board: redo on theirs
+      }
       const head = (await api(repoPath(`/git/ref/heads/${GH.branch}`))).object.sha;
       const base = await api(repoPath(`/git/commits/${head}`));
       await mergeRemote(await fetchManifest(head));
       carriedT = new Set(touchedIds); carriedD = new Set(deletedIds);
       const tree = await api(repoPath('/git/trees'), { method: 'POST', body: JSON.stringify({ base_tree: base.tree.sha,
         tree: [...blobs, { path: `${GH.dir}/${GH.manifest}`, mode: '100644', type: 'blob', content: manifestJson() }] }) });
-      const message = 'Board: ' + (msgs.length ? msgs.slice(0, 3).join(', ') + (msgs.length > 3 ? ` (+${msgs.length - 3})` : '') : 'update');
       const c = await api(repoPath('/git/commits'), { method: 'POST', body: JSON.stringify({ message, tree: tree.sha, parents: [head] }) });
       try { await api(repoPath(`/git/refs/heads/${GH.branch}`), { method: 'PATCH', body: JSON.stringify({ sha: c.sha, force: false }) }); break; }
       catch (e) { if (attempt < 2 && (e.status === 422 || e.status === 409)) continue; throw e; }   // someone else pushed: rebuild on the new head
@@ -587,11 +624,21 @@ async function runCommit(){
     msgs.forEach(m => pendingMsgs.add(m));
     manifestDirty = true;
     console.warn('publish failed', e);
-    tokenDead = e.status === 401 || e.status === 403;
-    lastErrText = tokenDead
-      ? (e.status === 403 ? 'Publish failed: the token can only read – set Contents to Read and write on GitHub' : 'Publish failed: token rejected – paste a new one')
-      : `Publish failed (${e.status || 'offline'}) – retrying in 15 s`;
-    if (!tokenDead) { clearTimeout(commitT); commitT = setTimeout(() => { commitT = null; runCommit(); }, 15000); }
+    let wait = 15000;
+    if (isRateLimit(e)) {
+      tokenDead = false;
+      wait = Math.max(60, e.retryAfter || 0) * 1000;
+      lastErrText = `GitHub is rate-limiting this token – retrying in ${Math.round(wait / 1000)} s`;
+    } else if (e.status === 401 || e.status === 403) {
+      tokenDead = true;
+      lastErrText = e.status === 403 ? 'Publish failed: the token can only read – set Contents to Read and write on GitHub' : 'Publish failed: token rejected – paste a new one';
+    } else {
+      tokenDead = false;
+      if (e.file && (e.status === 413 || e.status === 422 || e.status === 400) && giveUpOn(e.file, e)) wait = 1500;   // publish the rest now
+      const why = e.status ? `${e.status}${e.ghMessage ? ' ' + e.ghMessage : ''}` : 'could not reach GitHub';
+      lastErrText = `Publish failed (${why}) – retrying in 15 s`;
+    }
+    if (!tokenDead) { clearTimeout(commitT); commitT = setTimeout(() => { commitT = null; runCommit(); }, wait); }
   } finally {
     committing = false; upload = null;
     saveDraft(); renderPub();
@@ -667,10 +714,12 @@ const tokenPanel = document.getElementById('tokenPanel');
 // The repo's `permissions` describe the account, not the token, so the only
 // honest test of a fine-grained token is to write: a loose blob that nothing
 // references, which GitHub simply discards.
-async function validateToken(){
+async function validateToken(probeWrite){
   await api(repoPath(''));
-  try { await api(repoPath('/git/blobs'), { method: 'POST', body: JSON.stringify({ content: 'inspiration board write check', encoding: 'utf-8' }) }); }
-  catch (e) { if (e.status === 403 || e.status === 404) throw new ApiError(403, 'write', 'read-only'); throw e; }
+  if (probeWrite) {   // only when a token is first saved: a write costs rate-limit budget
+    try { await api(repoPath('/git/blobs'), { method: 'POST', body: JSON.stringify({ content: 'inspiration board write check', encoding: 'utf-8' }) }); }
+    catch (e) { if (isRateLimit(e)) throw e; if (e.status === 403 || e.status === 404) throw new ApiError(403, 'write', 'read-only'); throw e; }
+  }
   try { who = (await api('/user')).login; } catch { who = ''; }
 }
 async function saveToken(){
@@ -679,7 +728,7 @@ async function saveToken(){
   btn.disabled = true; err.textContent = '';
   const prev = token; token = t;
   try {
-    await validateToken();
+    await validateToken(true);
     localStorage.setItem('inspiration.token', token);
     input.value = '';
     tokenPanel.classList.remove('open');
@@ -689,7 +738,8 @@ async function saveToken(){
     else await becomeEditor();
   } catch (e) {
     token = prev;
-    err.textContent = e.status === 401 ? 'GitHub did not accept that token.'
+    err.textContent = isRateLimit(e) ? 'GitHub is rate-limiting this token right now – try again in a few minutes.'
+      : e.status === 401 ? 'GitHub did not accept that token.'
       : e.status === 403 || e.status === 404 ? 'This token can only read. On GitHub, set its Contents permission to Read and write.'
       : 'Could not reach GitHub.';
   } finally { btn.disabled = false; }
@@ -1636,9 +1686,9 @@ async function loadBoard(){
   refreshChrome();   // the toolbar and empty state never wait on the network
   metaDb = await openMetaDB().catch(() => null);
   if (token) {
-    try { await validateToken(); }
+    try { await validateToken(false); }
     catch (e) {
-      if (e.status === 401 || e.status === 403 || e.status === 404) {
+      if (e.status === 401 || e.status === 404 || (e.status === 403 && !isRateLimit(e))) {
         localStorage.removeItem('inspiration.token'); token = ''; mode = 'viewer';
         document.getElementById('tokenErr').textContent = 'Your saved token no longer works; paste a new one.';
       }
