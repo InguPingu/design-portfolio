@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791125351132,
+  "updated": 1791125427298,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video"
@@ -209,19 +209,6 @@
       "link": "https://www.ascii-magic.com/app"
     },
     {
-      "id": "mutx487f2v8b1",
-      "kind": "image",
-      "aspect": 1,
-      "natural": 1,
-      "w": 286.73113430316573,
-      "z": 156,
-      "created": 1791124223883,
-      "file": "paste-20261004-163023.png",
-      "x": 1836.0006715625655,
-      "y": 1568.1302361036155,
-      "rot": 0
-    },
-    {
       "id": "mutx3eowlml1v",
       "kind": "image",
       "aspect": 0.7568,
@@ -416,6 +403,32 @@
       "y": 1289.50938978322,
       "rot": 0,
       "link": "https://www.marvinschwaibold.com/"
+    },
+    {
+      "id": "mutxtyta8dgyi",
+      "kind": "image",
+      "aspect": 0.6433566433566433,
+      "natural": 0.6433566433566433,
+      "w": 282.8691302249559,
+      "z": 157,
+      "created": 1791125424766,
+      "file": "paste-20261004-165024.png",
+      "x": 819.2621250234799,
+      "y": 1417.3183947480086,
+      "rot": 0
+    },
+    {
+      "id": "mutx487f2v8b1",
+      "kind": "image",
+      "aspect": 1,
+      "natural": 1,
+      "w": 286.73113430316573,
+      "z": 156,
+      "created": 1791124223883,
+      "file": "paste-20261004-163023.png",
+      "x": 1836.0006715625655,
+      "y": 1568.1302361036155,
+      "rot": 0
     }
   ]
 }
