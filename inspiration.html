@@ -1280,7 +1280,9 @@ async function loadBoard(){
       recs = m.items || [];
       takenNames = new Set([...names, ...recs.map(r => r.file).filter(Boolean)]);
     } else if (onSite) {
-      recs = ((await (await fetch(`${GH.dir}/${GH.manifest}`, { cache: 'no-cache' })).json()).items) || [];
+      // A changing query string sidesteps the CDN's ten-minute cache, so visitors
+      // see a publish about as soon as Pages has built it.
+      recs = ((await (await fetch(`${GH.dir}/${GH.manifest}?v=${Date.now()}`, { cache: 'no-cache' })).json()).items) || [];
     }
   } catch (e) { console.warn('could not load the board', e); }
   recs.sort((a, b) => a.z - b.z);
