@@ -646,6 +646,11 @@ window.addEventListener('beforeunload', e => {
 // A file GitHub itself refuses (too large, malformed) would otherwise be retried
 // forever now that drafts survive reloads; after two refusals it leaves the board.
 const fileFails = new Map();
+// GitHub's read of the branch head can lag a few seconds behind a commit this
+// page just made; building on that stale head gets "not a fast forward". So
+// remember our own recent commits and never build on one of their ancestors.
+let ourChain = [];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 function giveUpOn(name, e){
   const n = (fileFails.get(name) || 0) + 1; fileFails.set(name, n);
   if (n < 2) return false;
@@ -684,15 +689,19 @@ async function runCommit(){
       // would be one request for board-only changes, but it rejects writes that
       // follow another commit closely (409 "does not match") because it checks
       // against a lagging replica; the ref update here is strongly consistent.
-      const head = (await api(repoPath(`/git/ref/heads/${GH.branch}`))).object.sha;
+      let head = (await api(repoPath(`/git/ref/heads/${GH.branch}`))).object.sha;
+      if (ourChain.indexOf(head) > 0) head = ourChain[0];   // the read is behind our own last publish
       const base = await api(repoPath(`/git/commits/${head}`));
       await mergeRemote(await fetchManifest(head));
       carriedT = new Set(touchedIds); carriedD = new Set(deletedIds); carriedW = wallVersion;
       const tree = await api(repoPath('/git/trees'), { method: 'POST', body: JSON.stringify({ base_tree: base.tree.sha,
         tree: [...blobs, { path: `${GH.dir}/${GH.manifest}`, mode: '100644', type: 'blob', content: manifestJson() }] }) });
       const c = await api(repoPath('/git/commits'), { method: 'POST', body: JSON.stringify({ message, tree: tree.sha, parents: [head] }) });
-      try { await api(repoPath(`/git/refs/heads/${GH.branch}`), { method: 'PATCH', body: JSON.stringify({ sha: c.sha, force: false }) }); break; }
-      catch (e) { if (attempt < 2 && (e.status === 422 || e.status === 409)) continue; throw e; }   // someone else pushed: rebuild on the new head
+      try { await api(repoPath(`/git/refs/heads/${GH.branch}`), { method: 'PATCH', body: JSON.stringify({ sha: c.sha, force: false }) }); ourChain = [c.sha, head, ...ourChain].slice(0, 12); break; }
+      catch (e) {   // someone else pushed, or the head read was stale: wait a moment and rebuild on the new head
+        if (attempt < 3 && (e.status === 422 || e.status === 409)) { await sleep(700 * (attempt + 1)); continue; }
+        throw e;
+      }
     }
     // Only what this commit carried is now safe; anything touched since stays queued.
     for (const id of carriedT) touchedIds.delete(id);
