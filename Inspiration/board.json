@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791135360015,
+  "updated": 1791135399331,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -93,20 +93,6 @@
       "link": "https://alvinn.design/"
     },
     {
-      "id": "mutw9lffjhygn",
-      "kind": "video",
-      "aspect": 1.7989473684210526,
-      "natural": 1.7989473684210526,
-      "w": 318.8830331535463,
-      "z": 96,
-      "created": 1791122794683,
-      "file": "Screen Recording 2026-10-04 at 16.06.11.mov",
-      "x": 2816.0607574392907,
-      "y": 628.6482657316174,
-      "rot": 0,
-      "link": "https://www.madhurima.me/home#work"
-    },
-    {
       "id": "mutx3eowlml1v",
       "kind": "image",
       "aspect": 0.7568,
@@ -146,60 +132,18 @@
       "rot": 0
     },
     {
-      "id": "mutxajjiz6dpp",
-      "kind": "video",
-      "aspect": 1.7989473684210526,
-      "natural": 1.7989473684210526,
-      "w": 303.4088980997788,
-      "z": 136,
-      "created": 1791124518510,
-      "file": "Screen Recording 2026-10-04 at 16.34.57.mov",
-      "x": 2891.2561554114855,
-      "y": 389.16119940416337,
-      "rot": 0,
-      "link": "https://jennywen.ca/"
-    },
-    {
-      "id": "mutvjszt0pq3f",
-      "kind": "image",
-      "aspect": 0.9905660377358491,
-      "natural": 0.9905660377358491,
-      "w": 267.9427492800634,
-      "z": 151,
-      "created": 1791121591433,
-      "file": "aiee@alevwida.com.png",
-      "x": 2523.1636958400813,
-      "y": 468.0285584449307,
-      "rot": 0,
-      "link": "https://alexwidua.com/"
-    },
-    {
       "id": "mutug90acci7v",
       "kind": "video",
       "aspect": 1.797752808988764,
       "natural": 1.797752808988764,
       "w": 473.74024016367525,
-      "z": 152,
+      "z": 193,
       "created": 1791119745946,
       "file": "Screen Recording 2026-10-04 at 15.04.52.mp4",
       "x": 3216.274174166391,
       "y": 727.6789758199795,
       "rot": 0,
       "link": "https://www.lucascrespo.com/"
-    },
-    {
-      "id": "mutwgrpowx244",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 542.2152339740364,
-      "z": 191,
-      "created": 1791123129420,
-      "file": "Screen Recording 2026-10-04 at 16.11.32.mp4",
-      "x": 2567.235251329419,
-      "y": 1289.50938978322,
-      "rot": 0,
-      "link": "https://www.marvinschwaibold.com/"
     },
     {
       "id": "mutx487f2v8b1",
@@ -409,19 +353,6 @@
       }
     },
     {
-      "id": "mutukdqifrm0v",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 360.06488960753336,
-      "z": 190,
-      "created": 1791119938698,
-      "file": "Screen Recording 2026-10-04 at 15.18.29.mp4",
-      "x": 1769.6459676847985,
-      "y": 871.8710357619531,
-      "rot": 0
-    },
-    {
       "id": "mutyc5hotbp5h",
       "kind": "image",
       "aspect": 0.5,
@@ -486,6 +417,75 @@
       "y": 1237.0820736554124,
       "rot": 0,
       "link": "https://supdima.com/tt-app"
+    },
+    {
+      "id": "mutw9lffjhygn",
+      "kind": "video",
+      "aspect": 1.7989473684210526,
+      "natural": 1.7989473684210526,
+      "w": 318.8830331535463,
+      "z": 192,
+      "created": 1791122794683,
+      "file": "Screen Recording 2026-10-04 at 16.06.11.mov",
+      "x": 2816.0607574392907,
+      "y": 628.6482657316174,
+      "rot": 0,
+      "link": "https://www.madhurima.me/home#work"
+    },
+    {
+      "id": "mutxajjiz6dpp",
+      "kind": "video",
+      "aspect": 1.7989473684210526,
+      "natural": 1.7989473684210526,
+      "w": 303.4088980997788,
+      "z": 136,
+      "created": 1791124518510,
+      "file": "Screen Recording 2026-10-04 at 16.34.57.mov",
+      "x": 2891.2561554114855,
+      "y": 389.16119940416337,
+      "rot": 0,
+      "link": "https://jennywen.ca/"
+    },
+    {
+      "id": "mutvjszt0pq3f",
+      "kind": "image",
+      "aspect": 0.9905660377358491,
+      "natural": 0.9905660377358491,
+      "w": 267.9427492800634,
+      "z": 151,
+      "created": 1791121591433,
+      "file": "aiee@alevwida.com.png",
+      "x": 2523.1636958400813,
+      "y": 468.0285584449307,
+      "rot": 0,
+      "link": "https://alexwidua.com/"
+    },
+    {
+      "id": "mutwgrpowx244",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 542.2152339740364,
+      "z": 191,
+      "created": 1791123129420,
+      "file": "Screen Recording 2026-10-04 at 16.11.32.mp4",
+      "x": 2567.235251329419,
+      "y": 1289.50938978322,
+      "rot": 0,
+      "link": "https://www.marvinschwaibold.com/"
+    },
+    {
+      "id": "mutukdqifrm0v",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 360.06488960753336,
+      "z": 190,
+      "created": 1791119938698,
+      "file": "Screen Recording 2026-10-04 at 15.18.29.mp4",
+      "x": 1769.6459676847985,
+      "y": 871.8710357619531,
+      "rot": 0
     }
   ]
 }
