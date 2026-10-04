@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791120806255,
+  "updated": 1791121001680,
   "items": [
     {
       "id": "mutv02gvi8yev",
@@ -148,6 +148,19 @@
       "y": 590.0919466668448,
       "rot": 0,
       "link": "https://jennwchoi.com/about"
+    },
+    {
+      "id": "mutv70jxf54g1",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 304.9033539869956,
+      "z": 62,
+      "created": 1791120994701,
+      "file": "Screen Recording 2026-10-04 at 15.35.19.mp4",
+      "x": 2182.7325633565283,
+      "y": 1071.6235782851147,
+      "rot": 0
     }
   ]
 }
