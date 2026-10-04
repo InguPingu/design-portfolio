@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" id="themeColor" content="#f0f0f0">
 <title>Inspiration</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Homemade+Apple&display=swap" rel="stylesheet">
@@ -10,10 +10,14 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
+  html { overflow: hidden; }
   body {
     font-family: 'DM Sans', sans-serif;
     background: #f0f0f0;
     color: #2B2828;
+    /* A fixed body is the one thing iOS Safari will never scroll or rubber-band;
+       everything on this page is positioned, so nothing is lost. */
+    position: fixed; inset: 0; width: 100%;
     overflow: hidden;
     overscroll-behavior: none;
     -webkit-user-select: none; user-select: none;
@@ -2064,6 +2068,10 @@ async function loadBoard(preloaded){
   }
 })();
 window.addEventListener('resize', updateStatus);
+// iOS Safari performs its own pinch-zoom and page scroll on top of ours unless
+// told not to at the event level; touch-action alone is not always enough.
+for (const ev of ['gesturestart', 'gesturechange', 'gestureend']) document.addEventListener(ev, e => e.preventDefault(), { passive: false });
+document.addEventListener('touchmove', e => { if (!e.target.closest('.panel, [contenteditable], input')) e.preventDefault(); }, { passive: false });
 </script>
 </body>
 </html>
