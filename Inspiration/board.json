@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791125057541,
+  "updated": 1791125304851,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video"
@@ -12,11 +12,11 @@
       "aspect": 1.797752808988764,
       "natural": 1.797752808988764,
       "w": 360.06488960753336,
-      "z": 55,
+      "z": 154,
       "created": 1791119938698,
       "file": "Screen Recording 2026-10-04 at 15.18.29.mp4",
-      "x": 1713.9373714541812,
-      "y": 788.2158882758791,
+      "x": 1769.6459676847985,
+      "y": 871.8710357619531,
       "rot": 0
     },
     {
@@ -113,20 +113,6 @@
       "rot": 0
     },
     {
-      "id": "mutvjszt0pq3f",
-      "kind": "image",
-      "aspect": 0.9905660377358491,
-      "natural": 0.9905660377358491,
-      "w": 267.9427492800634,
-      "z": 151,
-      "created": 1791121591433,
-      "file": "aiee@alevwida.com.png",
-      "x": 2523.1636958400813,
-      "y": 468.0285584449307,
-      "rot": 0,
-      "link": "https://alexwidua.com/"
-    },
-    {
       "id": "mutvmw1bv7sr2",
       "kind": "video",
       "aspect": 1.7989473684210526,
@@ -180,20 +166,6 @@
       "y": 628.6482657316174,
       "rot": 0,
       "link": "https://www.madhurima.me/home#work"
-    },
-    {
-      "id": "mutwgrpowx244",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 542.2152339740364,
-      "z": 153,
-      "created": 1791123129420,
-      "file": "Screen Recording 2026-10-04 at 16.11.32.mp4",
-      "x": 2567.235251329419,
-      "y": 1289.50938978322,
-      "rot": 0,
-      "link": "https://www.marvinschwaibold.com/"
     },
     {
       "id": "mutx0u9ltbysr",
@@ -376,6 +348,48 @@
       "rot": 0
     },
     {
+      "id": "mutv70jxf54g1",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 517.4679773231347,
+      "z": 148,
+      "created": 1791120994701,
+      "file": "Screen Recording 2026-10-04 at 15.35.19.mp4",
+      "x": 2111.618658035443,
+      "y": 1066.8311490270983,
+      "rot": 0,
+      "link": "https://www.calebwu.ca/"
+    },
+    {
+      "id": "mutuuqvs3o2qs",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 561.1634081730699,
+      "z": 155,
+      "created": 1791120422296,
+      "file": "Untitled 2.mp4",
+      "x": 1377.2330426772583,
+      "y": 610.5229421049229,
+      "rot": 0,
+      "link": "https://jennwchoi.com/about"
+    },
+    {
+      "id": "mutvjszt0pq3f",
+      "kind": "image",
+      "aspect": 0.9905660377358491,
+      "natural": 0.9905660377358491,
+      "w": 267.9427492800634,
+      "z": 151,
+      "created": 1791121591433,
+      "file": "aiee@alevwida.com.png",
+      "x": 2523.1636958400813,
+      "y": 468.0285584449307,
+      "rot": 0,
+      "link": "https://alexwidua.com/"
+    },
+    {
       "id": "mutug90acci7v",
       "kind": "video",
       "aspect": 1.797752808988764,
@@ -390,32 +404,18 @@
       "link": "https://www.lucascrespo.com/"
     },
     {
-      "id": "mutuuqvs3o2qs",
+      "id": "mutwgrpowx244",
       "kind": "video",
       "aspect": 1.797752808988764,
       "natural": 1.797752808988764,
-      "w": 561.1634081730699,
-      "z": 150,
-      "created": 1791120422296,
-      "file": "Untitled 2.mp4",
-      "x": 1346.1990863315202,
-      "y": 590.0919466668448,
+      "w": 542.2152339740364,
+      "z": 153,
+      "created": 1791123129420,
+      "file": "Screen Recording 2026-10-04 at 16.11.32.mp4",
+      "x": 2567.235251329419,
+      "y": 1289.50938978322,
       "rot": 0,
-      "link": "https://jennwchoi.com/about"
-    },
-    {
-      "id": "mutv70jxf54g1",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 517.4679773231347,
-      "z": 148,
-      "created": 1791120994701,
-      "file": "Screen Recording 2026-10-04 at 15.35.19.mp4",
-      "x": 2111.618658035443,
-      "y": 1066.8311490270983,
-      "rot": 0,
-      "link": "https://www.calebwu.ca/"
+      "link": "https://www.marvinschwaibold.com/"
     }
   ]
 }
