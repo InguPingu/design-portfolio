@@ -154,6 +154,7 @@
     width: 30px; opacity: 0; transition: opacity 0.18s;
   }
   .item.text:hover .grip, .item.text.selected .grip { opacity: 1; }
+  .item.selected.co { outline: calc(1.5px / var(--zs, 1)) solid #2B2828; outline-offset: calc(3px / var(--zs, 1)); }
   .item.text [contenteditable] {
     -webkit-user-select: text; user-select: text; cursor: text; outline: none;
     white-space: pre-wrap; overflow-wrap: anywhere;
@@ -1040,7 +1041,8 @@ function editable(cls, ph, text, it){
   el.dataset.ph = ph;
   if (text) el.textContent = text;
   el.addEventListener('input', () => { if (!el.innerText.trim()) el.textContent = ''; onEdited(it); });
-  el.addEventListener('focus', () => select(it.rec.id));
+  el.addEventListener('focus', () => { select(it.rec.id); editSnap = takeSnap(); });
+  el.addEventListener('blur', () => { if (editSnap && JSON.stringify(editSnap.items) !== JSON.stringify(takeSnap().items)) pushUndo(editSnap); editSnap = null; });
   return el;
 }
 let saveTimers = new Map();
@@ -1124,10 +1126,12 @@ function renderBadge(it){
   it.el.appendChild(a);
 }
 function attachLink(it, url){
+  pushUndo();
   it.rec.link = normUrl(url);
   renderBadge(it); persist(it.rec, `link ${labelOf(it.rec)}`); select(it.rec.id);
 }
 function detachLink(it){
+  pushUndo();
   delete it.rec.link;
   renderBadge(it); persist(it.rec, `unlink ${labelOf(it.rec)}`);
 }
@@ -1135,7 +1139,7 @@ function detachLink(it){
 function todoRow(row, it){
   const li = h('li', 'row' + (row.done ? ' done' : ''));
   const box = h('input', '', { type: 'checkbox', checked: !!row.done, disabled: !canEdit() });
-  box.addEventListener('change', () => { li.classList.toggle('done', box.checked); onEdited(it); });
+  box.addEventListener('change', () => { pushUndo(); li.classList.toggle('done', box.checked); onEdited(it); });
   const txt = editable('txt', 'Add an item', row.text, it);
   txt.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
@@ -1189,7 +1193,8 @@ function unmount(it){
   if (it.media && it.media.src.startsWith('blob:')) URL.revokeObjectURL(it.media.src);
   it.el.remove();
   items.delete(it.rec.id);
-  if (selectedId === it.rec.id) { selectedId = null; syncSel(); }
+  selection.delete(it.rec.id);
+  if (selectedId === it.rec.id) { selectedId = [...selection].pop() || null; syncSel(); }
 }
 
 // ── Undo for removals ──────────────────────────────────────────────
@@ -1208,6 +1213,7 @@ function offerUndo(recs){
 document.getElementById('undoBtn').addEventListener('click', async e => {
   e.stopPropagation();
   const back = removed; removed = []; clearTimeout(undoT); undoBar.classList.remove('show');
+  pushUndo();
   for (const rec of back) {
     if (items.has(rec.id)) continue;
     deletedIds.delete(rec.id);
@@ -1220,19 +1226,105 @@ document.getElementById('undoBtn').addEventListener('click', async e => {
 function remove(id){
   const it = items.get(id); if (!it) return;
   const rec = it.rec;
+  pushUndo();
   unmount(it);
   unpersist(rec);
   if (canEdit()) offerUndo([rec]);
   updateStatus();
 }
 
-function select(id){
-  if (selectedId === id) return;
-  if (selectedId && items.has(selectedId)) items.get(selectedId).el.classList.remove('selected');
-  selectedId = id;
-  if (id) items.get(id).el.classList.add('selected');
-  syncSel();
+// ── Selection ──────────────────────────────────────────────────────
+// `selection` holds every selected piece; `selectedId` is the primary one that
+// wears the handles and chips. ⌘/Ctrl/Shift-click adds and removes pieces.
+const selection = new Set();
+function syncSelClasses(){
+  for (const it of items.values()) {
+    const on = selection.has(it.rec.id);
+    it.el.classList.toggle('selected', on);
+    it.el.classList.toggle('co', on && it.rec.id !== selectedId);
+  }
 }
+function select(id){
+  selection.clear(); if (id && items.has(id)) selection.add(id);
+  selectedId = id && items.has(id) ? id : null;
+  syncSelClasses(); syncSel();
+}
+function toggleSelect(id){
+  if (selection.has(id)) { selection.delete(id); if (selectedId === id) selectedId = [...selection].pop() || null; }
+  else { selection.add(id); selectedId = id; }
+  syncSelClasses(); syncSel();
+}
+function selectAll(){
+  selection.clear(); for (const id of items.keys()) selection.add(id);
+  selectedId = [...selection].pop() || null;
+  syncSelClasses(); syncSel();
+}
+const selectedItems = () => [...selection].map(id => items.get(id)).filter(Boolean);
+
+// ── Undo / redo ────────────────────────────────────────────────────
+// Snapshots of every record (and the wallpaper) before each change. Applying
+// one re-mounts what differs and publishes it like any other edit.
+const undoStack = [], redoStack = [];
+const takeSnap = () => ({ items: [...items.values()].map(i => stripRec(i.rec)), wallpaper: wallpaper ? { ...wallpaper } : null });
+function pushUndo(snap){ undoStack.push(snap || takeSnap()); if (undoStack.length > 60) undoStack.shift(); redoStack.length = 0; }
+async function applySnap(snap){
+  const want = new Map(snap.items.map(r => [r.id, r]));
+  const keep = [...selection];
+  for (const it of [...items.values()]) if (!want.has(it.rec.id)) { unmount(it); unpersist(it.rec); }
+  for (const r of snap.items) {
+    const cur = items.get(r.id);
+    if (cur && JSON.stringify(stripRec(cur.rec)) === JSON.stringify(r)) continue;
+    const blob = (cur && cur.rec.blob) || (r.file && pendingFiles.get(r.file));
+    if (cur) unmount(cur);
+    const rec = { ...r }; if (blob) rec.blob = blob;
+    deletedIds.delete(rec.id);
+    zTop = Math.max(zTop, rec.z || 0);
+    mount(rec, await srcFor(rec));
+    persist(rec, 'undo');
+  }
+  if (JSON.stringify(snap.wallpaper) !== JSON.stringify(wallpaper)) setWallpaper(snap.wallpaper);
+  selection.clear(); for (const id of keep) if (items.has(id)) selection.add(id);
+  selectedId = selection.has(selectedId) ? selectedId : ([...selection].pop() || null);
+  syncSelClasses(); syncSel(); updateStatus();
+}
+async function undo(){ if (!undoStack.length || !canEdit()) return; if (cropping) exitCrop(false); redoStack.push(takeSnap()); await applySnap(undoStack.pop()); }
+async function redo(){ if (!redoStack.length || !canEdit()) return; if (cropping) exitCrop(false); undoStack.push(takeSnap()); await applySnap(redoStack.pop()); }
+
+// ── Copy, paste, duplicate ─────────────────────────────────────────
+// Copies reuse the same file in the repository, so nothing is uploaded twice.
+const CLIP_MARK = 'inspiration-board:pieces';
+let clipboard = [], clipMarkOk = null;
+function copySelection(){
+  const recs = selectedItems().map(i => stripRec(i.rec));
+  if (!recs.length) return false;
+  clipboard = recs;
+  // a marker in the system clipboard lets ⌘V tell our pieces from something copied elsewhere since
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(CLIP_MARK).then(() => clipMarkOk = true, () => clipMarkOk = false);
+  else clipMarkOk = false;
+  return true;
+}
+async function pastePieces(recs){
+  if (!recs.length || !canEdit()) return;
+  pushUndo();
+  const copies = recs.map(r => ({ ...JSON.parse(JSON.stringify(r)), id: uid(), created: Date.now(), z: ++zTop, x: r.x + 28, y: r.y + 28 }));
+  for (const rec of copies) {
+    if (rec.file && pendingFiles.has(rec.file)) rec.blob = pendingFiles.get(rec.file);
+    mount(rec, await srcFor(rec), { entering: true });
+    persist(rec, `copy ${labelOf(rec)}`);
+  }
+  selection.clear(); copies.forEach(c => selection.add(c.id)); selectedId = copies[copies.length - 1].id;
+  syncSelClasses(); syncSel(); updateStatus();
+  return copies;
+}
+async function pasteClipboard(){ const made = await pastePieces(clipboard); if (made) clipboard = made.map(stripRec); }   // a second paste lands further along
+const duplicateSelection = () => pastePieces(selectedItems().map(i => stripRec(i.rec)));
+function removeSelected(){
+  const recs = selectedItems().map(i => i.rec); if (!recs.length) return;
+  pushUndo();
+  for (const rec of recs) { const it = items.get(rec.id); if (it) { unmount(it); unpersist(rec); } }
+  offerUndo(recs); updateStatus();
+}
+let editSnap = null;   // the board as it was when a text field took focus
 function bringToFront(it){
   if (it.rec.z === zTop) return;
   it.rec.z = ++zTop; it.el.style.zIndex = zTop; persist(it.rec);
@@ -1439,6 +1531,7 @@ function addText(kind, at, data = {}){
   return it;
 }
 function commit(entries, at){
+  pushUndo();
   const p = at || viewCentre();
   scatter(entries.map(e => e.rec), p.x, p.y);
   entries.forEach(({ rec, src, msg }, k) => { mount(rec, src, { entering: true, delay: Math.min(k * 45, 500) }); persist(rec, msg); });
@@ -1483,6 +1576,7 @@ window.addEventListener('drop', e => {
 });
 document.addEventListener('paste', e => {
   if (e.target.isContentEditable || e.target.tagName === 'INPUT') return;   // pasting inside a card or the token field edits that
+  if (e.clipboardData && e.clipboardData.getData('text/plain') === CLIP_MARK && clipboard.length) { e.preventDefault(); pasteClipboard(); return; }
   const sel = selectedId && items.get(selectedId);
   if (e.clipboardData && takeTransfer(e.clipboardData, null, sel)) e.preventDefault();
 });
@@ -1523,7 +1617,7 @@ function enterCrop(it){
   if (cropping) exitCrop(true);
   const rec = it.rec, c = cropOf(rec), nat = naturalOf(rec), f = frameOf(rec);
   const S = rec.w / c.w;
-  cropping = { it, S, nat, mx0: f.l - c.x * S, my0: f.t - c.y * (S / nat),
+  cropping = { it, S, nat, snap: takeSnap(), mx0: f.l - c.x * S, my0: f.t - c.y * (S / nat),
     prev: { crop: rec.crop && { ...rec.crop }, w: rec.w, aspect: rec.aspect, x: rec.x, y: rec.y, rot: rec.rot, z: rec.z } };
   rec.rot = 0; rec.z = 2147482000;
   it.el.classList.add('cropping');
@@ -1549,7 +1643,9 @@ function setFrame(l, t, w, h){
 }
 function exitCrop(apply){
   if (!cropping) return;
-  const { it, nat, prev } = cropping, rec = it.rec;
+  const { it, nat, prev, snap } = cropping, rec = it.rec;
+  const changed = apply && JSON.stringify(snap.items.find(r => r.id === rec.id)) !== JSON.stringify({ ...stripRec(rec), rot: prev.rot, z: prev.z, natural: nat });
+  if (changed) pushUndo(snap);
   if (!apply) { rec.crop = prev.crop; rec.w = prev.w; rec.aspect = prev.aspect; rec.x = prev.x; rec.y = prev.y; }
   else {
     const c = cropOf(rec);
@@ -1566,9 +1662,9 @@ function exitCrop(apply){
 document.querySelector('#selBox .wallChip').addEventListener('pointerdown', e => e.stopPropagation());
 document.querySelector('#selBox .wallChip').addEventListener('click', e => {
   e.stopPropagation(); const it = selectedId && items.get(selectedId); if (!it || !it.rec.file) return;
-  setWallpaper(wallpaper && wallpaper.file === it.rec.file ? null : it.rec);
+  pushUndo(); setWallpaper(wallpaper && wallpaper.file === it.rec.file ? null : it.rec);
 });
-document.getElementById('btnWall').addEventListener('click', () => setWallpaper(null));
+document.getElementById('btnWall').addEventListener('click', () => { pushUndo(); setWallpaper(null); });
 document.querySelector('#selBox .cropChip').addEventListener('pointerdown', e => e.stopPropagation());
 document.querySelector('#selBox .cropChip').addEventListener('click', e => { e.stopPropagation(); const it = selectedId && items.get(selectedId); if (it) enterCrop(it); });
 
@@ -1584,7 +1680,7 @@ viewport.addEventListener('pointerdown', e => {
     if (touches.size === 2) {
       // A second finger turns whatever was happening into a pinch; a piece being
       // dragged simply stays where it is.
-      if (gesture && gesture.kind === 'item') { gesture.it.el.classList.remove('dragging'); if (gesture.moved) persist(gesture.it.rec, `move ${labelOf(gesture.it.rec)}`); }
+      if (gesture && gesture.kind === 'item') { for (const g of gesture.group) { g.it.el.classList.remove('dragging'); if (gesture.moved) persist(g.it.rec, `move ${labelOf(g.it.rec)}`); } if (gesture.moved && gesture.snap) pushUndo(gesture.snap); }
       viewport.classList.remove('panning');
       const g = pinchGeom();
       gesture = { kind: 'pinch', d0: g.d, wx: (g.mx - view.x) / view.s, wy: (g.my - view.y) / view.s, s0: view.s };
@@ -1612,19 +1708,24 @@ viewport.addEventListener('pointerdown', e => {
   if (handle && selectedId && items.has(selectedId)) {
     const it = items.get(selectedId), c = centreOnScreen(it.rec);
     gesture = handle.classList.contains('rotate')
-      ? { kind: 'rotate', it, a0: Math.atan2(e.clientY - c.y, e.clientX - c.x), r0: it.rec.rot, moved: true }
-      : { kind: 'resize', it, d0: Math.max(1, Math.hypot(e.clientX - c.x, e.clientY - c.y)), w0: it.rec.w, moved: true };
+      ? { kind: 'rotate', it, a0: Math.atan2(e.clientY - c.y, e.clientX - c.x), r0: it.rec.rot, moved: true, snap: takeSnap() }
+      : { kind: 'resize', it, d0: Math.max(1, Math.hypot(e.clientX - c.x, e.clientY - c.y)), w0: it.rec.w, moved: true, snap: takeSnap() };
     viewport.setPointerCapture(e.pointerId);
     return;
   }
   const el = e.target.closest('.item');
   if (el) {
     const it = items.get(el.dataset.id);
+    if ((e.metaKey || e.ctrlKey || e.shiftKey) && canEdit() && !e.target.closest('[contenteditable], input, a')) {
+      toggleSelect(it.rec.id); return;   // building a selection: no drag starts
+    }
     if (canEdit()) bringToFront(it);
     // Inside a text card, editable fields, checkboxes and the open-link arrow keep
     // their native behaviour; the card is dragged by its grip, padding and edges.
     if (e.target.closest('[contenteditable], input, a')) { select(it.rec.id); return; }
-    gesture = { kind: 'item', it, sx: e.clientX, sy: e.clientY, ox: it.rec.x, oy: it.rec.y, moved: false };
+    if (!selection.has(it.rec.id)) select(it.rec.id);
+    const group = selectedItems().map(g => ({ it: g, ox: g.rec.x, oy: g.rec.y }));
+    gesture = { kind: 'item', it, group, sx: e.clientX, sy: e.clientY, moved: false, snap: canEdit() ? takeSnap() : null };
   } else {
     gesture = { kind: 'pan', sx: e.clientX, sy: e.clientY, ox: view.x, oy: view.y, moved: false };
     viewport.classList.add('panning');
@@ -1683,10 +1784,12 @@ viewport.addEventListener('pointermove', e => {
     return;
   }
   if (gesture.kind === 'item') {
-    const { it } = gesture;
-    it.el.classList.add('dragging');
-    it.rec.x = gesture.ox + dx / view.s; it.rec.y = gesture.oy + dy / view.s;
-    place(it.el, it.rec);
+    for (const g of gesture.group) {
+      g.it.el.classList.add('dragging');
+      g.it.rec.x = g.ox + dx / view.s; g.it.rec.y = g.oy + dy / view.s;
+      place(g.it.el, g.it.rec);
+    }
+    syncSel();
   } else {
     view.x = gesture.ox + dx; view.y = gesture.oy + dy; applyView();
   }
@@ -1697,14 +1800,15 @@ function endGesture(e){
   if (gesture.kind === 'crop' || gesture.kind === 'cropPan') { gesture = null; return; }   // applied on Done / click-away
   if (gesture.kind === 'pinch') { if (touches.size < 2) gesture = null; return; }   // lifting one finger ends the pinch; the next touch starts fresh
   if (gesture.kind === 'rotate' || gesture.kind === 'resize') {
-    persist(gesture.it.rec, `${gesture.kind} ${labelOf(gesture.it.rec)}`);
+    const before = gesture.snap.items.find(r => r.id === gesture.it.rec.id);
+    if (JSON.stringify(before) !== JSON.stringify(stripRec(gesture.it.rec))) { pushUndo(gesture.snap); persist(gesture.it.rec, `${gesture.kind} ${labelOf(gesture.it.rec)}`); }
     gesture = null;
     return;
   }
   if (gesture.kind === 'item') {
-    gesture.it.el.classList.remove('dragging');
-    if (gesture.moved) persist(gesture.it.rec, `move ${labelOf(gesture.it.rec)}`);
-    select(gesture.it.rec.id);
+    for (const g of gesture.group) g.it.el.classList.remove('dragging');
+    if (gesture.moved) { if (gesture.snap) pushUndo(gesture.snap); for (const g of gesture.group) persist(g.it.rec, `move ${labelOf(g.it.rec)}`); }
+    else select(gesture.it.rec.id);   // a plain click settles on just this piece
   } else {
     viewport.classList.remove('panning');
     if (!gesture.moved) { select(null); if (document.activeElement && document.activeElement.isContentEditable) document.activeElement.blur(); }
@@ -1739,19 +1843,26 @@ document.addEventListener('keydown', e => {
   const sel = selectedId && items.get(selectedId);
   if (sel && canEdit() && !e.metaKey && !e.ctrlKey) {
     if (e.key === '[' || e.key === ']') {
-      e.preventDefault();
+      e.preventDefault(); pushUndo();
       sel.rec.rot = normDeg(sel.rec.rot + (e.key === ']' ? 1 : -1) * (e.shiftKey ? 15 : 3));
       place(sel.el, sel.rec); persist(sel.rec, `rotate ${labelOf(sel.rec)}`); return;
     }
     if (e.key === '-' || e.key === '=' || e.key === '+') {
-      e.preventDefault();
+      e.preventDefault(); pushUndo();
       sel.rec.w = clampW(sel.rec.w * (e.key === '-' ? 0.9 : 1.1));
       if (isText(sel.rec)) fitHeight(sel); else place(sel.el, sel.rec);
       persist(sel.rec, `resize ${labelOf(sel.rec)}`); return;
     }
   }
-  if ((e.key === 'Backspace' || e.key === 'Delete') && selectedId && canEdit()) { e.preventDefault(); remove(selectedId); }
-  if (e.key === '0' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); fitAll(); }
+  if ((e.key === 'Backspace' || e.key === 'Delete') && selection.size && canEdit()) { e.preventDefault(); removeSelected(); }
+  const cmd = e.metaKey || e.ctrlKey, k = e.key.toLowerCase();
+  if (cmd && k === '0') { e.preventDefault(); fitAll(); }
+  if (cmd && k === 'z' && canEdit()) { e.preventDefault(); if (e.shiftKey) redo(); else undo(); }
+  if (cmd && k === 'y' && canEdit()) { e.preventDefault(); redo(); }
+  if (cmd && k === 'a' && canEdit() && items.size) { e.preventDefault(); selectAll(); }
+  if (cmd && k === 'c' && selection.size && !e.shiftKey) { if (copySelection()) e.preventDefault(); }
+  if (cmd && k === 'd' && selection.size && canEdit()) { e.preventDefault(); duplicateSelection(); }
+  if (cmd && k === 'v' && clipboard.length && clipMarkOk === false && canEdit()) { e.preventDefault(); pasteClipboard(); }   // no marker possible: ⌘V means our pieces
 });
 
 // ── Tools ──────────────────────────────────────────────────────────
@@ -1783,6 +1894,7 @@ document.getElementById('btnFit').addEventListener('click', fitAll);
 
 document.getElementById('btnShuffle').addEventListener('click', () => {
   if (!items.size || !canEdit()) return;
+  pushUndo();
   const recs = [...items.values()].map(i => i.rec).sort(() => Math.random() - 0.5);
   const c = viewCentre();
   // Everything moves this time, so the spiral is the only fixed reference.
@@ -1807,6 +1919,7 @@ document.getElementById('btnShuffle').addEventListener('click', () => {
 document.getElementById('btnClear').addEventListener('click', () => {
   if (!items.size || !canEdit()) return;
   if (!confirm(`Remove all ${items.size} items from the board? The files stay in the repository.`)) return;
+  pushUndo();
   const all = [...items.values()].map(it => it.rec);
   for (const it of [...items.values()]) { deletedIds.add(it.rec.id); unmount(it); }
   zTop = 0;
