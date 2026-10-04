@@ -34,16 +34,18 @@
   /* On phones the browser paints its own bars in the page's theme colour; these
      bands blur and tint the page edges towards that colour so the wallpaper
      melts into the bars instead of stopping at a hard line. */
-  .edge { position: fixed; left: 0; right: 0; pointer-events: none; z-index: 5; display: none; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+  .edge { position: fixed; left: 0; right: 0; pointer-events: none; z-index: 5; display: none; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  /* Solid bar colour at the very edge, dissolving into the picture over a long
+     run; the blur fades with the same mask so there is no seam anywhere. */
   #edgeTop {
-    top: 0; height: calc(env(safe-area-inset-top, 0px) + 72px);
-    background: linear-gradient(to bottom, rgba(var(--theme-rgb, 240,240,240), 0.7), rgba(var(--theme-rgb, 240,240,240), 0));
-    -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent); mask-image: linear-gradient(to bottom, #000 25%, transparent);
+    top: 0; height: calc(env(safe-area-inset-top, 0px) + 150px);
+    background: linear-gradient(to bottom, rgb(var(--theme-rgb, 240,240,240)) 0%, rgba(var(--theme-rgb, 240,240,240), 0.85) 18%, rgba(var(--theme-rgb, 240,240,240), 0.45) 50%, rgba(var(--theme-rgb, 240,240,240), 0) 100%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 30%, transparent 100%); mask-image: linear-gradient(to bottom, #000 0%, #000 30%, transparent 100%);
   }
   #edgeBottom {
-    bottom: 0; height: calc(env(safe-area-inset-bottom, 0px) + 96px);
-    background: linear-gradient(to top, rgba(var(--theme-rgb, 240,240,240), 0.7), rgba(var(--theme-rgb, 240,240,240), 0));
-    -webkit-mask-image: linear-gradient(to top, #000 25%, transparent); mask-image: linear-gradient(to top, #000 25%, transparent);
+    bottom: 0; height: calc(env(safe-area-inset-bottom, 0px) + 210px);
+    background: linear-gradient(to top, rgb(var(--theme-rgb, 240,240,240)) 0%, rgba(var(--theme-rgb, 240,240,240), 0.85) 18%, rgba(var(--theme-rgb, 240,240,240), 0.45) 50%, rgba(var(--theme-rgb, 240,240,240), 0) 100%);
+    -webkit-mask-image: linear-gradient(to top, #000 0%, #000 30%, transparent 100%); mask-image: linear-gradient(to top, #000 0%, #000 30%, transparent 100%);
   }
   @media (max-width: 600px) { body.has-wallpaper .edge { display: block; } }
   /* Text over a wallpaper sits on a soft frosted backing and flips to light
