@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791122718105,
+  "updated": 1791122808068,
   "items": [
     {
       "id": "mutug90b5m6pd",
@@ -270,6 +270,20 @@
       "x": 1971.1570503776225,
       "y": 1410.3498318686882,
       "rot": 0
+    },
+    {
+      "id": "mutw9lffjhygn",
+      "kind": "video",
+      "aspect": 1.7989473684210526,
+      "natural": 1.7989473684210526,
+      "w": 318.8830331535463,
+      "z": 96,
+      "created": 1791122794683,
+      "file": "Screen Recording 2026-10-04 at 16.06.11.mov",
+      "x": 2816.0607574392907,
+      "y": 628.6482657316174,
+      "rot": 0,
+      "link": "https://www.madhurima.me/home#work"
     }
   ]
 }
