@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791125856306,
+  "updated": 1791126169526,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video"
@@ -99,6 +99,20 @@
       "y": 187.93078243369575,
       "rot": 0,
       "link": "https://nicoletells.com/"
+    },
+    {
+      "id": "mutug90ce9jmb",
+      "kind": "video",
+      "aspect": 1.8018018018018018,
+      "natural": 1.8018018018018018,
+      "w": 368.7076422946241,
+      "z": 88,
+      "created": 1791119745948,
+      "file": "Screen Recording 2026-10-04 at 13.25.56 (1).mp4",
+      "x": 1749.6428252098174,
+      "y": 372.9357124999236,
+      "rot": 0,
+      "link": "https://alvinn.design/"
     },
     {
       "id": "mutvqacanv2d2",
@@ -434,7 +448,7 @@
       "aspect": 0.8015267175572519,
       "natural": 0.8015267175572519,
       "w": 189.02650815311742,
-      "z": 169,
+      "z": 171,
       "created": 1791124065849,
       "file": "paste-20261004-162745.png",
       "x": 2329.0337173234802,
@@ -454,20 +468,6 @@
       "y": 1308.213177636906,
       "rot": 0,
       "link": "https://www.ascii-magic.com/app"
-    },
-    {
-      "id": "mutug90ce9jmb",
-      "kind": "video",
-      "aspect": 1.8018018018018018,
-      "natural": 1.8018018018018018,
-      "w": 368.7076422946241,
-      "z": 88,
-      "created": 1791119745948,
-      "file": "Screen Recording 2026-10-04 at 13.25.56 (1).mp4",
-      "x": 1749.6428252098174,
-      "y": 372.9357124999236,
-      "rot": 0,
-      "link": "https://alvinn.design/"
     }
   ]
 }
