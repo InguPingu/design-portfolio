@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791123653023,
+  "updated": 1791123827294,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video"
@@ -317,6 +317,19 @@
       "y": 1309.537684229188,
       "rot": 0,
       "link": "https://www.ascii-magic.com/app"
+    },
+    {
+      "id": "mutwvmqbpxxjg",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 280.04055873026454,
+      "z": 111,
+      "created": 1791123822803,
+      "file": "Screen Recording 2026-10-04 at 16.23.16.mp4",
+      "x": 2938.046940753795,
+      "y": 1214.04373560957,
+      "rot": 0
     }
   ]
 }
