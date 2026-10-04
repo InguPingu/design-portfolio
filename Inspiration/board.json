@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791123511280,
+  "updated": 1791123583724,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video"
@@ -210,30 +210,16 @@
       "link": "https://alvinn.design/"
     },
     {
-      "id": "mutvzv8n8klhp",
-      "kind": "video",
-      "aspect": 1.5,
-      "natural": 1.5,
-      "w": 380.00488714827367,
-      "z": 107,
-      "created": 1791122340839,
-      "file": "ascii-animation.mp4",
-      "x": 1551.1294976076083,
-      "y": 1252.8619885734706,
-      "rot": 0,
-      "link": "https://www.ascii-magic.com/app"
-    },
-    {
       "id": "mutw6i4w2adn6",
       "kind": "video",
       "aspect": 1.5,
       "natural": 1.5,
-      "w": 400.3583113953068,
+      "w": 80,
       "z": 108,
       "created": 1791122650448,
       "file": "ascii-animation (1).mp4",
-      "x": 1971.1570503776225,
-      "y": 1410.3498318686882,
+      "x": 1656.6040610517043,
+      "y": 1309.537684229188,
       "rot": 0,
       "link": "https://www.ascii-magic.com/app"
     },
@@ -316,6 +302,20 @@
       "y": 775.7105049439073,
       "rot": 0,
       "link": "https://claude.ai/artifact/RiTbBMEqgfNwgMHMTAhf5P"
+    },
+    {
+      "id": "mutvzv8n8klhp",
+      "kind": "video",
+      "aspect": 1.5,
+      "natural": 1.5,
+      "w": 380.00488714827367,
+      "z": 107,
+      "created": 1791122340839,
+      "file": "ascii-animation.mp4",
+      "x": 1551.1294976076083,
+      "y": 1252.8619885734706,
+      "rot": 0,
+      "link": "https://www.ascii-magic.com/app"
     }
   ]
 }
