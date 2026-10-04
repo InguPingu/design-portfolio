@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791124989889,
+  "updated": 1791125011460,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video"
@@ -31,20 +31,6 @@
       "x": 820.4049531286163,
       "y": 594.1118235573118,
       "rot": 0
-    },
-    {
-      "id": "mutuuqvs3o2qs",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 561.1634081730699,
-      "z": 149,
-      "created": 1791120422296,
-      "file": "Untitled 2.mp4",
-      "x": 1346.1990863315202,
-      "y": 590.0919466668448,
-      "rot": 0,
-      "link": "https://jennwchoi.com/about"
     },
     {
       "id": "mutsea6hg9doj",
@@ -323,20 +309,6 @@
       }
     },
     {
-      "id": "mutv70jxf54g1",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 517.4679773231347,
-      "z": 148,
-      "created": 1791120994701,
-      "file": "Screen Recording 2026-10-04 at 15.35.19.mp4",
-      "x": 2111.618658035443,
-      "y": 1066.8311490270983,
-      "rot": 0,
-      "link": "https://www.calebwu.ca/"
-    },
-    {
       "id": "mutxajjiz6dpp",
       "kind": "video",
       "aspect": 1.7989473684210526,
@@ -416,6 +388,34 @@
       "y": 727.6789758199795,
       "rot": 0,
       "link": "https://www.lucascrespo.com/"
+    },
+    {
+      "id": "mutuuqvs3o2qs",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 561.1634081730699,
+      "z": 150,
+      "created": 1791120422296,
+      "file": "Untitled 2.mp4",
+      "x": 1346.1990863315202,
+      "y": 590.0919466668448,
+      "rot": 0,
+      "link": "https://jennwchoi.com/about"
+    },
+    {
+      "id": "mutv70jxf54g1",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 517.4679773231347,
+      "z": 148,
+      "created": 1791120994701,
+      "file": "Screen Recording 2026-10-04 at 15.35.19.mp4",
+      "x": 2111.618658035443,
+      "y": 1066.8311490270983,
+      "rot": 0,
+      "link": "https://www.calebwu.ca/"
     }
   ]
 }
