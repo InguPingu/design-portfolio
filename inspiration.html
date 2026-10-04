@@ -437,7 +437,7 @@ async function runCommit(){
     manifestDirty = true;
     console.warn('publish failed', e);
     tokenDead = e.status === 401 || e.status === 403;
-    setSaving(tokenDead ? 'publish failed: token rejected – paste a new one under Publishing' : 'publish failed, retrying…', true);
+    setSaving(tokenDead ? (e.status === 403 ? 'publish failed: the token can only read – set Contents to Read and write on GitHub' : 'publish failed: token rejected – paste a new one under Publishing') : 'publish failed, retrying…', true);
     if (!tokenDead) { clearTimeout(commitT); commitT = setTimeout(() => { commitT = null; runCommit(); }, 15000); }
   } finally {
     committing = false;
@@ -508,9 +508,13 @@ function nameForFile(f, kind){
 
 // ── Token ──────────────────────────────────────────────────────────
 const tokenPanel = document.getElementById('tokenPanel');
+// The repo's `permissions` describe the account, not the token, so the only
+// honest test of a fine-grained token is to write: a loose blob that nothing
+// references, which GitHub simply discards.
 async function validateToken(){
-  const repo = await api(repoPath(''));
-  if (!repo.permissions || !repo.permissions.push) throw new ApiError(403, 'repo', 'token cannot write to this repository');
+  await api(repoPath(''));
+  try { await api(repoPath('/git/blobs'), { method: 'POST', body: JSON.stringify({ content: 'inspiration board write check', encoding: 'utf-8' }) }); }
+  catch (e) { if (e.status === 403 || e.status === 404) throw new ApiError(403, 'write', 'read-only'); throw e; }
   try { who = (await api('/user')).login; } catch { who = ''; }
 }
 async function saveToken(){
@@ -529,7 +533,9 @@ async function saveToken(){
     else await becomeEditor();
   } catch (e) {
     token = prev;
-    err.textContent = e.status === 401 ? 'GitHub did not accept that token.' : e.status === 403 || e.status === 404 ? 'That token cannot write to the repository.' : 'Could not reach GitHub.';
+    err.textContent = e.status === 401 ? 'GitHub did not accept that token.'
+      : e.status === 403 || e.status === 404 ? 'This token can only read. On GitHub, set its Contents permission to Read and write.'
+      : 'Could not reach GitHub.';
   } finally { btn.disabled = false; }
 }
 function forgetToken(){
