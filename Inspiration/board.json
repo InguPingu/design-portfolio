@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791124319878,
+  "updated": 1791124381774,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video"
@@ -47,20 +47,6 @@
       "link": "https://jennwchoi.com/about"
     },
     {
-      "id": "mutv70jxf54g1",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 644.4057375021454,
-      "z": 133,
-      "created": 1791120994701,
-      "file": "Screen Recording 2026-10-04 at 15.35.19.mp4",
-      "x": 2111.618658035443,
-      "y": 1066.8311490270983,
-      "rot": 0,
-      "link": "https://www.calebwu.ca/"
-    },
-    {
       "id": "mutsea6hg9doj",
       "kind": "image",
       "aspect": 1.3333333333333333,
@@ -85,20 +71,6 @@
       "x": 742.3679254884381,
       "y": 1008.2162488653526,
       "rot": 0
-    },
-    {
-      "id": "mutug90acci7v",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 473.74024016367525,
-      "z": 130,
-      "created": 1791119745946,
-      "file": "Screen Recording 2026-10-04 at 15.04.52.mp4",
-      "x": 1197.611393858944,
-      "y": -11.410317987029174,
-      "rot": 0,
-      "link": "https://www.lucascrespo.com/"
     },
     {
       "id": "mutug90b5m6pd",
@@ -139,19 +111,6 @@
       "file": "paste-20261004-153756.png",
       "x": 2102.5943650964596,
       "y": 292.1977230894612,
-      "rot": 0
-    },
-    {
-      "id": "mutt43hmf3itn",
-      "kind": "video",
-      "aspect": 1.8,
-      "natural": 1.8,
-      "w": 483.43281128193576,
-      "z": 129,
-      "created": 1791117499306,
-      "file": "Screen Recording 2026-10-04 at 13.41.09.mov",
-      "x": 1634.6483057896469,
-      "y": 122.84695602929239,
       "rot": 0
     },
     {
@@ -237,18 +196,6 @@
       "link": "https://www.madhurima.me/home#work"
     },
     {
-      "id": "mupzx2u57ahj8",
-      "kind": "image",
-      "aspect": 1,
-      "w": 280.1008523179543,
-      "z": 134,
-      "created": 1790887064477,
-      "file": "Pingu.svg",
-      "x": 1405.1668807378687,
-      "y": 998.9854250502591,
-      "rot": 0
-    },
-    {
       "id": "mutwcv8wt9o22",
       "kind": "video",
       "aspect": 1.7989473684210526,
@@ -261,26 +208,6 @@
       "y": 1022.123084485,
       "rot": 0,
       "link": "https://www.cindyly.design/?tama"
-    },
-    {
-      "id": "mutug907fnkat",
-      "kind": "video",
-      "aspect": 1.6741594187307822,
-      "natural": 1.7660044150110374,
-      "w": 358.7435846639177,
-      "z": 132,
-      "created": 1791119745943,
-      "file": "Screen Recording 2026-10-04 at 13.45.32.mp4",
-      "x": 2228.3960502977707,
-      "y": 775.7105049439073,
-      "rot": 0,
-      "link": "https://claude.ai/artifact/RiTbBMEqgfNwgMHMTAhf5P",
-      "crop": {
-        "x": 0,
-        "y": 0,
-        "w": 0.9479927708563055,
-        "h": 1
-      }
     },
     {
       "id": "mutwvmqbpxxjg",
@@ -352,19 +279,6 @@
       "link": "https://www.ascii-magic.com/app"
     },
     {
-      "id": "mutx1a1nswlg5",
-      "kind": "image",
-      "aspect": 0.7502548419979612,
-      "natural": 0.7502548419979612,
-      "w": 216.23733759427242,
-      "z": 127,
-      "created": 1791124086300,
-      "file": "paste-20261004-162806.png",
-      "x": 2145.511335489071,
-      "y": 1465.325865430631,
-      "rot": 0
-    },
-    {
       "id": "mutx2dceiwrel",
       "kind": "image",
       "aspect": 0.749531542785759,
@@ -378,19 +292,6 @@
       "rot": 0
     },
     {
-      "id": "mutx3eowlml1v",
-      "kind": "image",
-      "aspect": 0.7568,
-      "natural": 0.7568,
-      "w": 190.90741804435868,
-      "z": 126,
-      "created": 1791124185632,
-      "file": "paste-20261004-162945.png",
-      "x": 2464.675562348696,
-      "y": 1578.7736973178403,
-      "rot": 0
-    },
-    {
       "id": "mutx487f2v8b1",
       "kind": "image",
       "aspect": 1,
@@ -401,6 +302,105 @@
       "file": "paste-20261004-163023.png",
       "x": 1820.565009499588,
       "y": 1520.7501824985404,
+      "rot": 0
+    },
+    {
+      "id": "mutv70jxf54g1",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 644.4057375021454,
+      "z": 133,
+      "created": 1791120994701,
+      "file": "Screen Recording 2026-10-04 at 15.35.19.mp4",
+      "x": 2111.618658035443,
+      "y": 1066.8311490270983,
+      "rot": 0,
+      "link": "https://www.calebwu.ca/"
+    },
+    {
+      "id": "mutug90acci7v",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 473.74024016367525,
+      "z": 130,
+      "created": 1791119745946,
+      "file": "Screen Recording 2026-10-04 at 15.04.52.mp4",
+      "x": 1197.611393858944,
+      "y": -11.410317987029174,
+      "rot": 0,
+      "link": "https://www.lucascrespo.com/"
+    },
+    {
+      "id": "mutt43hmf3itn",
+      "kind": "video",
+      "aspect": 1.8,
+      "natural": 1.8,
+      "w": 483.43281128193576,
+      "z": 129,
+      "created": 1791117499306,
+      "file": "Screen Recording 2026-10-04 at 13.41.09.mov",
+      "x": 1634.6483057896469,
+      "y": 122.84695602929239,
+      "rot": 0
+    },
+    {
+      "id": "mupzx2u57ahj8",
+      "kind": "image",
+      "aspect": 1,
+      "w": 280.1008523179543,
+      "z": 134,
+      "created": 1790887064477,
+      "file": "Pingu.svg",
+      "x": 1405.1668807378687,
+      "y": 998.9854250502591,
+      "rot": 0
+    },
+    {
+      "id": "mutug907fnkat",
+      "kind": "video",
+      "aspect": 1.6741594187307822,
+      "natural": 1.7660044150110374,
+      "w": 358.7435846639177,
+      "z": 132,
+      "created": 1791119745943,
+      "file": "Screen Recording 2026-10-04 at 13.45.32.mp4",
+      "x": 2228.3960502977707,
+      "y": 775.7105049439073,
+      "rot": 0,
+      "link": "https://claude.ai/artifact/RiTbBMEqgfNwgMHMTAhf5P",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "w": 0.9479927708563055,
+        "h": 1
+      }
+    },
+    {
+      "id": "mutx1a1nswlg5",
+      "kind": "image",
+      "aspect": 0.7502548419979612,
+      "natural": 0.7502548419979612,
+      "w": 216.23733759427242,
+      "z": 127,
+      "created": 1791124086300,
+      "file": "paste-20261004-162806.png",
+      "x": 2145.511335489071,
+      "y": 1465.325865430631,
+      "rot": 0
+    },
+    {
+      "id": "mutx3eowlml1v",
+      "kind": "image",
+      "aspect": 0.7568,
+      "natural": 0.7568,
+      "w": 190.90741804435868,
+      "z": 126,
+      "created": 1791124185632,
+      "file": "paste-20261004-162945.png",
+      "x": 2464.675562348696,
+      "y": 1578.7736973178403,
       "rot": 0
     }
   ]
