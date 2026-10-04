@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791125611664,
+  "updated": 1791125636086,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video"
@@ -100,19 +100,6 @@
       "rot": 0
     },
     {
-      "id": "mutvgum8nqvch",
-      "kind": "image",
-      "aspect": 0.8,
-      "natural": 0.8,
-      "w": 274.1786502356232,
-      "z": 168,
-      "created": 1791121453568,
-      "file": "paste-20261004-154413.png",
-      "x": 1151.188980545507,
-      "y": 1295.1207475626343,
-      "rot": 0
-    },
-    {
       "id": "mutvmw1bv7sr2",
       "kind": "video",
       "aspect": 1.7989473684210526,
@@ -172,27 +159,13 @@
       "kind": "image",
       "aspect": 0.8015267175572519,
       "natural": 0.8015267175572519,
-      "w": 279.5287211631967,
-      "z": 113,
+      "w": 189.02650815311742,
+      "z": 169,
       "created": 1791124065849,
       "file": "paste-20261004-162745.png",
       "x": 2329.0337173234802,
       "y": 98.89416177910834,
       "rot": 0
-    },
-    {
-      "id": "mutw6i4w2adn6",
-      "kind": "video",
-      "aspect": 1.5,
-      "natural": 1.5,
-      "w": 80,
-      "z": 166,
-      "created": 1791122650448,
-      "file": "ascii-animation (1).mp4",
-      "x": 1737.4416388681504,
-      "y": 1287.1489523654445,
-      "rot": 0,
-      "link": "https://www.ascii-magic.com/app"
     },
     {
       "id": "mutx3eowlml1v",
@@ -296,31 +269,6 @@
       "link": "https://www.cindyly.design/?tama"
     },
     {
-      "id": "mutx2dceiwrel",
-      "kind": "image",
-      "aspect": 0.749531542785759,
-      "natural": 0.749531542785759,
-      "w": 178.2538844138528,
-      "z": 167,
-      "created": 1791124137230,
-      "file": "paste-20261004-162857.png",
-      "x": 1540.8190992056434,
-      "y": 1417.5351156053175,
-      "rot": 0
-    },
-    {
-      "id": "mupzx2u57ahj8",
-      "kind": "image",
-      "aspect": 1,
-      "w": 225.44150572777102,
-      "z": 161,
-      "created": 1790887064477,
-      "file": "Pingu.svg",
-      "x": 1405.1668807378687,
-      "y": 998.9854250502591,
-      "rot": 0
-    },
-    {
       "id": "mutv70jxf54g1",
       "kind": "video",
       "aspect": 1.797752808988764,
@@ -333,20 +281,6 @@
       "y": 1066.8311490270983,
       "rot": 0,
       "link": "https://www.calebwu.ca/"
-    },
-    {
-      "id": "mutuuqvs3o2qs",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 561.1634081730699,
-      "z": 163,
-      "created": 1791120422296,
-      "file": "Untitled 2.mp4",
-      "x": 1377.2330426772583,
-      "y": 610.5229421049229,
-      "rot": 0,
-      "link": "https://jennwchoi.com/about"
     },
     {
       "id": "mutvjszt0pq3f",
@@ -441,6 +375,72 @@
       "x": 3168.3269041619496,
       "y": 1516.7568621364053,
       "rot": 0
+    },
+    {
+      "id": "mutvgum8nqvch",
+      "kind": "image",
+      "aspect": 0.8,
+      "natural": 0.8,
+      "w": 274.1786502356232,
+      "z": 168,
+      "created": 1791121453568,
+      "file": "paste-20261004-154413.png",
+      "x": 1151.188980545507,
+      "y": 1295.1207475626343,
+      "rot": 0
+    },
+    {
+      "id": "mutw6i4w2adn6",
+      "kind": "video",
+      "aspect": 1.5,
+      "natural": 1.5,
+      "w": 80,
+      "z": 166,
+      "created": 1791122650448,
+      "file": "ascii-animation (1).mp4",
+      "x": 1737.4416388681504,
+      "y": 1287.1489523654445,
+      "rot": 0,
+      "link": "https://www.ascii-magic.com/app"
+    },
+    {
+      "id": "mutx2dceiwrel",
+      "kind": "image",
+      "aspect": 0.749531542785759,
+      "natural": 0.749531542785759,
+      "w": 178.2538844138528,
+      "z": 167,
+      "created": 1791124137230,
+      "file": "paste-20261004-162857.png",
+      "x": 1540.8190992056434,
+      "y": 1417.5351156053175,
+      "rot": 0
+    },
+    {
+      "id": "mupzx2u57ahj8",
+      "kind": "image",
+      "aspect": 1,
+      "w": 225.44150572777102,
+      "z": 161,
+      "created": 1790887064477,
+      "file": "Pingu.svg",
+      "x": 1405.1668807378687,
+      "y": 998.9854250502591,
+      "rot": 0
+    },
+    {
+      "id": "mutuuqvs3o2qs",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 561.1634081730699,
+      "z": 163,
+      "created": 1791120422296,
+      "file": "Untitled 2.mp4",
+      "x": 1377.2330426772583,
+      "y": 610.5229421049229,
+      "rot": 0,
+      "link": "https://jennwchoi.com/about"
     },
     {
       "id": "mutxx97tvotgh",
