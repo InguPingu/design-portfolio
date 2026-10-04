@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Inspiration</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Homemade+Apple&display=swap" rel="stylesheet">
 <link rel="icon" type="image/svg+xml" href="Pingu.svg">
@@ -38,6 +38,7 @@
     box-shadow: 0 2px 4px rgba(26,23,20,0.06), 0 14px 36px rgba(26,23,20,0.14);
     cursor: grab;
     will-change: transform;
+    -webkit-touch-callout: none;
   }
   .item img.media, .item video { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
   .item.dragging { cursor: grabbing; box-shadow: 0 10px 18px rgba(26,23,20,0.10), 0 44px 90px rgba(26,23,20,0.22); }
@@ -268,7 +269,7 @@
   @media (max-width: 600px) {
     .tool span { display: none; }
     .tools { gap: 14px; }
-    .status { display: none; }
+    .status, .watermark { display: none; }   /* both share the toolbar's row on a phone */
   }
   @media (prefers-reduced-motion: reduce) {
     .item.entering { animation: none; }
@@ -621,7 +622,11 @@ const view = Object.assign({ x: 0, y: 0, s: 1 }, JSON.parse(localStorage.getItem
 let saveViewT;
 function applyView(){
   world.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.s})`;
-  const g = 28 * view.s;
+  // The grid follows the world, but its spacing is kept between 22 and 44 screen
+  // pixels by doubling or halving, so zooming out never turns it into noise.
+  let g = 28 * view.s;
+  while (g < 22) g *= 2;
+  while (g > 44) g /= 2;
   viewport.style.backgroundSize = `${g}px ${g}px`;
   viewport.style.backgroundPosition = `${view.x}px ${view.y}px`;
   clearTimeout(saveViewT);
@@ -1081,10 +1086,26 @@ viewport.addEventListener('dblclick', e => {
 });
 
 // ── Pointer: drag items, pan the canvas ────────────────────────────
-let gesture = null;   // { kind:'item'|'pan'|'rotate'|'resize', ... }
+let gesture = null;   // { kind:'item'|'pan'|'rotate'|'resize'|'pinch', ... }
 const clampW = w => Math.max(80, Math.min(2400, w));
 const normDeg = a => ((a % 360) + 540) % 360 - 180;
+const touches = new Map();   // active touch points, for pinch
+const pinchGeom = () => { const [a, b] = [...touches.values()]; return { d: Math.hypot(a.x - b.x, a.y - b.y), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 }; };
 viewport.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'touch') {
+    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touches.size === 2) {
+      // A second finger turns whatever was happening into a pinch; a piece being
+      // dragged simply stays where it is.
+      if (gesture && gesture.kind === 'item') { gesture.it.el.classList.remove('dragging'); if (gesture.moved) persist(gesture.it.rec, `move ${labelOf(gesture.it.rec)}`); }
+      viewport.classList.remove('panning');
+      const g = pinchGeom();
+      gesture = { kind: 'pinch', d0: g.d, wx: (g.mx - view.x) / view.s, wy: (g.my - view.y) / view.s, s0: view.s };
+      viewport.setPointerCapture(e.pointerId);
+      return;
+    }
+    if (touches.size > 2) { viewport.setPointerCapture(e.pointerId); return; }
+  }
   if (e.button !== 0) return;
   const handle = e.target.closest('.handle');
   if (handle && selectedId && items.has(selectedId)) {
@@ -1110,7 +1131,17 @@ viewport.addEventListener('pointerdown', e => {
   viewport.setPointerCapture(e.pointerId);
 });
 viewport.addEventListener('pointermove', e => {
+  if (e.pointerType === 'touch' && touches.has(e.pointerId)) touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (!gesture) return;
+  if (gesture.kind === 'pinch') {
+    if (touches.size < 2) return;
+    const g = pinchGeom();
+    const s = Math.max(0.15, Math.min(4, gesture.s0 * g.d / Math.max(1, gesture.d0)));
+    // the world point that was under the fingers stays under them
+    view.s = s; view.x = g.mx - gesture.wx * s; view.y = g.my - gesture.wy * s;
+    applyView();
+    return;
+  }
   const dx = e.clientX - gesture.sx, dy = e.clientY - gesture.sy;
   if (!gesture.moved && Math.hypot(dx, dy) < 4) return;
   gesture.moved = true;
@@ -1141,7 +1172,9 @@ viewport.addEventListener('pointermove', e => {
   }
 });
 function endGesture(e){
+  if (e && e.pointerType === 'touch') touches.delete(e.pointerId);
   if (!gesture) return;
+  if (gesture.kind === 'pinch') { if (touches.size < 2) gesture = null; return; }   // lifting one finger ends the pinch; the next touch starts fresh
   if (gesture.kind === 'rotate' || gesture.kind === 'resize') {
     persist(gesture.it.rec, `${gesture.kind} ${labelOf(gesture.it.rec)}`);
     gesture = null;
@@ -1213,7 +1246,7 @@ function fitAll(){
     minX = Math.min(minX, rec.x - rec.w / 2); maxX = Math.max(maxX, rec.x + rec.w / 2);
     minY = Math.min(minY, rec.y - h / 2);     maxY = Math.max(maxY, rec.y + h / 2);
   }
-  const pad = 90;
+  const pad = Math.min(90, Math.round(Math.min(innerWidth, innerHeight) * 0.08));
   const s = Math.min((innerWidth - pad * 2) / (maxX - minX), (innerHeight - pad * 2) / (maxY - minY), 1.5);
   view.s = Math.max(0.15, s);
   view.x = innerWidth / 2 - ((minX + maxX) / 2) * view.s;
