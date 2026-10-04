@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791123827294,
+  "updated": 1791123892785,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video"
@@ -329,7 +329,8 @@
       "file": "Screen Recording 2026-10-04 at 16.23.16.mp4",
       "x": 2938.046940753795,
       "y": 1214.04373560957,
-      "rot": 0
+      "rot": 0,
+      "link": "https://supdima.com/tt-app"
     }
   ]
 }
