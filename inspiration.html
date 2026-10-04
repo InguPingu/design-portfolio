@@ -567,7 +567,11 @@ function sampleWallpaper(){
   };
   // the browser's own bars (phone status bar, toolbar) take one colour: between the top and bottom strips
   const t = avg(0, 0, 1, 0.12), bt = avg(0, 0.86, 1, 1);
-  setThemeColor(t.map((v, i) => Math.round((v + bt[i]) / 2)));
+  const theme = t.map((v, i) => Math.round((v + bt[i]) / 2));
+  setThemeColor(theme);
+  // The first sample on the device that chose the wallpaper is stored with the
+  // board, so phones can tint their bars before the video has decoded a frame.
+  if (wallpaper && !wallpaper.theme && canEdit()) { wallpaper.theme = theme; wallTouched = true; wallVersion++; scheduleCommit('wallpaper colour'); }
   for (const el of chromeEls()) {
     const r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
     el.classList.toggle('on-dark', lum(Math.max(0, r.left / W), Math.max(0, r.top / H), Math.min(1, r.right / W), Math.min(1, r.bottom / H)) < 0.45);
@@ -576,9 +580,13 @@ function sampleWallpaper(){
 }
 function setThemeColor(rgb){
   const meta = document.getElementById('themeColor');
-  if (!rgb) { meta.content = '#f0f0f0'; document.documentElement.style.removeProperty('--theme-rgb'); return; }
-  meta.content = `rgb(${rgb.join(',')})`;
+  // Browsers that ignore a changed theme-color fall back to the page background,
+  // so that follows too; the wallpaper covers it, so nothing visible changes.
+  if (!rgb) { meta.content = '#f0f0f0'; document.documentElement.style.removeProperty('--theme-rgb'); document.documentElement.style.backgroundColor = ''; document.body.style.backgroundColor = ''; return; }
+  const css = `rgb(${rgb.join(',')})`;
+  meta.content = css;
   document.documentElement.style.setProperty('--theme-rgb', rgb.join(','));
+  document.documentElement.style.backgroundColor = css; document.body.style.backgroundColor = css;
 }
 async function applyWallpaper(){
   wallEl.replaceChildren(); wallMedia = null; clearInterval(wallSampleT); wallSampleT = null;
@@ -587,13 +595,16 @@ async function applyWallpaper(){
   for (const el of chromeEls()) el.classList.remove('on-dark');
   document.documentElement.style.removeProperty('--dot');
   if (!wallpaper) return;
+  if (wallpaper.theme) setThemeColor(wallpaper.theme);
   const owner = [...items.values()].find(i => i.rec.file === wallpaper.file);
   const src = await srcFor({ kind: wallpaper.kind, file: wallpaper.file, blob: pendingFiles.get(wallpaper.file) || (owner && owner.rec.blob) });
   let m;
   if (wallpaper.kind === 'video') {
     m = document.createElement('video');
     m.muted = true; m.loop = true; m.autoplay = true; m.playsInline = true; m.crossOrigin = 'anonymous'; m.src = src;
-    m.addEventListener('loadeddata', () => { sampleWallpaper(); clearInterval(wallSampleT); wallSampleT = setInterval(sampleWallpaper, 1500); });
+    const start = () => { sampleWallpaper(); clearInterval(wallSampleT); wallSampleT = setInterval(sampleWallpaper, 1500); };
+    for (const ev of ['loadeddata', 'canplay', 'playing']) m.addEventListener(ev, start, { once: true });
+    setTimeout(start, 2000);   // some phones decode lazily; sample anyway once a frame can be there
     m.play().catch(() => {});
   } else {
     m = new Image(); m.crossOrigin = 'anonymous'; m.src = src;
@@ -602,7 +613,7 @@ async function applyWallpaper(){
   wallMedia = m; wallEl.appendChild(m);
 }
 function setWallpaper(w, fromRemote){
-  wallpaper = w && w.file ? { file: w.file, kind: w.kind } : null;
+  wallpaper = w && w.file ? { file: w.file, kind: w.kind, ...(w.theme ? { theme: w.theme } : {}) } : null;
   applyWallpaper();
   if (!fromRemote) { wallTouched = true; wallVersion++; scheduleCommit(w ? `wallpaper ${w.file}` : 'remove wallpaper'); }
   refreshChrome(); syncSel();
