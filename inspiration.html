@@ -593,9 +593,12 @@ async function runCommit(){
     for (let attempt = 0; ; attempt++) {
       const message = 'Board: ' + (msgs.length ? msgs.slice(0, 3).join(', ') + (msgs.length > 3 ? ` (+${msgs.length - 3})` : '') : 'update');
       if (!blobs.length) {
-        // Only the board changed: one request through the contents API instead of
+        // Only the board changed: one write through the contents API instead of
         // tree + commit + ref, which keeps well inside GitHub's hourly budget.
-        const cur = await api(repoPath(`/contents/${GH.dir}/${GH.manifest}?ref=${GH.branch}`)).catch(e => { if (e.status === 404) return null; throw e; });
+        // Read by commit, not by branch name: the contents API serves a branch
+        // read from cache for a while after a commit, and a stale sha means 409.
+        const head = (await api(repoPath(`/git/ref/heads/${GH.branch}`))).object.sha;
+        const cur = await api(repoPath(`/contents/${GH.dir}/${GH.manifest}?ref=${head}`)).catch(e => { if (e.status === 404) return null; throw e; });
         await mergeRemote(cur ? JSON.parse(b64decode(cur.content)) : { version: 1, items: [] });
         carriedT = new Set(touchedIds); carriedD = new Set(deletedIds);
         try {
