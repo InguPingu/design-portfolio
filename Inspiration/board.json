@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791444619775,
+  "updated": 1791444635794,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -490,7 +490,7 @@
     {
       "id": "muz7vc79lyqv4",
       "kind": "todo",
-      "aspect": 2.62064726911138,
+      "aspect": 1.7764119072499958,
       "w": 264.68537418024937,
       "z": 202,
       "created": 1791444615813,
@@ -499,6 +499,10 @@
       "rot": 0,
       "title": "",
       "items": [
+        {
+          "text": "Make Claude compress files in portfolio",
+          "done": false
+        },
         {
           "text": "",
           "done": false
