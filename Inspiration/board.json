@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791444648280,
+  "updated": 1791444652197,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -490,7 +490,7 @@
     {
       "id": "muz7vc79lyqv4",
       "kind": "todo",
-      "aspect": 1.5569727892955845,
+      "aspect": 1.3367948190921686,
       "w": 264.68537418024937,
       "z": 202,
       "created": 1791444615813,
@@ -504,7 +504,11 @@
           "done": false
         },
         {
-          "text": "Update caser with more of a storytelling fornat",
+          "text": "Update caser with more of a storytelling format",
+          "done": false
+        },
+        {
+          "text": "M",
           "done": false
         }
       ]
