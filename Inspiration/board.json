@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791451658963,
+  "updated": 1791451664900,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -526,9 +526,10 @@
       "z": 203,
       "created": 1791451650356,
       "file": "Screen Recording 2026-10-08 at 11.26.47.mp4",
-      "x": 1067.2931049731894,
-      "y": 689.7016492571375,
-      "rot": 0
+      "x": 530.2759828955047,
+      "y": 696.1921966410719,
+      "rot": 0,
+      "link": "https://prompt-motion.com/"
     }
   ]
 }
