@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791444660849,
+  "updated": 1791444680741,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -490,7 +490,7 @@
     {
       "id": "muz7vc79lyqv4",
       "kind": "todo",
-      "aspect": 1.2031153371829517,
+      "aspect": 0.7759506083460079,
       "w": 238.21683676222443,
       "z": 202,
       "created": 1791444615813,
@@ -508,7 +508,11 @@
           "done": false
         },
         {
-          "text": "M",
+          "text": "Implement Figma MCP",
+          "done": false
+        },
+        {
+          "text": "Make a scroll-in case study (starts like overlay, scrolls into project som (https://alvinn.design/projects/kitchen-experiment)",
           "done": false
         }
       ]
