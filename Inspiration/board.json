@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791451683153,
+  "updated": 1791541061584,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -488,6 +488,20 @@
       "link": "https://www.madhurima.me/home#work"
     },
     {
+      "id": "muzc24382nf61",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 397.37435466347836,
+      "z": 203,
+      "created": 1791451650356,
+      "file": "Screen Recording 2026-10-08 at 11.26.47.mp4",
+      "x": 417.9087351087519,
+      "y": 803.4547205264629,
+      "rot": 0,
+      "link": "https://prompt-motion.com/"
+    },
+    {
       "id": "muz7vc79lyqv4",
       "kind": "todo",
       "aspect": 0.7759506083460079,
@@ -518,18 +532,17 @@
       ]
     },
     {
-      "id": "muzc24382nf61",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 397.37435466347836,
-      "z": 203,
-      "created": 1791451650356,
-      "file": "Screen Recording 2026-10-08 at 11.26.47.mp4",
-      "x": 417.9087351087519,
-      "y": 803.4547205264629,
-      "rot": 0,
-      "link": "https://prompt-motion.com/"
+      "id": "mv0taflk28qhh",
+      "kind": "image",
+      "aspect": 1.5667870036101084,
+      "natural": 1.5667870036101084,
+      "w": 335.2936785927912,
+      "z": 204,
+      "created": 1791541058168,
+      "file": "paste-20261009-121738.png",
+      "x": 385.5181589063077,
+      "y": 1254.1235704256032,
+      "rot": 0
     }
   ]
 }
