@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791541065538,
+  "updated": 1791543490204,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -542,6 +542,32 @@
       "file": "paste-20261009-121738.png",
       "x": 385.5181589063077,
       "y": 1254.1235704256032,
+      "rot": 0
+    },
+    {
+      "id": "mv0uqh6rxdtnr",
+      "kind": "link",
+      "aspect": 5.036008879253801,
+      "w": 322.3045682722433,
+      "z": 205,
+      "created": 1791543486339,
+      "url": "https://blog.prototypr.io/what-is-atomic-research-e5d9fbc1285c",
+      "title": "blog.prototypr.io",
+      "x": 250.67558380781975,
+      "y": 1433.0144546378497,
+      "rot": 0
+    },
+    {
+      "id": "mv0uqje7r4u7l",
+      "kind": "link",
+      "aspect": 5.160104178586647,
+      "w": 330.2466674295454,
+      "z": 206,
+      "created": 1791543489199,
+      "url": "https://icons.duckduckgo.com/ip3/blog.prototypr.io.ico",
+      "title": "icons.duckduckgo.com",
+      "x": 44.01585058741905,
+      "y": 1440.5070639896549,
       "rot": 0
     }
   ]
