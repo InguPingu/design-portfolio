@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791974481817,
+  "updated": 1791974894782,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -570,6 +570,19 @@
       "y": 1102.681867264693,
       "rot": 0,
       "link": "https://ednaho.com/"
+    },
+    {
+      "id": "mv7zkspq3abe9",
+      "kind": "video",
+      "aspect": 1.796875,
+      "natural": 1.796875,
+      "w": 399.1779621400591,
+      "z": 2147482003,
+      "created": 1791974882654,
+      "file": "Screen Recording 2026-10-14 at 12.47.53.mov",
+      "x": 3720.0173532691515,
+      "y": 804.3002684088254,
+      "rot": 0
     }
   ]
 }
