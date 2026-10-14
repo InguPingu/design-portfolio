@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1791974446047,
+  "updated": 1791974478647,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -556,6 +556,20 @@
       "x": 388.9257921863184,
       "y": 1420.058228125294,
       "rot": 0
+    },
+    {
+      "id": "mv7zbxyux6dox",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 558.4514438459001,
+      "z": 2147482002,
+      "created": 1791974469558,
+      "file": "Untitled.mp4",
+      "x": 3437.5936917266704,
+      "y": 1102.681867264693,
+      "rot": 0,
+      "link": "https://ednaho.com/"
     }
   ]
 }
