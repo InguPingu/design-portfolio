@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1792572879505,
+  "updated": 1792573014554,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -608,7 +608,8 @@
       "file": "Screen Recording 2026-10-21 at 10.53.19.mp4",
       "x": 3850.2896376575645,
       "y": 499.5966548367574,
-      "rot": 0
+      "rot": 0,
+      "link": "https://poojadav.framer.website/aampe"
     }
   ]
 }
