@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1792572686710,
+  "updated": 1792572879505,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -595,6 +595,19 @@
       "file": "Screen Recording 2026-10-21 at 10.42.23.mov",
       "x": 3474.220011593756,
       "y": 451.8481925404106,
+      "rot": 0
+    },
+    {
+      "id": "mvhvls29bcab5",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 344.2724002983556,
+      "z": 2147482007,
+      "created": 1792572871761,
+      "file": "Screen Recording 2026-10-21 at 10.53.19.mp4",
+      "x": 3850.2896376575645,
+      "y": 499.5966548367574,
       "rot": 0
     }
   ]
