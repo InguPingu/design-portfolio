@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1792573014554,
+  "updated": 1793018135297,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -502,19 +502,6 @@
       "rot": 0
     },
     {
-      "id": "mv0uqh6rxdtnr",
-      "kind": "link",
-      "aspect": 5.036008879253801,
-      "w": 322.3045682722433,
-      "z": 207,
-      "created": 1791543486339,
-      "url": "https://blog.prototypr.io/what-is-atomic-research-e5d9fbc1285c",
-      "title": "blog.prototypr.io",
-      "x": 388.9257921863184,
-      "y": 1420.058228125294,
-      "rot": 0
-    },
-    {
       "id": "mv7zkspq3abe9",
       "kind": "video",
       "aspect": 1.796875,
@@ -555,6 +542,33 @@
       "rot": 0
     },
     {
+      "id": "mvhvhlelv0kl8",
+      "kind": "video",
+      "aspect": 1.3548387096774193,
+      "natural": 1.3548387096774193,
+      "w": 297.0198576114899,
+      "z": 2147482006,
+      "created": 1792572676509,
+      "file": "Screen Recording 2026-10-21 at 10.42.23.mov",
+      "x": 3474.220011593756,
+      "y": 451.8481925404106,
+      "rot": 0
+    },
+    {
+      "id": "mvhvls29bcab5",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 344.2724002983556,
+      "z": 2147482007,
+      "created": 1792572871761,
+      "file": "Screen Recording 2026-10-21 at 10.53.19.mp4",
+      "x": 3850.2896376575645,
+      "y": 499.5966548367574,
+      "rot": 0,
+      "link": "https://poojadav.framer.website/aampe"
+    },
+    {
       "id": "muz7vc79lyqv4",
       "kind": "todo",
       "aspect": 0.7759506083460079,
@@ -585,31 +599,30 @@
       ]
     },
     {
-      "id": "mvhvhlelv0kl8",
-      "kind": "video",
-      "aspect": 1.3548387096774193,
-      "natural": 1.3548387096774193,
-      "w": 297.0198576114899,
-      "z": 2147482006,
-      "created": 1792572676509,
-      "file": "Screen Recording 2026-10-21 at 10.42.23.mov",
-      "x": 3474.220011593756,
-      "y": 451.8481925404106,
+      "id": "mvp8p8hly9zo4",
+      "kind": "link",
+      "aspect": 5.0654853672032525,
+      "w": 329.25654886821144,
+      "z": 2147482008,
+      "created": 1793018131257,
+      "url": "https://aiinterface.substack.com/p/my-agent-studied-400-real-product",
+      "title": "aiinterface.substack.com",
+      "x": 4003.022785820886,
+      "y": 974.5082092237358,
       "rot": 0
     },
     {
-      "id": "mvhvls29bcab5",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 344.2724002983556,
-      "z": 2147482007,
-      "created": 1792572871761,
-      "file": "Screen Recording 2026-10-21 at 10.53.19.mp4",
-      "x": 3850.2896376575645,
-      "y": 499.5966548367574,
-      "rot": 0,
-      "link": "https://poojadav.framer.website/aampe"
+      "id": "mv0uqh6rxdtnr",
+      "kind": "link",
+      "aspect": 4.958531819572974,
+      "w": 322.3045682722433,
+      "z": 207,
+      "created": 1791543486339,
+      "url": "https://blog.prototypr.io/what-is-atomic-research-e5d9fbc1285c",
+      "title": "blog.prototypr.io",
+      "x": 388.9257921863184,
+      "y": 1420.058228125294,
+      "rot": 0
     }
   ]
 }
