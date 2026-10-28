@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1793189936383,
+  "updated": 1793189997673,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -628,13 +628,14 @@
       "kind": "video",
       "aspect": 1.797752808988764,
       "natural": 1.797752808988764,
-      "w": 541.4762046396985,
+      "w": 467.57019526571736,
       "z": 2147482014,
       "created": 1793189887879,
       "file": "Screen Recording 2026-10-28 at 13.16.03.mp4",
       "x": 3705.514028687319,
       "y": 1340.9743213133804,
-      "rot": 0
+      "rot": 0,
+      "link": "https://www.alexandregellard.studio/work/spotify"
     },
     {
       "id": "mutvqacanv2d2",
