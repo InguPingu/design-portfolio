@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1793018162511,
+  "updated": 1793189863376,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -475,6 +475,36 @@
       "link": "https://www.madhurima.me/home#work"
     },
     {
+      "id": "muz7vc79lyqv4",
+      "kind": "todo",
+      "aspect": 0.7759506083460079,
+      "w": 238.21683676222443,
+      "z": 202,
+      "created": 1791444615813,
+      "x": 3181.9042654533573,
+      "y": 363.14559373598746,
+      "rot": 0,
+      "title": "",
+      "items": [
+        {
+          "text": "Make Claude compress files in portfolio",
+          "done": false
+        },
+        {
+          "text": "Update caser with more of a storytelling format",
+          "done": false
+        },
+        {
+          "text": "Implement Figma MCP",
+          "done": false
+        },
+        {
+          "text": "Make a scroll-in case study (starts like overlay, scrolls into project som (https://alvinn.design/projects/kitchen-experiment)",
+          "done": false
+        }
+      ]
+    },
+    {
       "id": "muzc24382nf61",
       "kind": "video",
       "aspect": 1.797752808988764,
@@ -534,11 +564,11 @@
       "aspect": 0.6666666666666666,
       "natural": 0.6666666666666666,
       "w": 254.19388586204494,
-      "z": 2147482005,
+      "z": 2147482010,
       "created": 1791121893850,
       "file": "paste-20261004-155133.png",
-      "x": 2657.4948943282384,
-      "y": 904.0018991219583,
+      "x": 2573.7337192997525,
+      "y": 901.5598523164778,
       "rot": 0
     },
     {
@@ -569,39 +599,21 @@
       "link": "https://poojadav.framer.website/aampe"
     },
     {
-      "id": "muz7vc79lyqv4",
-      "kind": "todo",
-      "aspect": 0.7759506083460079,
-      "w": 238.21683676222443,
-      "z": 202,
-      "created": 1791444615813,
-      "x": 3181.9042654533573,
-      "y": 363.14559373598746,
+      "id": "mvp8pehvlwkcc",
+      "kind": "note",
+      "aspect": 2.1769712584363723,
+      "w": 241.64380968643732,
+      "z": 2147482009,
+      "created": 1793018139043,
+      "x": 3965.4436626743186,
+      "y": 1067.6085063614512,
       "rot": 0,
-      "title": "",
-      "items": [
-        {
-          "text": "Make Claude compress files in portfolio",
-          "done": false
-        },
-        {
-          "text": "Update caser with more of a storytelling format",
-          "done": false
-        },
-        {
-          "text": "Implement Figma MCP",
-          "done": false
-        },
-        {
-          "text": "Make a scroll-in case study (starts like overlay, scrolls into project som (https://alvinn.design/projects/kitchen-experiment)",
-          "done": false
-        }
-      ]
+      "text": "Video:  My Agent Studied 400+ Real Product Pages, Now It Designs Like a Pro"
     },
     {
       "id": "mv0uqh6rxdtnr",
       "kind": "link",
-      "aspect": 4.958531819572974,
+      "aspect": 5.036008879253801,
       "w": 322.3045682722433,
       "z": 207,
       "created": 1791543486339,
@@ -614,7 +626,7 @@
     {
       "id": "mvp8p8hly9zo4",
       "kind": "link",
-      "aspect": 5.0654853672032525,
+      "aspect": 5.144633576065804,
       "w": 329.25654886821144,
       "z": 2147482008,
       "created": 1793018131257,
@@ -623,18 +635,6 @@
       "x": 4003.022785820886,
       "y": 974.5082092237358,
       "rot": 0
-    },
-    {
-      "id": "mvp8pehvlwkcc",
-      "kind": "note",
-      "aspect": 2.1769712584363723,
-      "w": 241.64380968643732,
-      "z": 2147482009,
-      "created": 1793018139043,
-      "x": 3965.4436626743186,
-      "y": 1067.6085063614512,
-      "rot": 0,
-      "text": "Video:  My Agent Studied 400+ Real Product Pages, Now It Designs Like a Pro"
     }
   ]
 }
