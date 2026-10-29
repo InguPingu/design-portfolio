@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1793190000839,
+  "updated": 1793274795189,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -142,20 +142,6 @@
       "x": 819.2621250234799,
       "y": 1417.3183947480086,
       "rot": 0
-    },
-    {
-      "id": "mutuuqvs3o2qs",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 561.1634081730699,
-      "z": 2147482012,
-      "created": 1791120422296,
-      "file": "Untitled 2.mp4",
-      "x": 1377.2330426772583,
-      "y": 610.5229421049229,
-      "rot": 0,
-      "link": "https://jennwchoi.com/about"
     },
     {
       "id": "mutxx97tvotgh",
@@ -532,16 +518,16 @@
       "rot": 0
     },
     {
-      "id": "mv7zkspq3abe9",
-      "kind": "video",
-      "aspect": 1.796875,
-      "natural": 1.796875,
-      "w": 399.1779621400591,
-      "z": 2147482013,
-      "created": 1791974882654,
-      "file": "Screen Recording 2026-10-14 at 12.47.53.mov",
-      "x": 3720.0173532691515,
-      "y": 804.3002684088254,
+      "id": "mv0uqh6rxdtnr",
+      "kind": "link",
+      "aspect": 5.036008879253801,
+      "w": 322.3045682722433,
+      "z": 207,
+      "created": 1791543486339,
+      "url": "https://blog.prototypr.io/what-is-atomic-research-e5d9fbc1285c",
+      "title": "blog.prototypr.io",
+      "x": 388.9257921863184,
+      "y": 1420.058228125294,
       "rot": 0
     },
     {
@@ -586,6 +572,19 @@
       "link": "https://poojadav.framer.website/aampe"
     },
     {
+      "id": "mvp8p8hly9zo4",
+      "kind": "link",
+      "aspect": 5.144633576065804,
+      "w": 329.25654886821144,
+      "z": 2147482008,
+      "created": 1793018131257,
+      "url": "https://aiinterface.substack.com/p/my-agent-studied-400-real-product",
+      "title": "aiinterface.substack.com",
+      "x": 4003.022785820886,
+      "y": 974.5082092237358,
+      "rot": 0
+    },
+    {
       "id": "mvp8pehvlwkcc",
       "kind": "note",
       "aspect": 2.1769712584363723,
@@ -598,29 +597,43 @@
       "text": "Video:  My Agent Studied 400+ Real Product Pages, Now It Designs Like a Pro"
     },
     {
-      "id": "mv0uqh6rxdtnr",
-      "kind": "link",
-      "aspect": 5.036008879253801,
-      "w": 322.3045682722433,
-      "z": 207,
-      "created": 1791543486339,
-      "url": "https://blog.prototypr.io/what-is-atomic-research-e5d9fbc1285c",
-      "title": "blog.prototypr.io",
-      "x": 388.9257921863184,
-      "y": 1420.058228125294,
+      "id": "mutvqacanv2d2",
+      "kind": "image",
+      "aspect": 0.6666666666666666,
+      "natural": 0.6666666666666666,
+      "w": 254.19388586204494,
+      "z": 2147482010,
+      "created": 1791121893850,
+      "file": "paste-20261004-155133.png",
+      "x": 2573.7337192997525,
+      "y": 901.5598523164778,
       "rot": 0
     },
     {
-      "id": "mvp8p8hly9zo4",
-      "kind": "link",
-      "aspect": 5.144633576065804,
-      "w": 329.25654886821144,
-      "z": 2147482008,
-      "created": 1793018131257,
-      "url": "https://aiinterface.substack.com/p/my-agent-studied-400-real-product",
-      "title": "aiinterface.substack.com",
-      "x": 4003.022785820886,
-      "y": 974.5082092237358,
+      "id": "mutuuqvs3o2qs",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 561.1634081730699,
+      "z": 2147482012,
+      "created": 1791120422296,
+      "file": "Untitled 2.mp4",
+      "x": 1377.2330426772583,
+      "y": 610.5229421049229,
+      "rot": 0,
+      "link": "https://jennwchoi.com/about"
+    },
+    {
+      "id": "mv7zkspq3abe9",
+      "kind": "video",
+      "aspect": 1.796875,
+      "natural": 1.796875,
+      "w": 399.1779621400591,
+      "z": 2147482013,
+      "created": 1791974882654,
+      "file": "Screen Recording 2026-10-14 at 12.47.53.mov",
+      "x": 3720.0173532691515,
+      "y": 804.3002684088254,
       "rot": 0
     },
     {
@@ -638,16 +651,16 @@
       "link": "https://www.alexandregellard.studio/work/spotify"
     },
     {
-      "id": "mutvqacanv2d2",
-      "kind": "image",
-      "aspect": 0.6666666666666666,
-      "natural": 0.6666666666666666,
-      "w": 254.19388586204494,
-      "z": 2147482010,
-      "created": 1791121893850,
-      "file": "paste-20261004-155133.png",
-      "x": 2573.7337192997525,
-      "y": 901.5598523164778,
+      "id": "mvthibzsnbz8e",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 318.1964378840963,
+      "z": 2147482015,
+      "created": 1793274790456,
+      "file": "Screen Recording 2026-10-29 at 11.45.34.mp4",
+      "x": 3793.5888291613387,
+      "y": 288.76667211160935,
       "rot": 0
     }
   ]
