@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1793721113703,
+  "updated": 1793727974528,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -676,6 +676,19 @@
       "y": 352.2408374500827,
       "rot": 0,
       "link": "https://alvinn.design/"
+    },
+    {
+      "id": "mw0wfvzwcz30p",
+      "kind": "video",
+      "aspect": 1.7937219730941705,
+      "natural": 1.7937219730941705,
+      "w": 302.00637469926994,
+      "z": 2147482021,
+      "created": 1793723133884,
+      "file": "add to portfolio-2.mp4",
+      "x": 3928.221358442481,
+      "y": 1462.4287736226597,
+      "rot": 0
     }
   ]
 }
