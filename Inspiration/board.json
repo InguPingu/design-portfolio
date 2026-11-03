@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1793719022372,
+  "updated": 1793719107926,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -70,11 +70,11 @@
       "aspect": 1.8018018018018018,
       "natural": 1.8018018018018018,
       "w": 368.7076422946241,
-      "z": 88,
+      "z": 2147482019,
       "created": 1791119745948,
       "file": "Screen Recording 2026-10-04 at 13.25.56 (1).mp4",
-      "x": 1749.6428252098174,
-      "y": 372.9357124999236,
+      "x": 1752.31975337922,
+      "y": 352.2408374500827,
       "rot": 0,
       "link": "https://alvinn.design/"
     },
@@ -379,20 +379,6 @@
       "rot": 0
     },
     {
-      "id": "mutxajjiz6dpp",
-      "kind": "video",
-      "aspect": 1.7989473684210526,
-      "natural": 1.7989473684210526,
-      "w": 303.4088980997788,
-      "z": 2147482017,
-      "created": 1791124518510,
-      "file": "Screen Recording 2026-10-04 at 16.34.57.mov",
-      "x": 2891.2561554114855,
-      "y": 389.16119940416337,
-      "rot": 0,
-      "link": "https://jennywen.ca/"
-    },
-    {
       "id": "mutv8rzh53bzn",
       "kind": "image",
       "aspect": 0.6666666666666666,
@@ -558,20 +544,6 @@
       "rot": 0
     },
     {
-      "id": "mvhvls29bcab5",
-      "kind": "video",
-      "aspect": 1.797752808988764,
-      "natural": 1.797752808988764,
-      "w": 344.2724002983556,
-      "z": 2147482018,
-      "created": 1792572871761,
-      "file": "Screen Recording 2026-10-21 at 10.53.19.mp4",
-      "x": 3850.2896376575645,
-      "y": 499.5966548367574,
-      "rot": 0,
-      "link": "https://poojadav.framer.website/aampe"
-    },
-    {
       "id": "mvp8p8hly9zo4",
       "kind": "link",
       "aspect": 5.144633576065804,
@@ -675,6 +647,34 @@
       "x": 1597.2395723817247,
       "y": 815.852094967705,
       "rot": 0
+    },
+    {
+      "id": "mutxajjiz6dpp",
+      "kind": "video",
+      "aspect": 1.7989473684210526,
+      "natural": 1.7989473684210526,
+      "w": 303.4088980997788,
+      "z": 2147482017,
+      "created": 1791124518510,
+      "file": "Screen Recording 2026-10-04 at 16.34.57.mov",
+      "x": 2891.2561554114855,
+      "y": 389.16119940416337,
+      "rot": 0,
+      "link": "https://jennywen.ca/"
+    },
+    {
+      "id": "mvhvls29bcab5",
+      "kind": "video",
+      "aspect": 1.797752808988764,
+      "natural": 1.797752808988764,
+      "w": 344.2724002983556,
+      "z": 2147482018,
+      "created": 1792572871761,
+      "file": "Screen Recording 2026-10-21 at 10.53.19.mp4",
+      "x": 3850.2896376575645,
+      "y": 499.5966548367574,
+      "rot": 0,
+      "link": "https://poojadav.framer.website/aampe"
     }
   ]
 }
