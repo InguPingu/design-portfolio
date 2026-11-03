@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1793274795189,
+  "updated": 1793718970456,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -661,6 +661,19 @@
       "file": "Screen Recording 2026-10-29 at 11.45.34.mp4",
       "x": 3793.5888291613387,
       "y": 288.76667211160935,
+      "rot": 0
+    },
+    {
+      "id": "mw0tyf0ne9nla",
+      "kind": "video",
+      "aspect": 1.7937219730941705,
+      "natural": 1.7937219730941705,
+      "w": 351.8041001387548,
+      "z": 2147482016,
+      "created": 1793718959495,
+      "file": "add to portfolio.mp4",
+      "x": 1597.2395723817247,
+      "y": 815.852094967705,
       "rot": 0
     }
   ]
