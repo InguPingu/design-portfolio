@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1793719107926,
+  "updated": 1793721113703,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -63,20 +63,6 @@
       "y": 262.7238080582985,
       "rot": 0,
       "link": "https://www.abstract.systems/"
-    },
-    {
-      "id": "mutug90ce9jmb",
-      "kind": "video",
-      "aspect": 1.8018018018018018,
-      "natural": 1.8018018018018018,
-      "w": 368.7076422946241,
-      "z": 2147482019,
-      "created": 1791119745948,
-      "file": "Screen Recording 2026-10-04 at 13.25.56 (1).mp4",
-      "x": 1752.31975337922,
-      "y": 352.2408374500827,
-      "rot": 0,
-      "link": "https://alvinn.design/"
     },
     {
       "id": "mutx3eowlml1v",
@@ -447,36 +433,6 @@
       "link": "https://www.madhurima.me/home#work"
     },
     {
-      "id": "muz7vc79lyqv4",
-      "kind": "todo",
-      "aspect": 0.7759506083460079,
-      "w": 238.21683676222443,
-      "z": 202,
-      "created": 1791444615813,
-      "x": 3181.9042654533573,
-      "y": 363.14559373598746,
-      "rot": 0,
-      "title": "",
-      "items": [
-        {
-          "text": "Make Claude compress files in portfolio",
-          "done": false
-        },
-        {
-          "text": "Update caser with more of a storytelling format",
-          "done": false
-        },
-        {
-          "text": "Implement Figma MCP",
-          "done": false
-        },
-        {
-          "text": "Make a scroll-in case study (starts like overlay, scrolls into project som (https://alvinn.design/projects/kitchen-experiment)",
-          "done": false
-        }
-      ]
-    },
-    {
       "id": "muzc24382nf61",
       "kind": "video",
       "aspect": 1.797752808988764,
@@ -640,13 +596,14 @@
       "kind": "video",
       "aspect": 1.7937219730941705,
       "natural": 1.7937219730941705,
-      "w": 351.8041001387548,
-      "z": 2147482016,
+      "w": 571.5565947006442,
+      "z": 2147482020,
       "created": 1793718959495,
       "file": "add to portfolio.mp4",
-      "x": 1597.2395723817247,
-      "y": 815.852094967705,
-      "rot": 0
+      "x": 4404.69564156833,
+      "y": 1197.8736201970432,
+      "rot": 0,
+      "link": "https://isablyns.vercel.app/index.html"
     },
     {
       "id": "mutxajjiz6dpp",
@@ -675,6 +632,50 @@
       "y": 499.5966548367574,
       "rot": 0,
       "link": "https://poojadav.framer.website/aampe"
+    },
+    {
+      "id": "muz7vc79lyqv4",
+      "kind": "todo",
+      "aspect": 0.7759506083460079,
+      "w": 238.21683676222443,
+      "z": 202,
+      "created": 1791444615813,
+      "x": 3181.9042654533573,
+      "y": 363.14559373598746,
+      "rot": 0,
+      "title": "",
+      "items": [
+        {
+          "text": "Make Claude compress files in portfolio",
+          "done": false
+        },
+        {
+          "text": "Update caser with more of a storytelling format",
+          "done": false
+        },
+        {
+          "text": "Implement Figma MCP",
+          "done": false
+        },
+        {
+          "text": "Make a scroll-in case study (starts like overlay, scrolls into project som (https://alvinn.design/projects/kitchen-experiment)",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "mutug90ce9jmb",
+      "kind": "video",
+      "aspect": 1.8018018018018018,
+      "natural": 1.8018018018018018,
+      "w": 368.7076422946241,
+      "z": 2147482019,
+      "created": 1791119745948,
+      "file": "Screen Recording 2026-10-04 at 13.25.56 (1).mp4",
+      "x": 1752.31975337922,
+      "y": 352.2408374500827,
+      "rot": 0,
+      "link": "https://alvinn.design/"
     }
   ]
 }
