@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1793727974528,
+  "updated": 1795082382192,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -592,20 +592,6 @@
       "rot": 0
     },
     {
-      "id": "mw0tyf0ne9nla",
-      "kind": "video",
-      "aspect": 1.7937219730941705,
-      "natural": 1.7937219730941705,
-      "w": 571.5565947006442,
-      "z": 2147482020,
-      "created": 1793718959495,
-      "file": "add to portfolio.mp4",
-      "x": 4404.69564156833,
-      "y": 1197.8736201970432,
-      "rot": 0,
-      "link": "https://isablyns.vercel.app/index.html"
-    },
-    {
       "id": "mutxajjiz6dpp",
       "kind": "video",
       "aspect": 1.7989473684210526,
@@ -632,6 +618,47 @@
       "y": 499.5966548367574,
       "rot": 0,
       "link": "https://poojadav.framer.website/aampe"
+    },
+    {
+      "id": "mutug90ce9jmb",
+      "kind": "video",
+      "aspect": 1.8018018018018018,
+      "natural": 1.8018018018018018,
+      "w": 368.7076422946241,
+      "z": 2147482019,
+      "created": 1791119745948,
+      "file": "Screen Recording 2026-10-04 at 13.25.56 (1).mp4",
+      "x": 1752.31975337922,
+      "y": 352.2408374500827,
+      "rot": 0,
+      "link": "https://alvinn.design/"
+    },
+    {
+      "id": "mw0tyf0ne9nla",
+      "kind": "video",
+      "aspect": 1.7937219730941705,
+      "natural": 1.7937219730941705,
+      "w": 571.5565947006442,
+      "z": 2147482020,
+      "created": 1793718959495,
+      "file": "add to portfolio.mp4",
+      "x": 4404.69564156833,
+      "y": 1197.8736201970432,
+      "rot": 0,
+      "link": "https://isablyns.vercel.app/index.html"
+    },
+    {
+      "id": "mw0wfvzwcz30p",
+      "kind": "video",
+      "aspect": 1.7937219730941705,
+      "natural": 1.7937219730941705,
+      "w": 302.00637469926994,
+      "z": 2147482021,
+      "created": 1793723133884,
+      "file": "add to portfolio-2.mp4",
+      "x": 3928.221358442481,
+      "y": 1462.4287736226597,
+      "rot": 0
     },
     {
       "id": "muz7vc79lyqv4",
@@ -664,30 +691,16 @@
       ]
     },
     {
-      "id": "mutug90ce9jmb",
-      "kind": "video",
-      "aspect": 1.8018018018018018,
-      "natural": 1.8018018018018018,
-      "w": 368.7076422946241,
-      "z": 2147482019,
-      "created": 1791119745948,
-      "file": "Screen Recording 2026-10-04 at 13.25.56 (1).mp4",
-      "x": 1752.31975337922,
-      "y": 352.2408374500827,
-      "rot": 0,
-      "link": "https://alvinn.design/"
-    },
-    {
-      "id": "mw0wfvzwcz30p",
-      "kind": "video",
-      "aspect": 1.7937219730941705,
-      "natural": 1.7937219730941705,
-      "w": 302.00637469926994,
-      "z": 2147482021,
-      "created": 1793723133884,
-      "file": "add to portfolio-2.mp4",
-      "x": 3928.221358442481,
-      "y": 1462.4287736226597,
+      "id": "mwndp7kj1qmtp",
+      "kind": "link",
+      "aspect": 4.7751734329896935,
+      "w": 305.6110997113404,
+      "z": 2147482022,
+      "created": 1795082378131,
+      "url": "https://anti.as/design",
+      "title": "anti.as",
+      "x": 4326.58333264923,
+      "y": 671.4570109799267,
       "rot": 0
     }
   ]
