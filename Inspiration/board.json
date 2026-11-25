@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": 1795614273446,
+  "updated": 1795614278179,
   "wallpaper": {
     "file": "ascii-animation (1).mp4",
     "kind": "video",
@@ -725,9 +725,10 @@
       "z": 2147482027,
       "created": 1795614256232,
       "file": "Screen Recording 2026-11-25 at 14.37.57.mp4",
-      "x": 4236.400354331447,
-      "y": 469.3103608965936,
-      "rot": 0
+      "x": 4203.361255369733,
+      "y": 339.2117636009888,
+      "rot": 0,
+      "link": "https://varunkhandelwal.in/#work"
     }
   ]
 }
